@@ -24,10 +24,17 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        // 1. Create the user and assign it to a variable
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+
+        // 2. Assign the default 'client' role using Spatie
+        $user->assignRole('client');
+
+        // 3. Return the fully configured user
+        return $user;
     }
 }

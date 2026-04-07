@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage, Link } from '@inertiajs/react';
 import { debounce } from 'lodash';
@@ -13,7 +13,9 @@ import {
     BellRing,
     Banknote,
     Clock,
-    UserCircle
+    UserCircle,
+    Lock,
+    History
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,6 +31,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { BreadcrumbItem } from '@/types';
 import InertiaPagination from '@/components/inertia-pagination';
 import { toast } from 'sonner';
@@ -36,58 +45,63 @@ import { toast } from 'sonner';
 export default function PaymentsUnpaid({ users, filters, stats }: any) {
     const { flash } = usePage().props as any;
 
+    // NEW: State to hold the user whose history modal is currently open
+    const [historyUser, setHistoryUser] = useState<any>(null);
+
     useEffect(() => {
         if (flash?.success) toast.success(flash.success);
         if (flash?.error) toast.error(flash.error);
     }, [flash]);
 
-    // 1. Debounced Search
     const handleSearch = useRef(debounce((q: string) => {
         router.get("/admin/unpaid", { ...filters, search: q }, { preserveState: true, replace: true });
     }, 500)).current;
 
-    // 2. Status Filter Handler
     const handleStatusFilter = (status: string) => {
         router.get("/admin/unpaid", { ...filters, status }, { preserveState: true, replace: true });
     };
 
-    // 3. Action Handlers (Fixed to match your exact route definitions!)
     const handleSendReminder = (userId: number) => {
-        // Matches Route::post('unpaid/notify/{user}')
         router.post(`/admin/unpaid/notify/${userId}`, {}, { preserveScroll: true });
     };
 
-    const handleMarkPaid = (userId: number) => {
-        if (confirm("Are you sure you want to manually log a 300 MAD cash payment for this client?")) {
-            // Matches Route::post('unpaid/mark-paid/{user}')
-            router.post(`/admin/unpaid/mark-paid/${userId}`, {}, { preserveScroll: true });
+    const handleMarkPaid = (userId: number, months: number) => {
+        if (confirm(`Are you sure you want to log a ${months}-month cash payment for this client?`)) {
+            router.post(`/admin/unpaid/mark-paid/${userId}`, { months }, { preserveScroll: true });
         }
     };
 
-    // 4. Helper Methods
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD', minimumFractionDigits: 2 }).format(amount || 0);
     };
 
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-    // Replicate backend logic exactly: Active = has a 'completed' payment within the last 30 days
-    const isClientActive = (client: any) => {
-        if (!client.payments || client.payments.length === 0) return false;
+    const getClientStatus = (client: any) => {
+        if (!client.payments || client.payments.length === 0) return 'locked';
 
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const latestCompleted = client.payments.find((p: any) => p.status === 'completed');
+        if (!latestCompleted) return 'locked';
 
-        return client.payments.some((payment: any) => {
-            if (payment.status !== 'completed') return false;
-            const paymentDate = new Date(payment.created_at);
-            return paymentDate >= thirtyDaysAgo;
-        });
+        const paidDate = new Date(latestCompleted.paid_at);
+        const months = latestCompleted.installment_number || 1;
+
+        const expirationDate = new Date(paidDate);
+        expirationDate.setMonth(expirationDate.getMonth() + months);
+
+        const graceEndDate = new Date(expirationDate);
+        graceEndDate.setDate(graceEndDate.getDate() + 10);
+
+        const now = new Date();
+
+        if (now <= expirationDate) return 'active';
+        if (now <= graceEndDate) return 'grace';
+        return 'locked';
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Admin Dashboard', href: '/admin/analytics' },
-        { title: 'Financials & Delinquency', href: '/admin/unpaid' },
+        { title: 'Financials & Subscriptions', href: '/admin/unpaid' },
     ];
 
     return (
@@ -95,7 +109,6 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
             <Head title="Financials | Admin" />
 
             <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
-                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -108,15 +121,13 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                     </div>
                 </div>
 
-                {/* The 3 Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Active/Collected */}
                     <Card className="bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/20 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Monthly Collected</span>
+                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Monthly Revenue</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{formatCurrency(stats.collected_revenue)}</span>
-                                <span className="text-xs font-medium text-emerald-600/80 dark:text-emerald-400/80">{stats.paid_clients} Active Subscriptions</span>
+                                <span className="text-xs font-medium text-emerald-600/80 dark:text-emerald-400/80">{stats.active_clients} Fully Active Members</span>
                             </div>
                             <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center">
                                 <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
@@ -124,39 +135,34 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                         </CardContent>
                     </Card>
 
-                    {/* Delinquent */}
-                    <Card className="bg-red-50/50 dark:bg-red-500/5 border-red-100 dark:border-red-500/20 shadow-sm rounded-2xl">
+                    <Card className="bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/20 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-bold text-red-600 dark:text-red-400">Delinquent Accounts</span>
-                                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.unpaid_clients}</span>
-                                <span className="text-xs font-medium text-red-600/80 dark:text-red-400/80">Action Required</span>
+                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">At Risk (Grace Period)</span>
+                                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.grace_clients}</span>
+                                <span className="text-xs font-medium text-amber-600/80 dark:text-amber-400/80">Expires in &lt; 10 days</span>
                             </div>
-                            <div className="h-12 w-12 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center">
-                                <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                            <div className="h-12 w-12 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
+                                <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Pending Revenue */}
-                    <Card className="bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/20 shadow-sm rounded-2xl">
+                    <Card className="bg-red-50/50 dark:bg-red-500/5 border-red-100 dark:border-red-500/20 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">Pending Revenue</span>
-                                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{formatCurrency(stats.estimated_revenue)}</span>
-                                <span className="text-xs font-medium text-amber-600/80 dark:text-amber-400/80">From {stats.unpaid_clients} unpaid members</span>
+                                <span className="text-sm font-bold text-red-600 dark:text-red-400">Locked Accounts</span>
+                                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.locked_clients}</span>
+                                <span className="text-xs font-medium text-red-600/80 dark:text-red-400/80">{formatCurrency(stats.estimated_revenue)} Lost Revenue</span>
                             </div>
-                            <div className="h-12 w-12 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
-                                <TrendingDown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                            <div className="h-12 w-12 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center">
+                                <Lock className="h-6 w-6 text-red-600 dark:text-red-400" />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Main Data Card */}
                 <Card className="shadow-sm border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-950">
-
-                    {/* Toolbar */}
                     <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div className="relative w-full md:w-96">
                             <Input
@@ -169,14 +175,18 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                         </div>
                         <div className="flex w-full md:w-auto items-center gap-3">
                             <Filter className="h-4 w-4 text-slate-400 hidden md:block" />
+
+                            {/* NEW: Filter dropdown with 'Paid This Month' */}
                             <Select defaultValue={filters.status ?? "all"} onValueChange={handleStatusFilter}>
-                                <SelectTrigger className="w-full md:w-[200px] bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm">
+                                <SelectTrigger className="w-full md:w-[220px] bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm">
                                     <SelectValue placeholder="All Statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Clients</SelectItem>
-                                    <SelectItem value="unpaid">Overdue (Unpaid)</SelectItem>
-                                    <SelectItem value="paid">Active (Paid)</SelectItem>
+                                    <SelectItem value="active">Active (Paid)</SelectItem>
+                                    <SelectItem value="paid_this_month">Paid This Month</SelectItem>
+                                    <SelectItem value="grace">Grace Period (At Risk)</SelectItem>
+                                    <SelectItem value="locked">Locked (Overdue)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -203,13 +213,11 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                         </TableRow>
                                     ) : (
                                         users.data.map((user: any) => {
-                                            const active = isClientActive(user);
-                                            const latestPayment = user.payments?.[0];
+                                            const status = getClientStatus(user);
+                                            const latestPayment = user.payments?.find((p: any) => p.status === 'completed') || user.payments?.[0];
 
                                             return (
                                                 <TableRow key={user.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
-
-                                                    {/* Client Info */}
                                                     <TableCell className="pl-6 py-4">
                                                         <div className="flex items-center gap-4">
                                                             <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-sm border border-slate-200 dark:border-zinc-700">
@@ -222,15 +230,24 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                         </div>
                                                     </TableCell>
 
-                                                    {/* Subscription Status */}
                                                     <TableCell>
-                                                        <Badge variant="outline" className={`px-3 py-1 border ${active ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400'}`}>
-                                                            {active ? <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" /> : <AlertCircle className="h-3.5 w-3.5 mr-1.5" />}
-                                                            {active ? 'Active' : 'Overdue'}
-                                                        </Badge>
+                                                        {status === 'active' && (
+                                                            <Badge variant="outline" className="px-3 py-1 border bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400">
+                                                                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" /> Active
+                                                            </Badge>
+                                                        )}
+                                                        {status === 'grace' && (
+                                                            <Badge variant="outline" className="px-3 py-1 border bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400">
+                                                                <AlertCircle className="h-3.5 w-3.5 mr-1.5" /> Grace Period
+                                                            </Badge>
+                                                        )}
+                                                        {status === 'locked' && (
+                                                            <Badge variant="outline" className="px-3 py-1 border bg-red-50 border-red-200 text-red-700 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400">
+                                                                <Lock className="h-3.5 w-3.5 mr-1.5" /> Locked
+                                                            </Badge>
+                                                        )}
                                                     </TableCell>
 
-                                                    {/* Last Payment Activity */}
                                                     <TableCell>
                                                         {latestPayment ? (
                                                             <div className="flex flex-col gap-1">
@@ -241,12 +258,17 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                                     <Badge variant="secondary" className="text-[10px] uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-300">
                                                                         {latestPayment.method}
                                                                     </Badge>
+                                                                    {latestPayment.status === 'completed' && (
+                                                                        <span className="text-[10px] font-bold text-indigo-500">
+                                                                            ({latestPayment.installment_number} M)
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                                                                     <Clock className="h-3 w-3" />
-                                                                    {new Date(latestPayment.created_at).toLocaleDateString()}
+                                                                    {new Date(latestPayment.paid_at || latestPayment.created_at).toLocaleDateString()}
                                                                     <span className="mx-1">•</span>
-                                                                    <span className={latestPayment.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 font-medium' : latestPayment.status === 'failed' ? 'text-red-600 dark:text-red-400 font-medium' : 'text-amber-600 dark:text-amber-400 font-medium'}>
+                                                                    <span className={latestPayment.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-red-600 dark:text-red-400 font-medium'}>
                                                                         {latestPayment.status}
                                                                     </span>
                                                                 </div>
@@ -256,7 +278,6 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                         )}
                                                     </TableCell>
 
-                                                    {/* Actions */}
                                                     <TableCell className="text-right pr-6">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
@@ -264,8 +285,8 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                                     <MoreHorizontal className="h-4 w-4 text-slate-500" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="w-56 rounded-xl border-slate-200 dark:border-zinc-800 shadow-xl">
-                                                                <DropdownMenuLabel className="text-xs uppercase text-slate-400 tracking-wider">Payment Actions</DropdownMenuLabel>
+                                                            <DropdownMenuContent align="end" className="w-64 rounded-xl border-slate-200 dark:border-zinc-800 shadow-xl">
+                                                                <DropdownMenuLabel className="text-xs uppercase text-slate-400 tracking-wider">Client Actions</DropdownMenuLabel>
 
                                                                 <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                                                                     <Link href={`/admin/users/${user.id}/edit`} className="w-full flex items-center">
@@ -273,18 +294,28 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                                     </Link>
                                                                 </DropdownMenuItem>
 
+                                                                {/* NEW: Payment History Modal Trigger */}
+                                                                <DropdownMenuItem onClick={() => setHistoryUser(user)} className="cursor-pointer py-2.5">
+                                                                    <History className="mr-2 h-4 w-4 text-blue-500" /> View Payment History
+                                                                </DropdownMenuItem>
+
                                                                 <DropdownMenuItem onClick={() => handleSendReminder(user.id)} className="cursor-pointer py-2.5">
                                                                     <BellRing className="mr-2 h-4 w-4 text-amber-500" /> Send System Reminder
                                                                 </DropdownMenuItem>
 
-                                                                {!active && (
-                                                                    <>
-                                                                        <DropdownMenuSeparator className="bg-slate-100 dark:bg-zinc-800" />
-                                                                        <DropdownMenuItem onClick={() => handleMarkPaid(user.id)} className="cursor-pointer py-2.5 text-emerald-600 dark:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-500/10 focus:text-emerald-700 dark:focus:text-emerald-300">
-                                                                            <Banknote className="mr-2 h-4 w-4" /> Log Manual Cash Payment
-                                                                        </DropdownMenuItem>
-                                                                    </>
-                                                                )}
+                                                                <DropdownMenuSeparator className="bg-slate-100 dark:bg-zinc-800" />
+                                                                <DropdownMenuLabel className="text-xs uppercase text-slate-400 tracking-wider pt-2">Manual Override</DropdownMenuLabel>
+
+                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 1)} className="cursor-pointer py-2.5 text-emerald-600 dark:text-emerald-400">
+                                                                    <Banknote className="mr-2 h-4 w-4" /> Log 1-Month Cash (300 MAD)
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 3)} className="cursor-pointer py-2.5 text-indigo-600 dark:text-indigo-400">
+                                                                    <Banknote className="mr-2 h-4 w-4" /> Log 3-Month Cash (800 MAD)
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 12)} className="cursor-pointer py-2.5 text-purple-600 dark:text-purple-400">
+                                                                    <Banknote className="mr-2 h-4 w-4" /> Log 1-Year Cash (3000 MAD)
+                                                                </DropdownMenuItem>
+
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </TableCell>
@@ -299,11 +330,72 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                     </CardContent>
                 </Card>
 
-                {/* Pagination */}
                 <div className="mt-6">
                     <InertiaPagination data={users} />
                 </div>
             </div>
+
+            {/* NEW: The Payment History Modal */}
+            <Dialog open={!!historyUser} onOpenChange={(open) => !open && setHistoryUser(null)}>
+                <DialogContent className="sm:max-w-[700px] bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-extrabold text-slate-900 dark:text-white">
+                            Payment History
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-500">
+                            A complete log of all transactions for <span className="font-bold text-slate-700 dark:text-slate-300">{historyUser?.name}</span>.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="max-h-[400px] overflow-y-auto mt-4 rounded-xl border border-slate-100 dark:border-zinc-800">
+                        <Table>
+                            <TableHeader className="bg-slate-50 dark:bg-zinc-900 sticky top-0 z-10">
+                                <TableRow>
+                                    <TableHead className="font-bold">Payment Date</TableHead>
+                                    <TableHead className="font-bold">Amount</TableHead>
+                                    <TableHead className="font-bold">Duration</TableHead>
+                                    <TableHead className="font-bold">Method</TableHead>
+                                    <TableHead className="font-bold text-right">Status</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {historyUser?.payments?.length > 0 ? (
+                                    historyUser.payments.map((p: any) => (
+                                        <TableRow key={p.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/50">
+                                            <TableCell className="text-slate-600 dark:text-slate-300">
+                                                {new Date(p.paid_at || p.created_at).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </TableCell>
+                                            <TableCell className="font-extrabold text-slate-900 dark:text-white">
+                                                {formatCurrency(p.amount)}
+                                            </TableCell>
+                                            <TableCell className="text-slate-500">
+                                                {p.installment_number} Month(s)
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="secondary" className="capitalize bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-400">
+                                                    {p.method}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Badge variant="outline" className={`border-none ${p.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400'}`}>
+                                                    {p.status}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center text-slate-500 py-10 italic">
+                                            No payment history found for this client.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </AppLayout>
     );
 }

@@ -20,13 +20,14 @@ use App\Http\Controllers\Coach\ScheduleController as CoachScheduleController;
 use App\Http\Controllers\Coach\SessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Middleware\EnsureActiveSubscription;
 use Illuminate\Support\Facades\Route;
 
 // 🟢 PUBLIC ROUTES
 Route::get('/', [PublicContentController::class, 'showWelcome'])->name('home');
 
 // 🟢 AUTHENTICATED REDIRECTOR & SHARED ROUTES
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', EnsureActiveSubscription::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Shared Notifications (Bell Icon)
@@ -79,7 +80,7 @@ Route::middleware(['auth', 'role:coach'])->prefix('coach')->name('coach.')->grou
 });
 
 // 🟢 CLIENT: Progress, Goals & Stripe
-Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth', 'role:client', EnsureActiveSubscription::class])->prefix('client')->name('client.')->group(function () {
     // Dashboard & Progress
     Route::get('progress', [ProgressController::class, 'index'])->name('progress.index');
     Route::get('schedule', [ClientScheduleController::class, 'index'])->name('schedule.index'); // Client Calendar

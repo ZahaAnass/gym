@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\SystemBroadcast;
 use Illuminate\Http\Request;
@@ -13,12 +14,11 @@ class PaymentController extends Controller
 {
     public function unpaid(Request $request)
     {
-        // Base query: All clients with their coach and LATEST payment history
         $query = User::role('client')->with(['coach', 'payments' => function ($q) {
-            $q->latest();
+            // Order payments so the modal shows newest first!
+            $q->orderBy('paid_at', 'desc');
         }]);
 
-        // 1. Advanced Search Filtering
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -26,40 +26,61 @@ class PaymentController extends Controller
             });
         }
 
-        // 2. Bulletproof Financial Status Filtering
         $status = $request->input('status', 'all');
 
-        if ($status === 'paid') {
-            // Has a completed payment within the last 30 days
+        // 🔥 SQLITE COMPATIBLE QUERIES WITH NEW 'PAID THIS MONTH' FILTER
+        if ($status === 'active') {
             $query->whereHas('payments', function ($q) {
                 $q->where('status', 'completed')
-                    ->where('created_at', '>=', now()->subDays(30));
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months") >= ?', [now()]);
             });
-        } elseif ($status === 'unpaid') {
-            // Does NOT have a completed payment in the last 30 days
+        } elseif ($status === 'paid_this_month') {
+            // NEW: Shows only users who have a completed payment in the current month/year
+            $query->whereHas('payments', function ($q) {
+                $q->where('status', 'completed')
+                    ->whereMonth('paid_at', now()->month)
+                    ->whereYear('paid_at', now()->year);
+            });
+        } elseif ($status === 'grace') {
+            $query->whereHas('payments', function ($q) {
+                $q->where('status', 'completed')
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months") < ?', [now()])
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months", "+10 days") >= ?', [now()]);
+            });
+        } elseif ($status === 'locked') {
             $query->whereDoesntHave('payments', function ($q) {
                 $q->where('status', 'completed')
-                    ->where('created_at', '>=', now()->subDays(30));
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months", "+10 days") >= ?', [now()]);
             });
         }
 
-        // 3. Global Dashboard Statistics (Cached via Redis for Performance)
         $stats = Cache::remember('admin:financial_stats', 300, function () {
-            $allClientsCount = User::role('client')->count();
+            $allClients = User::role('client')->count();
 
-            $paidClientsCount = User::role('client')->whereHas('payments', function ($q) {
+            $active = User::role('client')->whereHas('payments', function ($q) {
                 $q->where('status', 'completed')
-                    ->where('created_at', '>=', now()->subDays(30));
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months") >= ?', [now()]);
             })->count();
 
-            $unpaidClientsCount = $allClientsCount - $paidClientsCount;
+            $grace = User::role('client')->whereHas('payments', function ($q) {
+                $q->where('status', 'completed')
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months") < ?', [now()])
+                    ->whereRaw('datetime(paid_at, "+" || installment_number || " months", "+10 days") >= ?', [now()]);
+            })->count();
+
+            $locked = $allClients - $active - $grace;
 
             return [
-                'total_clients' => $allClientsCount,
-                'paid_clients' => $paidClientsCount,
-                'unpaid_clients' => $unpaidClientsCount,
-                'estimated_revenue' => $unpaidClientsCount * 300, // Assuming 300 MAD/month
-                'collected_revenue' => $paidClientsCount * 300,
+                'total_clients' => $allClients,
+                'active_clients' => $active,
+                'grace_clients' => $grace,
+                'locked_clients' => $locked,
+                'estimated_revenue' => $locked * 300,
+                // Ensure we only sum revenue collected in the current month
+                'collected_revenue' => Payment::where('status', 'completed')
+                    ->whereMonth('paid_at', now()->month)
+                    ->whereYear('paid_at', now()->year)
+                    ->sum('amount'),
             ];
         });
 
@@ -70,37 +91,34 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Send an automated reminder to a delinquent user via system notifications.
-     */
     public function sendReminder(User $user)
     {
         $user->notify(new SystemBroadcast(
-            'Payment Overdue Notice',
-            'Your gym subscription is currently overdue. Please process your payment to maintain access to the facility and your AI programs.',
+            'Payment Required',
+            'Your gym subscription requires immediate attention. Please process your payment online to avoid being locked out of the facility and dashboard.',
             'payment',
             route('client.payments.index'),
-            'Pay Now'
+            'View Billing'
         ));
 
         return back()->with('success', "Automated reminder successfully queued for {$user->name}.");
     }
 
-    /**
-     * Manually mark a delinquent user as paid (e.g. if they paid cash at the desk).
-     */
-    public function markAsPaid(User $user)
+    public function markAsPaid(User $user, Request $request)
     {
+        $months = $request->input('months', 1);
+        $amount = $months === 12 ? 3000 : ($months === 3 ? 800 : 300);
+
         $user->payments()->create([
-            'amount' => 300.00,
+            'amount' => $amount,
             'method' => 'cash',
             'status' => 'completed',
-            'installment_number' => 1,
+            'installment_number' => $months,
             'paid_at' => now(),
         ]);
 
         Cache::forget('admin:financial_stats');
 
-        return back()->with('success', "Payment of 300 MAD manually logged for {$user->name}. Their account is now Active.");
+        return back()->with('success', "Payment logged successfully. Account is now Active for {$months} month(s).");
     }
 }

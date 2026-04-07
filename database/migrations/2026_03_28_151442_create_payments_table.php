@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
@@ -18,15 +15,13 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->enum('method', ['stripe', 'cash', 'check']);
             $table->integer('installment_number')->default(1);
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            // REMOVED 'pending' - Defaults to 'completed'
+            $table->enum('status', ['completed', 'failed'])->default('completed');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('payments');

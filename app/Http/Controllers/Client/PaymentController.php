@@ -17,64 +17,75 @@ class PaymentController extends Controller
     {
         $user = $request->user();
         $payments = $user->payments()->latest()->get();
-        $lastPayment = $payments->first();
+        $latestPayment = $payments->where('status', 'completed')->first();
 
-        $isActive = $lastPayment && $lastPayment->status === 'completed' && $lastPayment->created_at->diffInDays(now()) <= 30;
+        // Default to Locked for brand new users
+        $status = 'Locked';
+        $expiresAt = null;
+        $graceEndsAt = null;
+
+        if ($latestPayment) {
+            $expiresAt = Carbon::parse($latestPayment->paid_at)->addMonths($latestPayment->installment_number);
+            $graceEndsAt = $expiresAt->copy()->addDays(10);
+
+            if (now()->lessThanOrEqualTo($expiresAt)) {
+                $status = 'Active';
+            } elseif (now()->lessThanOrEqualTo($graceEndsAt)) {
+                $status = 'Grace Period';
+            }
+        }
 
         return Inertia::render('Client/Payments/Index', [
             'payments' => $payments,
             'subscription' => [
-                'status' => $isActive ? 'Active' : 'Overdue',
-                'next_billing_date' => $isActive ? $lastPayment->created_at->addDays(30)->format('M d, Y') : 'Immediate Action Required',
+                'status' => $status,
+                'expires_at' => $expiresAt ? $expiresAt->format('M d, Y') : 'Never',
+                'grace_ends_at' => $graceEndsAt ? $graceEndsAt->format('M d, Y') : null,
+                'days_left_in_grace' => $status === 'Grace Period' ? now()->diffInDays($graceEndsAt) : 0,
             ],
         ]);
     }
 
-    /**
-     * Redirect to REAL Stripe Checkout
-     */
     public function processStripe(Request $request)
     {
         $validated = $request->validate([
             'amount' => 'required|numeric',
-            'installment_number' => 'required|integer|min:1|max:3',
+            'months' => 'required|integer|in:1,3,12',
         ]);
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        // 1. Create a "Pending" payment in your database
+        // 🔥 Changed 'status' => 'pending' to 'failed' because pending was removed from DB
         $payment = $request->user()->payments()->create([
             'amount' => $validated['amount'],
             'method' => 'stripe',
-            'status' => 'pending',
-            'installment_number' => $validated['installment_number'],
+            'status' => 'failed',
+            'installment_number' => $validated['months'],
             'paid_at' => null,
         ]);
 
-        // 2. Create the Real Stripe Checkout Session
+        $planName = $validated['months'] === 12 ? 'Annual Plan' : ($validated['months'] === 3 ? 'Quarterly Plan' : 'Monthly Plan');
+
         $session = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [[
                 'price_data' => [
-                    'currency' => 'mad', // Moroccan Dirham!
+                    'currency' => 'mad',
                     'product_data' => [
-                        'name' => 'AI Gym Membership - Installment '.$validated['installment_number'],
-                        'description' => 'Premium gym access and AI workout generation.',
+                        'name' => 'AI Gym Membership - '.$planName,
+                        'description' => $validated['months'].' month(s) of premium gym access.',
                     ],
-                    'unit_amount' => $validated['amount'] * 100, // Stripe needs the amount in cents/centimes
+                    'unit_amount' => $validated['amount'] * 100,
                 ],
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            // Tell Stripe where to send the user after they pay (or cancel)
             'success_url' => route('client.payments.success').'?session_id={CHECKOUT_SESSION_ID}&payment_id='.$payment->id,
             'cancel_url' => route('client.payments.cancel').'?payment_id='.$payment->id,
         ]);
 
-        // Save the Stripe Session ID to verify it later
         $payment->update(['stripe_payment_intent_id' => $session->id]);
 
-        // 3. Tell Inertia to safely redirect out of your React app into Stripe's hosted page
         return Inertia::location($session->url);
     }
 
