@@ -1,117 +1,177 @@
+import { Head, Link } from '@inertiajs/react';
+import {
+    Activity, Calendar, Clock, TrendingDown, User as UserIcon, Bot, Sparkles, Scale, ArrowRight
+} from 'lucide-react';
 import React from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-import { Activity, Calendar, Clock, TrendingDown, User as UserIcon, Bot, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem } from '@/types';
 
-export default function ProgressIndex({ assessments, upcoming_sessions }: any) {
+export default function ProgressIndex({ assessments, chartData, upcoming_sessions }: any) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
-        { title: 'My Progress', href: '/client/progress' },
+        { title: 'Progress & AI Insights', href: '/client/progress' },
     ];
 
+    // Get the absolute latest assessment for the highlight cards
     const latestAssessment = assessments[0];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Progress" />
+            <Head title="Progress & AI Insights | Client" />
 
             <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+
+                {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                             Progress & AI Insights
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Track your physical development and upcoming training sessions.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Track your physical development, AI recommendations, and upcoming training sessions.
+                        </p>
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                    {/* Biometrics & AI Feedback */}
-                    <Card className="shadow-sm border-indigo-200 dark:border-indigo-900/50 rounded-2xl overflow-hidden">
-                        <CardHeader className="bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-indigo-100 dark:border-indigo-900/30">
-                            <CardTitle className="flex items-center gap-2 text-lg text-indigo-900 dark:text-indigo-100">
-                                <Bot className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                Latest Gemini AI Assessment
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6">
-                            {latestAssessment ? (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-5 bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-xl shadow-sm text-center">
-                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Current Weight</p>
-                                            <p className="text-4xl font-extrabold text-slate-900 dark:text-white">{latestAssessment.weight} <span className="text-lg text-slate-400">kg</span></p>
-                                        </div>
-                                        <div className="p-5 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl shadow-md text-center relative overflow-hidden">
-                                            <Sparkles className="absolute top-2 right-2 h-4 w-4 text-white/40" />
-                                            <p className="text-sm font-medium text-indigo-100 mb-1">AI Target Weight</p>
-                                            <p className="text-4xl font-extrabold">{latestAssessment.ideal_weight_ai || '--'} <span className="text-lg text-indigo-200">kg</span></p>
-                                        </div>
-                                    </div>
+                <div className="grid lg:grid-cols-3 gap-8">
 
-                                    {latestAssessment.advice && (
-                                        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-zinc-800">
-                                            <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                                                <TrendingDown className="h-4 w-4 text-indigo-500" /> AI Strategy Recommendation
-                                            </h4>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                                {latestAssessment.advice}
-                                            </p>
-                                        </div>
-                                    )}
-                                    <div className="text-xs text-slate-400 text-center">
-                                        Last assessment run by your coach on {new Date(latestAssessment.created_at).toLocaleDateString()}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="text-center py-12 flex flex-col items-center">
-                                    <Bot className="h-12 w-12 text-slate-300 dark:text-zinc-700 mb-3" />
-                                    <p className="text-slate-500 font-medium">No AI assessment data available yet.</p>
-                                    <p className="text-sm text-slate-400 mt-1">Ask your coach to run an assessment during your next session.</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {/* Left/Main Column: Biometrics & AI Feedback */}
+                    <div className="lg:col-span-2 space-y-8">
 
-                    {/* Upcoming Sessions / Planning */}
-                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden h-fit">
-                        <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800">
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Calendar className="h-5 w-5 text-indigo-500" />
-                                Upcoming Training Schedule
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="divide-y divide-slate-100 dark:divide-zinc-800">
-                                {upcoming_sessions.length === 0 ? (
-                                    <div className="p-8 text-center text-slate-500 text-sm">
-                                        No upcoming classes scheduled with your coach.
+                        {/* Highlight Biometrics */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl bg-white dark:bg-zinc-950 overflow-hidden">
+                                <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center">
+                                    <Scale className="h-6 w-6 text-indigo-500 mb-3" />
+                                    <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Current Weight</p>
+                                    <p className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
+                                        {latestAssessment ? latestAssessment.weight : '--'} <span className="text-xl sm:text-2xl text-slate-400">kg</span>
+                                    </p>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-md border-transparent rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white overflow-hidden relative">
+                                <div className="absolute top-0 right-0 p-4 opacity-20">
+                                    <Bot className="h-16 w-16" />
+                                </div>
+                                <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center relative z-10">
+                                    <Sparkles className="h-6 w-6 text-indigo-200 mb-3" />
+                                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-wider mb-1">AI Ideal Target</p>
+                                    <p className="text-4xl sm:text-5xl font-extrabold">
+                                        {latestAssessment ? latestAssessment.ideal_weight_ai : '--'} <span className="text-xl sm:text-2xl text-indigo-200">kg</span>
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Progression Chart */}
+                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
+                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
+                                <CardTitle className="flex items-center gap-2 text-lg">
+                                    <TrendingDown className="h-5 w-5 text-indigo-500" /> Biometric History
+                                </CardTitle>
+                                <CardDescription>Your weight progression mapped over time.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                {chartData.length < 2 ? (
+                                    <div className="py-16 text-center text-slate-500 flex flex-col items-center">
+                                        <TrendingDown className="h-12 w-12 mb-3 opacity-20" />
+                                        <p className="font-medium text-slate-700 dark:text-slate-300">Not enough data to display chart.</p>
+                                        <p className="text-sm mt-1">Your coach needs to run at least two AI assessments.</p>
                                     </div>
                                 ) : (
-                                    upcoming_sessions.map((session: any) => (
-                                        <div key={session.id} className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
-                                            <div>
-                                                <h4 className="font-bold text-slate-900 dark:text-white">{session.title}</h4>
-                                                <div className="flex items-center gap-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
-                                                    <span className="flex items-center bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md"><Clock className="h-3.5 w-3.5 mr-1.5 text-indigo-500"/> {session.duration_minutes} min</span>
-                                                    <span className="flex items-center"><UserIcon className="h-3.5 w-3.5 mr-1.5"/> Coach {session.coach?.name}</span>
+                                    <div className="h-[300px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                                                <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
+                                                <Tooltip
+                                                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                                    formatter={(value: number) => [`${value} kg`, 'Weight']}
+                                                />
+                                                {latestAssessment?.ideal_weight_ai && (
+                                                    <ReferenceLine y={latestAssessment.ideal_weight_ai} stroke="#8b5cf6" strokeDasharray="3 3" label={{ position: 'top', value: 'AI Target', fill: '#8b5cf6', fontSize: 12 }} />
+                                                )}
+                                                <Line type="monotone" dataKey="weight" stroke="#4f46e5" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 8 }} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* AI Health Advice */}
+                        {latestAssessment?.advice && (
+                            <div className="p-6 sm:p-8 rounded-3xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 relative overflow-hidden">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-xl">
+                                        <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <h4 className="text-lg font-extrabold text-purple-900 dark:text-purple-100">
+                                        Doctor Gemini's Strategy
+                                    </h4>
+                                </div>
+                                <p className="text-sm sm:text-base text-purple-800 dark:text-purple-200 leading-relaxed whitespace-pre-wrap">
+                                    {latestAssessment.advice}
+                                </p>
+                                <p className="text-xs text-purple-400 dark:text-purple-500/60 mt-4 font-medium uppercase tracking-wider">
+                                    Generated on {new Date(latestAssessment.created_at).toLocaleDateString()}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right Column: Upcoming Sessions */}
+                    <div className="space-y-6">
+                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950 sticky top-24">
+                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
+                                <CardTitle className="flex items-center gap-2 text-lg">
+                                    <Calendar className="h-5 w-5 text-indigo-500" />
+                                    Upcoming Schedule
+                                </CardTitle>
+                                <CardDescription>Your next classes.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+                                    {upcoming_sessions.length === 0 ? (
+                                        <div className="p-8 text-center text-slate-500">
+                                            <Calendar className="h-8 w-8 text-slate-300 mx-auto mb-3" />
+                                            <p className="text-sm font-medium">No upcoming classes.</p>
+                                        </div>
+                                    ) : (
+                                        upcoming_sessions.map((session: any) => (
+                                            <div key={session.id} className="p-5 hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                                                <h4 className="font-bold text-slate-900 dark:text-white mb-2">{session.title}</h4>
+
+                                                <div className="flex flex-col gap-2 text-sm text-slate-500 dark:text-slate-400">
+                                                    <span className="flex items-center gap-2">
+                                                        <Clock className="h-4 w-4 text-indigo-500" />
+                                                        {new Date(session.scheduled_at).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    <span className="flex items-center gap-2">
+                                                        <UserIcon className="h-4 w-4 text-emerald-500" />
+                                                        Coach {session.coach?.name || 'Staff'}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 border-none px-3 py-1">
-                                                    {new Date(session.scheduled_at).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                        ))
+                                    )}
+                                </div>
+                                <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30">
+                                    <Button asChild variant="outline" className="w-full bg-white dark:bg-zinc-950 rounded-xl">
+                                        <Link href="/client/schedule">
+                                            View Full Calendar <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </AppLayout>

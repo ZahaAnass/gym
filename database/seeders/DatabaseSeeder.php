@@ -2,14 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Assessment;
-use App\Models\Payment;
 use App\Models\AuditLog;
 use App\Models\Goal;
+use App\Models\Payment;
 use App\Models\Program;
 use App\Models\Session;
+use App\Models\User;
+use App\Notifications\SystemBroadcast;
 use Illuminate\Database\Seeder;
+use Illuminate\Notifications\DatabaseNotification;
+use Database\Factories\DatabaseNotificationFactory;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -83,7 +86,24 @@ class DatabaseSeeder extends Seeder
 
         // 6. Generate System Audit Logs
         AuditLog::factory(150)->create([
-            'user_id' => fn() => User::inRandomOrder()->first()->id
+            'user_id' => fn () => User::inRandomOrder()->first()->id,
         ]);
+
+        // 7. 🔥 Seed Notifications
+        // First, give the Admin a realistic welcome notification
+        $admin->notify(new SystemBroadcast(
+            'System Setup Complete',
+            'All database seeding has finished successfully. The system is ready for production.',
+            'success'
+        ));
+
+        // Generate 5 to 10 random notifications for EVERY user using our new Factory
+        $allUsers = User::all();
+        foreach ($allUsers as $user) {
+            DatabaseNotificationFactory::new()->count(rand(5, 10))->create([
+                'notifiable_id' => $user->id,
+                'notifiable_type' => User::class,
+            ]);
+        }
     }
 }

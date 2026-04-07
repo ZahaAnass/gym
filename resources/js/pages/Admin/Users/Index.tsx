@@ -166,7 +166,7 @@ export default function UsersIndex({ users, filters, coaches, stats }: any) {
                                 <SelectContent>
                                     <SelectItem value="all">All Assignments</SelectItem>
                                     <SelectItem value="unassigned">Unassigned Clients</SelectItem>
-                                    {coaches.map((coach: any) => (
+                                    {(Array.isArray(coaches) ? coaches : Object.values(coaches || {})).map((coach: any) => (
                                         <SelectItem key={coach.id} value={coach.id.toString()}>Coach: {coach.name}</SelectItem>
                                     ))}
                                 </SelectContent>

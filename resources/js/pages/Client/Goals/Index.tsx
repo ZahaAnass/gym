@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { Target, Plus, Save, Flag, CheckCircle2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Target, Plus, Save, Flag, CheckCircle2, Bot, Sparkles, Trash2, ChevronRight, Activity
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +14,9 @@ import { toast } from 'sonner';
 
 export default function GoalsIndex({ goals, stats }: any) {
     const { flash } = usePage().props as any;
+    const [generatingId, setGeneratingId] = useState<number | null>(null);
 
+    // Form for creating a new Goal
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
         target_value: '',
@@ -21,15 +25,18 @@ export default function GoalsIndex({ goals, stats }: any) {
 
     useEffect(() => {
         if (flash?.success) toast.success(flash.success);
+        if (flash?.error) toast.error(flash.error);
     }, [flash]);
 
+    // Handle creating a goal
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         post('/client/goals', { onSuccess: () => reset() });
     };
 
+    // Handle quick progress update
     const updateProgress = (id: number, current: number, target: number) => {
-        const newValue = prompt("Enter new current value:", current.toString());
+        const newValue = prompt("Enter your new current progress value:", current.toString());
         if (newValue !== null && !isNaN(Number(newValue))) {
             const numValue = Number(newValue);
             router.put(`/client/goals/${id}`, {
@@ -39,18 +46,42 @@ export default function GoalsIndex({ goals, stats }: any) {
         }
     };
 
+    // Handle Goal Deletion
+    const deleteGoal = (id: number) => {
+        if (confirm("Are you sure you want to delete this goal?")) {
+            router.delete(`/client/goals/${id}`, { preserveScroll: true });
+        }
+    };
+
+    // 🔥 THE WOW FACTOR: Call the Gemini Service
+    const generateAIAdvice = (id: number) => {
+        router.post(`/client/goals/${id}/ai-advice`, {}, {
+            preserveScroll: true,
+            onStart: () => setGeneratingId(id),
+            onFinish: () => setGeneratingId(null),
+        });
+    };
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'My Goals', href: '/client/goals' }
+    ];
+
     return (
-        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'My Goals', href: '/client/goals' }]}>
-            <Head title="My Goals" />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="My Goals & AI Advice" />
 
             <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Target className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                             Personal Objectives
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Set targets, track progress, and crush your goals.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Set targets, track your progress, and get AI-powered coaching strategies.
+                        </p>
                     </div>
                 </div>
 
@@ -59,7 +90,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
                             <span className="text-sm font-medium text-slate-500">Total Goals</span>
-                            <span className="text-3xl font-extrabold mt-1">{stats.total}</span>
+                            <span className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">{stats.total}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/10 shadow-sm rounded-2xl">
@@ -77,13 +108,18 @@ export default function GoalsIndex({ goals, stats }: any) {
                 </div>
 
                 <div className="grid md:grid-cols-12 gap-8">
-                    {/* Left: List Goals */}
-                    <div className="md:col-span-8 space-y-4">
+
+                    {/* Left Column: List Goals */}
+                    <div className="md:col-span-8 space-y-6">
                         {goals.length === 0 ? (
-                            <div className="text-center p-12 bg-slate-50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-slate-300 dark:border-zinc-700">
-                                <Flag className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                                <h3 className="font-bold text-slate-700 dark:text-slate-300">No goals set yet</h3>
-                                <p className="text-sm text-slate-500 mt-1">Create your first goal to start tracking progress.</p>
+                            <div className="text-center p-16 bg-slate-50 dark:bg-zinc-900/50 rounded-3xl border border-dashed border-slate-300 dark:border-zinc-700 flex flex-col items-center">
+                                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 rounded-full flex items-center justify-center mb-4">
+                                    <Flag className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No goals set yet</h3>
+                                <p className="text-sm text-slate-500 mt-1 max-w-sm">
+                                    Create your first fitness objective to start tracking your progress and unlock AI coaching.
+                                </p>
                             </div>
                         ) : (
                             goals.map((goal: any) => {
@@ -91,16 +127,16 @@ export default function GoalsIndex({ goals, stats }: any) {
                                 const isComplete = goal.status === 'reached';
 
                                 return (
-                                    <Card key={goal.id} className={`shadow-sm rounded-2xl transition-all ${isComplete ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/20 dark:bg-emerald-500/5' : 'border-slate-200 dark:border-zinc-800'}`}>
-                                        <CardContent className="p-6">
-                                            <div className="flex justify-between items-start mb-4">
+                                    <Card key={goal.id} className={`shadow-sm rounded-3xl overflow-hidden transition-all ${isComplete ? 'border-emerald-200 dark:border-emerald-900/50' : 'border-slate-200 dark:border-zinc-800'}`}>
+                                        <CardContent className={`p-6 ${isComplete ? 'bg-emerald-50/30 dark:bg-emerald-500/5' : 'bg-white dark:bg-zinc-950'}`}>
+                                            <div className="flex justify-between items-start mb-6">
                                                 <div>
-                                                    <h3 className="text-lg font-bold flex items-center gap-2">
+                                                    <h3 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
                                                         {goal.title}
                                                         {isComplete && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
                                                     </h3>
-                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                                        Target Date: {new Date(goal.deadline).toLocaleDateString()}
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                                                        <Activity className="h-3.5 w-3.5" /> Deadline: {new Date(goal.deadline).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                                 <Badge variant={isComplete ? 'default' : 'secondary'} className={isComplete ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-slate-300'}>
@@ -108,26 +144,61 @@ export default function GoalsIndex({ goals, stats }: any) {
                                                 </Badge>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-sm font-medium">
-                                                    <span className="text-slate-600 dark:text-slate-400">Current: {goal.current_value}</span>
-                                                    <span className="text-slate-900 dark:text-white">Goal: {goal.target_value}</span>
+                                            {/* Progress Bar */}
+                                            <div className="space-y-3 mb-6">
+                                                <div className="flex justify-between text-sm font-semibold">
+                                                    <span className="text-indigo-600 dark:text-indigo-400">Current: {goal.current_value}</span>
+                                                    <span className="text-slate-900 dark:text-white">Target: {goal.target_value}</span>
                                                 </div>
-                                                <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-3 overflow-hidden">
+                                                <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-4 overflow-hidden shadow-inner">
                                                     <div
-                                                        className={`h-full transition-all duration-500 ${isComplete ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                                                        className={`h-full transition-all duration-700 ease-out ${isComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'}`}
                                                         style={{ width: `${progressPercentage}%` }}
                                                     />
                                                 </div>
                                             </div>
 
-                                            {!isComplete && (
-                                                <div className="mt-6 flex justify-end">
-                                                    <Button variant="outline" size="sm" onClick={() => updateProgress(goal.id, goal.current_value, goal.target_value)}>
-                                                        Update Progress
-                                                    </Button>
+                                            {/* AI Strategy Advice Block */}
+                                            {goal.ai_strategy_advice && (
+                                                <div className="mt-4 p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 relative">
+                                                    <div className="absolute top-0 right-0 p-3 opacity-10">
+                                                        <Bot className="h-16 w-16" />
+                                                    </div>
+                                                    <h4 className="text-sm font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center gap-2">
+                                                        <Sparkles className="h-4 w-4 text-purple-500" /> Gemini Strategy Plan
+                                                    </h4>
+                                                    <p className="text-sm text-purple-800 dark:text-purple-200 leading-relaxed whitespace-pre-wrap relative z-10">
+                                                        {goal.ai_strategy_advice}
+                                                    </p>
                                                 </div>
                                             )}
+
+                                            <div className="mt-6 flex flex-wrap gap-3">
+                                                {!isComplete && (
+                                                    <Button variant="outline" onClick={() => updateProgress(goal.id, goal.current_value, goal.target_value)} className="bg-white dark:bg-zinc-900 rounded-xl">
+                                                        Log Progress
+                                                    </Button>
+                                                )}
+
+                                                {/* 🔥 The AI Trigger Button */}
+                                                {!isComplete && (
+                                                    <Button
+                                                        onClick={() => generateAIAdvice(goal.id)}
+                                                        disabled={generatingId === goal.id}
+                                                        className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md shadow-purple-500/20"
+                                                    >
+                                                        {generatingId === goal.id ? (
+                                                            <span className="flex items-center"><svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Analyzing...</span>
+                                                        ) : (
+                                                            <span className="flex items-center"><Bot className="mr-2 h-4 w-4" /> {goal.ai_strategy_advice ? 'Refresh Strategy' : 'Get AI Strategy'}</span>
+                                                        )}
+                                                    </Button>
+                                                )}
+
+                                                <Button variant="ghost" size="icon" onClick={() => deleteGoal(goal.id)} className="ml-auto text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 );
@@ -135,31 +206,56 @@ export default function GoalsIndex({ goals, stats }: any) {
                         )}
                     </div>
 
-                    {/* Right: Create Goal Form */}
+                    {/* Right Column: Create Goal Form */}
                     <div className="md:col-span-4">
-                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl sticky top-6">
-                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
-                                <CardTitle className="text-lg flex items-center gap-2"><Plus className="h-5 w-5 text-indigo-500"/> New Goal</CardTitle>
+                        <Card className="shadow-lg shadow-indigo-500/5 border-indigo-100 dark:border-indigo-900/30 rounded-3xl sticky top-24 overflow-hidden">
+                            <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+                            <CardHeader className="bg-white dark:bg-zinc-950 pb-2">
+                                <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
+                                    <Plus className="h-5 w-5 text-indigo-500"/> Create New Goal
+                                </CardTitle>
+                                <CardDescription>Define a measurable target.</CardDescription>
                             </CardHeader>
-                            <CardContent className="pt-6">
+                            <CardContent className="pt-4 bg-white dark:bg-zinc-950">
                                 <form onSubmit={submit} className="space-y-5">
                                     <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300">Goal Title</Label>
-                                        <Input value={data.title} onChange={e => setData('title', e.target.value)} placeholder="e.g. Deadlift 100kg" required className="h-11 rounded-xl bg-slate-50 dark:bg-zinc-900" />
+                                        <Label className="text-slate-700 dark:text-slate-300">Goal Description</Label>
+                                        <Input
+                                            value={data.title}
+                                            onChange={e => setData('title', e.target.value)}
+                                            placeholder="e.g. Lose 5kg of fat"
+                                            required
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                        />
                                         {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300">Target Value (Numeric)</Label>
-                                        <Input type="number" step="0.1" value={data.target_value} onChange={e => setData('target_value', e.target.value)} placeholder="100" required className="h-11 rounded-xl bg-slate-50 dark:bg-zinc-900" />
+                                        <Label className="text-slate-700 dark:text-slate-300">Numeric Target Value</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.1"
+                                            value={data.target_value}
+                                            onChange={e => setData('target_value', e.target.value)}
+                                            placeholder="e.g. 5"
+                                            required
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                        />
+                                        <p className="text-[11px] text-slate-400">Must be a number. We'll track your progress against this.</p>
                                         {errors.target_value && <p className="text-xs text-red-500">{errors.target_value}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-slate-700 dark:text-slate-300">Target Date</Label>
-                                        <Input type="date" value={data.deadline} onChange={e => setData('deadline', e.target.value)} required className="h-11 rounded-xl bg-slate-50 dark:bg-zinc-900" />
+                                        <Input
+                                            type="date"
+                                            value={data.deadline}
+                                            onChange={e => setData('deadline', e.target.value)}
+                                            required
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                        />
                                         {errors.deadline && <p className="text-xs text-red-500">{errors.deadline}</p>}
                                     </div>
-                                    <Button type="submit" disabled={processing} className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">
-                                        <Save className="mr-2 h-4 w-4" /> Save Goal
+                                    <Button type="submit" disabled={processing} className="w-full h-12 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:opacity-90 transition-opacity mt-2">
+                                        <Save className="mr-2 h-4 w-4" /> Save Objective
                                     </Button>
                                 </form>
                             </CardContent>

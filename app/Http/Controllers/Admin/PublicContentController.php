@@ -4,36 +4,68 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 class PublicContentController extends Controller
 {
+    /**
+     * 🟢 THE PUBLIC ROUTE ('/')
+     * Loads the landing page for guests in milliseconds using Redis.
+     */
+    public function showWelcome()
+    {
+        // Fetch the dynamic content from Redis, fallback to defaults if empty
+        $content = Cache::get('cms:public_content', $this->getDefaultContent());
+
+        return Inertia::render('Welcome', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'content' => $content, // Passes the dynamic text to React
+        ]);
+    }
+
+    /**
+     * 🟢 THE ADMIN ROUTE
+     * Renders the CMS form in the Admin Dashboard.
+     */
     public function index()
     {
-        // Placeholder for public content management (e.g., Homepage text, Gym rules)
-        // Usually, this pulls from a `settings` table or a JSON config file.
-        $content = [
-            'hero_title' => 'Welcome to AI Gym',
-            'announcement' => 'New Yoga classes starting next week!',
-            'contact_email' => 'contact@gym.com',
-        ];
+        $content = Cache::get('cms:public_content', $this->getDefaultContent());
 
         return Inertia::render('Admin/Content/Index', [
             'content' => $content,
         ]);
     }
 
+    /**
+     * 🟢 THE ADMIN STORE ROUTE
+     * Saves the updated content permanently into Redis RAM.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'hero_title' => 'required|string',
-            'announcement' => 'nullable|string',
-            'contact_email' => 'required|email',
+            'hero_title' => 'required|string|max:255',
+            'announcement' => 'nullable|string|max:255',
+            'contact_email' => 'required|email|max:255',
         ]);
 
-        // Logic to save this to your database or config file goes here.
-        // For the presentation, you can just return a success message.
+        // 🔥 ENTERPRISE UPGRADE: Store key-value settings in Redis permanently
+        Cache::forever('cms:public_content', $validated);
 
-        return back()->with('success', 'Public content updated successfully.');
+        return back()->with('success', 'Public landing page content updated live via Redis!');
+    }
+
+    /**
+     * Fallback default content if Redis is empty
+     */
+    private function getDefaultContent()
+    {
+        return [
+            'hero_title' => 'The Future of Fitness is Intelligent.',
+            'announcement' => '🎉 Welcome to our newly upgraded AI Gym facility!',
+            'contact_email' => 'contact@aigym.com',
+        ];
     }
 }

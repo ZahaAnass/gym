@@ -4,14 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the users with cached statistics.
+     */
     public function index(Request $request)
     {
         $query = User::with(['roles', 'coach']);
@@ -45,24 +50,34 @@ class UserController extends Controller
         $sortDirection = $request->input('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
 
-        return Inertia::render('Admin/Users/Index', [
-            'users' => $query->paginate(10)->withQueryString(),
-            'filters' => $request->only(['search', 'role', 'coach_id', 'sort', 'direction']),
-            'coaches' => User::role('coach')->get(['id', 'name']),
-            'stats' => [
+        // 🔥 ENTERPRISE UPGRADE: Cache the heavy COUNT() queries in Redis for 1 hour
+        $stats = Cache::remember('admin:users:stats', 3600, function () {
+            return [
                 'total' => User::count(),
                 'admins' => User::role('admin')->count(),
                 'coaches' => User::role('coach')->count(),
                 'clients' => User::role('client')->count(),
-            ]
+            ];
+        });
+
+        // 🔥 ENTERPRISE UPGRADE: Cache the dropdown list of coaches
+        $coaches = Cache::remember('admin:users:coaches_list', 3600, function () {
+            return User::role('coach')->get(['id', 'name'])->toArray(); // 👈 Add toArray()
+        });
+
+        return Inertia::render('Admin/Users/Index', [
+            'users' => $query->paginate(10)->withQueryString(),
+            'filters' => $request->only(['search', 'role', 'coach_id', 'sort', 'direction']),
+            'coaches' => $coaches,
+            'stats' => $stats,
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Admin/Users/Create', [
-            'roles' => Role::all(['name']),
-            'coaches' => User::role('coach')->get(['id', 'name'])
+            'roles' => Cache::remember('system:roles', 86400, fn () => Role::all(['name'])->toArray()), // 👈 Add toArray()
+            'coaches' => Cache::remember('admin:users:coaches_list', 3600, fn () => User::role('coach')->get(['id', 'name'])->toArray()), // 👈 Add toArray()
         ]);
     }
 
@@ -76,14 +91,19 @@ class UserController extends Controller
             'coach_id' => 'nullable|exists:users,id',
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'coach_id' => $validated['role'] === 'client' ? $validated['coach_id'] : null,
-        ]);
+        // 🔥 ENTERPRISE UPGRADE: Database Transactions prevent corrupted user creation
+        DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'coach_id' => $validated['role'] === 'client' ? $validated['coach_id'] : null,
+            ]);
 
-        $user->assignRole($validated['role']);
+            $user->assignRole($validated['role']);
+        });
+
+        $this->clearUserCaches();
 
         return redirect()->route('admin.users.index')->with('success', 'Account created successfully.');
     }
@@ -94,8 +114,8 @@ class UserController extends Controller
 
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user,
-            'roles' => Role::all(['name']),
-            'coaches' => User::role('coach')->get(['id', 'name'])
+            'roles' => Cache::remember('system:roles', 86400, fn() => Role::all(['name'])->toArray()), // 👈 Add toArray()
+            'coaches' => Cache::remember('admin:users:coaches_list', 3600, fn() => User::role('coach')->get(['id', 'name'])->toArray()) // 👈 Add toArray()
         ]);
     }
 
@@ -109,17 +129,21 @@ class UserController extends Controller
             'coach_id' => 'nullable|exists:users,id',
         ]);
 
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'coach_id' => $validated['role'] === 'client' ? $validated['coach_id'] : null,
-        ]);
+        DB::transaction(function () use ($validated, $user) {
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'coach_id' => $validated['role'] === 'client' ? $validated['coach_id'] : null,
+            ]);
 
-        if (!empty($validated['password'])) {
-            $user->update(['password' => Hash::make($validated['password'])]);
-        }
+            if (! empty($validated['password'])) {
+                $user->update(['password' => Hash::make($validated['password'])]);
+            }
 
-        $user->syncRoles([$validated['role']]);
+            $user->syncRoles([$validated['role']]);
+        });
+
+        $this->clearUserCaches();
 
         return redirect()->route('admin.users.index')->with('success', 'Account updated successfully.');
     }
@@ -131,6 +155,20 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        $this->clearUserCaches();
+
         return redirect()->route('admin.users.index')->with('success', 'User account permanently deleted.');
+    }
+
+    /**
+     * 🔥 ENTERPRISE UPGRADE: Smart Cache Invalidation
+     * Forces Redis to flush user-related caches so the UI is instantly updated.
+     */
+    private function clearUserCaches()
+    {
+        Cache::forget('admin:users:stats');
+        Cache::forget('admin:users:coaches_list');
+        Cache::forget('admin:financial_stats'); // Because deleting/adding a client affects financials
     }
 }
