@@ -9,93 +9,85 @@ use Inertia\Inertia;
 
 class ClientController extends Controller
 {
-    /**
-     * Display a listing of the coach's assigned clients.
-     */
     public function index(Request $request)
     {
-        $coach = $request->user();
-
-        $query = User::role('client')
-            ->where('coach_id', $coach->id)
-            ->with(['assessments' => function($q) {
-                $q->latest()->take(1); // Get current weight
-            }, 'goals' => function($q) {
-                $q->where('status', 'active');
-            }]);
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+        $clients = $request->user()->clients()
+            ->with(['assessments' => fn ($q) => $q->latest()])
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Coach/Clients/Index', [
-            'clients' => $query->paginate(12)->withQueryString(),
+            'clients' => $clients,
             'filters' => $request->only(['search']),
-            'stats' => [
-                'total_clients' => $coach->clients()->count(),
-            ]
         ]);
     }
 
-    /**
-     * 🔥 THE WOW FACTOR: The 360° Client Profile
-     */
     public function show(User $client, Request $request)
     {
-        $coach = $request->user();
+        abort_if($client->coach_id !== $request->user()->id, 403, 'Unauthorized access.');
 
-        // Security Check: Ensure this client belongs to this coach
-        abort_if($client->coach_id !== $coach->id, 403, 'Unauthorized access to this client.');
-
-        // 1. Eager load all necessary relations for the 360 view
+        // Load 360° data including their currently assigned programs
         $client->load([
-            'goals',
-            'assessments' => fn($q) => $q->orderBy('created_at', 'asc'), // Ascending for the chart
-            'payments' => fn($q) => $q->latest()->take(1) // Just to see if they are active
+            'assessments' => fn ($q) => $q->latest(),
+            'goals' => fn ($q) => $q->latest(),
+            'payments' => fn ($q) => $q->latest(),
+            'assignedPrograms' // 🔥 NEW
         ]);
 
-        // 2. Fetch Session History (Upcoming vs Past)
-        $upcomingSessions = $client->sessionsAsClient()
-            ->where('scheduled_at', '>=', now())
-            ->orderBy('scheduled_at', 'asc')
-            ->take(5)
-            ->get();
-
-        $pastSessions = $client->sessionsAsClient()
-            ->where('scheduled_at', '<', now())
-            ->orderBy('scheduled_at', 'desc')
-            ->take(5)
-            ->get();
-
-        // 3. Transform Assessment Data for Recharts (The beautiful chart)
-        $chartData = $client->assessments->map(function ($assessment) {
-            return [
-                'date' => $assessment->created_at->format('M d'),
-                'weight' => (float) $assessment->weight,
-                'target' => (float) $assessment->ideal_weight_ai,
-            ];
-        });
-
-        // 4. Calculate Financial Status (View Only for Coach)
-        $lastPayment = $client->payments->first();
-        $isFinancialyActive = $lastPayment && $lastPayment->status === 'completed' && $lastPayment->created_at->diffInDays(now()) <= 30;
+        // 🔥 NEW: Fetch all programs the coach has built so they can assign them
+        $programs = $request->user()->programs()->select('id', 'title')->get();
 
         return Inertia::render('Coach/Clients/Show', [
-            'client' => [
-                'id' => $client->id,
-                'name' => $client->name,
-                'email' => $client->email,
-                'joined_at' => $client->created_at->format('M d, Y'),
-                'is_active' => $isFinancialyActive,
-            ],
-            'assessments' => $client->assessments->reverse()->values(), // Latest first for the table
-            'chartData' => $chartData,
-            'goals' => $client->goals,
-            'upcomingSessions' => $upcomingSessions,
-            'pastSessions' => $pastSessions,
+            'client' => $client,
+            'programs' => $programs // Pass to React
         ]);
+    }
+
+    // Goal Creation Logic
+    public function storeGoal(Request $request, User $client)
+    {
+        abort_if($client->coach_id !== $request->user()->id, 403, 'Unauthorized access.');
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:text,numeric',
+            'target_value' => 'nullable|required_if:type,numeric|numeric',
+            'current_value' => 'nullable|required_if:type,numeric|numeric',
+            'unit' => 'nullable|required_if:type,numeric|string|max:10',
+            'direction' => 'nullable|required_if:type,numeric|in:asc,desc',
+            'deadline' => 'required|date|after:today',
+        ]);
+
+        $client->goals()->create([
+            'coach_id' => $request->user()->id,
+            'title' => $validated['title'],
+            'type' => $validated['type'],
+            'target_value' => $validated['target_value'],
+            'current_value' => $validated['current_value'] ?? 0,
+            'unit' => $validated['unit'],
+            'direction' => $validated['direction'],
+            'deadline' => $validated['deadline'],
+            'status' => 'active',
+        ]);
+
+        return back()->with('success', 'Goal successfully assigned to client!');
+    }
+
+    // 🔥 NEW: Assign Program Logic
+    public function assignProgram(Request $request, User $client)
+    {
+        abort_if($client->coach_id !== $request->user()->id, 403);
+
+        $validated = $request->validate([
+            'program_id' => 'required|exists:programs,id'
+        ]);
+
+        // Attach the program without deleting their previous programs
+        $client->assignedPrograms()->syncWithoutDetaching([$validated['program_id']]);
+
+        return back()->with('success', 'Program successfully assigned to the client!');
     }
 }

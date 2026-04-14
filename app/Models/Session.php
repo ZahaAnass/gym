@@ -1,11 +1,14 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
-{use HasFactory;
+{
+    use HasFactory;
+
     // Tell Laravel to use our custom table, NOT the default browser sessions table
     protected $table = 'gym_sessions';
 
@@ -14,9 +17,11 @@ class Session extends Model
 
     public function program() { return $this->belongsTo(Program::class); }
     public function coach() { return $this->belongsTo(User::class, 'coach_id'); }
+
+    // 🔥 UPDATED: Uses new session_user table and columns
     public function clients() {
-        return $this->belongsToMany(User::class, 'session_client')
-            ->withPivot('is_attended', 'client_realizations', 'coach_remarks')
+        return $this->belongsToMany(User::class, 'session_user')
+            ->withPivot('attended', 'notes')
             ->withTimestamps();
     }
 }

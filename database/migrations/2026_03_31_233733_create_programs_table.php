@@ -16,10 +16,19 @@ return new class extends Migration
             $table->boolean('is_ai_generated')->default(false);
             $table->timestamps();
         });
+
+        // 🔥 NEW: The Assignment Pivot Table
+        Schema::create('program_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('program_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('program_user');
         Schema::dropIfExists('programs');
     }
 };

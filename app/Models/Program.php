@@ -20,4 +20,10 @@ class Program extends Model
     {
         return $this->hasMany(Session::class);
     }
+
+    // 🔥 NEW: Connects Programs to Clients
+    public function clients()
+    {
+        return $this->belongsToMany(User::class, 'program_user')->withTimestamps();
+    }
 }

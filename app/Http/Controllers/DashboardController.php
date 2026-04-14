@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -15,27 +16,54 @@ class DashboardController extends Controller
             return redirect()->route('admin.analytics');
 
         } elseif ($user->hasRole('coach')) {
-            // Fetch summary for the Coach Dashboard
+            // -- Coach Dashboard Logic --
             $activeClientsCount = $user->clients()->count();
-
+            $totalPrograms = $user->programs()->count();
             $upcomingSession = $user->sessionsAsCoach()
                 ->with('program')
                 ->where('scheduled_at', '>=', now())
                 ->orderBy('scheduled_at', 'asc')
                 ->first();
 
-            $totalPrograms = $user->programs()->count();
+            $recentSessions = $user->sessionsAsCoach()
+                ->withCount([
+                    'clients as total_roster',
+                    'clients as attended_count' => fn($q) => $q->where('session_user.attended', true)
+                ])
+                ->where('scheduled_at', '>=', now()->subDays(30))
+                ->where('scheduled_at', '<=', now())
+                ->orderBy('scheduled_at', 'asc')
+                ->get();
+
+            $attendanceTrend = $recentSessions->map(function ($session) {
+                return [
+                    'name' => Carbon::parse($session->scheduled_at)->format('M d'),
+                    'Attended' => $session->attended_count,
+                    'Missed' => $session->total_roster - $session->attended_count,
+                ];
+            });
+
+            $programDistribution = $user->programs()
+                ->withCount('clients')
+                ->get()
+                ->map(fn ($program) => ['name' => $program->title, 'value' => $program->clients_count])
+                ->filter(fn ($p) => $p['value'] > 0)
+                ->values();
 
             return Inertia::render('Coach/Dashboard', [
                 'activeClientsCount' => $activeClientsCount,
                 'upcomingSession' => $upcomingSession,
                 'totalPrograms' => $totalPrograms,
+                'chartData' => [
+                    'attendance' => $attendanceTrend,
+                    'programs' => $programDistribution
+                ]
             ]);
 
         } else {
-            // Fetch summary for the Client Dashboard
+            // -- 🔥 NEW: Client Dashboard Logic --
             $user->load(['assessments' => function($q) {
-                $q->latest()->take(1);
+                $q->orderBy('created_at', 'asc'); // Load chronological for charts
             }]);
 
             $nextSession = $user->sessionsAsClient()
@@ -46,10 +74,33 @@ class DashboardController extends Controller
 
             $activeGoalsCount = $user->goals()->where('status', 'active')->count();
 
+            // Format Assessment History for the Area Chart
+            $weightChart = $user->assessments->map(function ($a) {
+                return [
+                    'date' => $a->created_at->format('M d'),
+                    'weight' => (float) $a->weight,
+                ];
+            });
+
+            // Calculate overall Attendance for the Pie Chart
+            $attended = $user->sessionsAsClient()->wherePivot('attended', true)->count();
+            // Count missed as past sessions where attended is false
+            $missed = $user->sessionsAsClient()
+                ->where('scheduled_at', '<', now())
+                ->wherePivot('attended', false)
+                ->count();
+
             return Inertia::render('Client/Dashboard', [
-                'latestAssessment' => $user->assessments->first(),
+                'latestAssessment' => $user->assessments->last(), // Last chronological is the most recent
                 'nextSession' => $nextSession,
                 'activeGoalsCount' => $activeGoalsCount,
+                'chartData' => [
+                    'weight' => $weightChart,
+                    'attendance' => [
+                        ['name' => 'Classes Attended', 'value' => $attended],
+                        ['name' => 'Classes Missed', 'value' => $missed]
+                    ]
+                ]
             ]);
         }
     }

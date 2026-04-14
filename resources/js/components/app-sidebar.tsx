@@ -22,7 +22,12 @@ export function AppSidebar() {
     const { auth } = usePage().props as any;
     const roles = auth.user?.roles || [];
 
-    // Calculate unread notifications if you pass it via Inertia share, otherwise keep it simple
+    // 🔥 FIXED: Helper function to safely check role objects OR strings
+    const hasRole = (roleName: string) => {
+        return roles.some((role: any) => role.name === roleName || role === roleName);
+    };
+
+    // Calculate unread notifications if you pass it via Inertia share
     const unreadCount = auth.user?.unreadNotificationsCount || 0;
 
     const menuItems = [
@@ -30,7 +35,8 @@ export function AppSidebar() {
         { title: 'Inbox Alerts', href: '/notifications', icon: BellRing, badge: unreadCount > 0 ? unreadCount : undefined },
     ];
 
-    if (roles.includes('admin')) {
+    // Use the new hasRole helper!
+    if (hasRole('admin')) {
         menuItems.push(
             { title: 'User Directory', href: '/admin/users', icon: Users },
             { title: 'Financials', href: '/admin/unpaid', icon: CreditCard },
@@ -40,7 +46,7 @@ export function AppSidebar() {
         );
     }
 
-    if (roles.includes('coach')) {
+    if (hasRole('coach')) {
         menuItems.push(
             { title: 'My Clients', href: '/coach/clients', icon: Users },
             { title: 'AI Programs', href: '/coach/programs', icon: Dumbbell },
@@ -49,7 +55,7 @@ export function AppSidebar() {
         );
     }
 
-    if (roles.includes('client')) {
+    if (hasRole('client')) {
         menuItems.push(
             { title: 'Progress & AI', href: '/client/progress', icon: TrendingUp },
             { title: 'My Schedule', href: '/client/schedule', icon: Calendar },

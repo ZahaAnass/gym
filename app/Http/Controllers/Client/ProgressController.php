@@ -12,7 +12,7 @@ class ProgressController extends Controller
     {
         $user = $request->user();
 
-        // 1. Fetch assessments ordered chronologically for the chart
+        // 1. Fetch assessments chronologically for the Chart
         $assessments = $user->assessments()->orderBy('created_at', 'asc')->get();
 
         // 2. Transform the data exactly how Recharts needs it
@@ -24,19 +24,19 @@ class ProgressController extends Controller
             ];
         });
 
-        // 3. Fetch the client's upcoming schedule
-        $upcomingSessions = $user->sessionsAsClient()
-            ->with(['program', 'coach'])
-            ->where('scheduled_at', '>=', now())
-            ->orderBy('scheduled_at', 'asc')
-            ->take(5)
-            ->get();
+        // 3. Fetch goals (now including coach-assigned numeric goals)
+        $goals = $user->goals()->orderBy('created_at', 'desc')->get();
+
+        // 4. 🔥 FIXED: Calculate real attendance rate using the new 'attended' column
+        $totalSessions = $user->sessionsAsClient()->count();
+        $attendedSessions = $user->sessionsAsClient()->wherePivot('attended', true)->count();
+        $attendanceRate = $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100) : 100;
 
         return Inertia::render('Client/Progress/Index', [
-            // We reverse the assessments here so the UI can easily grab index [0] as the "latest"
-            'assessments' => $assessments->reverse()->values(),
+            'assessments' => $assessments->reverse()->values(), // Reversed for the "Latest" stats card
             'chartData' => $chartData,
-            'upcoming_sessions' => $upcomingSessions,
+            'goals' => $goals,
+            'attendance_rate' => $attendanceRate,
         ]);
     }
 }

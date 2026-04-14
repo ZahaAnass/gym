@@ -44,12 +44,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Users & Roles
     Route::resource('users', UserController::class);
 
-    // Financials
     Route::get('unpaid', [AdminPaymentController::class, 'unpaid'])->name('unpaid');
     Route::post('unpaid/notify/{user}', [AdminPaymentController::class, 'sendReminder'])->name('unpaid.notify');
     Route::post('unpaid/mark-paid/{user}', [AdminPaymentController::class, 'markAsPaid'])->name('unpaid.markPaid');
+    Route::get('unpaid/export', [AdminPaymentController::class, 'exportCsv'])->name('payments.export');
 
-    // Broadcast Center (New Feature)
+    // Broadcast Center
     Route::get('notifications', [AdminNotificationController::class, 'create'])->name('notifications.create');
     Route::post('notifications/broadcast', [AdminNotificationController::class, 'broadcast'])->name('notifications.broadcast');
 
@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
     Route::get('content', [PublicContentController::class, 'index'])->name('content.index');
     Route::post('content', [PublicContentController::class, 'store'])->name('content.store');
+
 });
 
 // 🟢 COACH: Client Management & AI Tools
@@ -64,6 +65,10 @@ Route::middleware(['auth', 'role:coach'])->prefix('coach')->name('coach.')->grou
     // Roster & Deep Dive
     Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show'); // The 360° Client View
+
+    // 🔥 Assigning Goals and Programs to Clients
+    Route::post('clients/{client}/goals', [ClientController::class, 'storeGoal'])->name('clients.goals.store');
+    Route::post('clients/{client}/programs', [ClientController::class, 'assignProgram'])->name('clients.programs.assign');
 
     // AI Programs
     Route::resource('programs', ProgramController::class);
@@ -73,6 +78,8 @@ Route::middleware(['auth', 'role:coach'])->prefix('coach')->name('coach.')->grou
     Route::get('schedule', [CoachScheduleController::class, 'index'])->name('schedule.index'); // FullCalendar View
     Route::resource('sessions', SessionController::class);
     Route::post('sessions/{session}/notes', [SessionController::class, 'storeNotes'])->name('sessions.notes');
+
+    Route::post('sessions/{session}/attendance', [SessionController::class, 'updateAttendance'])->name('sessions.attendance');
 
     // AI Assessments
     Route::get('assessments/create/{client}', [AssessmentController::class, 'create'])->name('assessments.create');

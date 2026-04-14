@@ -13,10 +13,17 @@ return new class extends Migration
     {
         Schema::create('goals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // The Client
+            $table->foreignId('coach_id')->nullable()->constrained('users')->cascadeOnDelete(); // The Coach
             $table->string('title');
-            $table->decimal('target_value', 8, 2);
-            $table->decimal('current_value', 8, 2)->default(0);
+
+            // 🔥 NEW: Dynamic Goal Tracking
+            $table->enum('type', ['text', 'numeric'])->default('text');
+            $table->decimal('target_value', 8, 2)->nullable();
+            $table->decimal('current_value', 8, 2)->nullable()->default(0);
+            $table->string('unit')->nullable(); // e.g., 'kg', 'km', '%'
+            $table->enum('direction', ['asc', 'desc'])->nullable(); // 'desc' for weight loss, 'asc' for muscle gain
+
             $table->date('deadline');
             $table->text('ai_strategy_advice')->nullable();
             $table->enum('status', ['active', 'reached', 'failed'])->default('active');

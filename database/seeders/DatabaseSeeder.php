@@ -10,9 +10,8 @@ use App\Models\Program;
 use App\Models\Session;
 use App\Models\User;
 use App\Notifications\SystemBroadcast;
-use Illuminate\Database\Seeder;
-use Illuminate\Notifications\DatabaseNotification;
 use Database\Factories\DatabaseNotificationFactory;
+use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -57,27 +56,36 @@ class DatabaseSeeder extends Seeder
             Payment::factory(rand(1, 4))->create(['user_id' => $client->id]);
 
             // Add Goals
-            Goal::factory(rand(1, 2))->create(['user_id' => $client->id]);
+            Goal::factory(rand(1, 2))->create([
+                'user_id' => $client->id,
+                'coach_id' => $coach->id, // 👈 Added this line
+            ]);
         });
 
-        // 5. Create Sessions and Attach Clients (Pivot Table)
+        // 5. Create Sessions and Attach Clients (The FIXED Logic)
         $programs = Program::all();
         foreach ($programs as $program) {
-            // Create 3-5 sessions per program
+            // Find 3-8 random clients that BELONG to the coach who made this program
+            $programClients = User::role('client')
+                ->where('coach_id', $program->coach_id)
+                ->inRandomOrder()
+                ->take(rand(3, 8))
+                ->pluck('id');
+
+            // Attach the clients to the Program
+            $program->clients()->attach($programClients);
+
+            // Create 3-5 sessions for this program
             Session::factory(rand(3, 5))->create([
                 'program_id' => $program->id,
                 'coach_id' => $program->coach_id,
-            ])->each(function ($session) use ($clients) {
-                // Attach 3-8 random clients to this session
-                $sessionClients = $clients->random(rand(3, 8))->pluck('id');
-
-                // Populate the pivot table with attendance and remarks
+            ])->each(function ($session) use ($programClients) {
+                // Attach the EXACT SAME clients to the sessions
                 $pivotData = [];
-                foreach ($sessionClients as $clientId) {
+                foreach ($programClients as $clientId) {
                     $pivotData[$clientId] = [
-                        'is_attended' => fake()->boolean(80), // 80% attendance rate
-                        'client_realizations' => fake()->optional(0.5)->sentence(),
-                        'coach_remarks' => fake()->optional(0.5)->sentence(),
+                        'attended' => fake()->boolean(80), // New Column
+                        'notes' => fake()->optional(0.7)->sentence(), // New Column
                     ];
                 }
                 $session->clients()->attach($pivotData);

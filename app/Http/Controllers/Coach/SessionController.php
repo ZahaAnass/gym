@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
+use App\Models\Program;
+use App\Notifications\SessionScheduledNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class SessionController extends Controller
 {
@@ -15,20 +17,18 @@ class SessionController extends Controller
     {
         $coach = $request->user();
 
-        // Fetch upcoming and past sessions separately for the UI tabs
         $upcomingSessions = $coach->sessionsAsCoach()
-            ->with(['program', 'clients' => function($q) { $q->select('users.id'); }])
+            ->with(['program', 'clients'])
             ->where('scheduled_at', '>=', now())
             ->orderBy('scheduled_at', 'asc')
             ->paginate(10, ['*'], 'upcoming_page');
 
         $pastSessions = $coach->sessionsAsCoach()
-            ->with(['program', 'clients' => function($q) { $q->select('users.id'); }])
+            ->with(['program', 'clients'])
             ->where('scheduled_at', '<', now())
             ->orderBy('scheduled_at', 'desc')
             ->paginate(10, ['*'], 'past_page');
 
-        // Redis Caching for Coach Stats
         $stats = Cache::remember("coach:{$coach->id}:session_stats", 300, function () use ($coach) {
             return [
                 'total_upcoming' => $coach->sessionsAsCoach()->where('scheduled_at', '>=', now())->count(),
@@ -37,7 +37,6 @@ class SessionController extends Controller
             ];
         });
 
-        // Get programs for the "Create Session" modal
         $programs = $coach->programs()->get(['id', 'title']);
 
         return Inertia::render('Coach/Sessions/Index', [
@@ -52,23 +51,36 @@ class SessionController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'program_id' => 'nullable|exists:programs,id',
-            'scheduled_at' => 'required|date|after:now',
+            'program_id' => 'nullable|exists:programs,id', // Can be null for custom sessions
+            'scheduled_at' => 'required|date',
             'duration_minutes' => 'required|integer|min:15|max:240',
             'max_participants' => 'required|integer|min:1|max:50',
         ]);
 
-        $request->user()->sessionsAsCoach()->create($validated);
+        // 1. Create the session
+        $session = $request->user()->sessionsAsCoach()->create($validated);
+
+        // 2. AUTOMATIC ASSIGNMENT & EMAILS (The Wow Factor)
+        if (!empty($validated['program_id'])) {
+            $program = Program::with('clients')->find($validated['program_id']);
+
+            if ($program && $program->clients->count() > 0) {
+                // Attach all clients in this program to the new session roster
+                $session->clients()->attach($program->clients->pluck('id'));
+
+                // Email all those clients!
+                Notification::send($program->clients, new SessionScheduledNotification($session));
+            }
+        }
 
         Cache::forget("coach:{$request->user()->id}:session_stats");
         Cache::forget("coach:{$request->user()->id}:schedule_stats");
 
-        return back()->with('success', 'New training session successfully scheduled.');
+        return back()->with('success', 'Session scheduled and clients notified!');
     }
 
     public function show(Session $session, Request $request)
     {
-        // Security: Ensure coach owns this session
         abort_if($session->coach_id !== $request->user()->id, 403, 'Unauthorized access.');
 
         $session->load(['program', 'clients']);
@@ -78,35 +90,35 @@ class SessionController extends Controller
         ]);
     }
 
-    /**
-     * 🔥 THE WOW FACTOR: Logging Post-Workout Notes
-     * This fulfills the "Prendre notes de séance" Use Case.
-     */
-    public function storeNotes(Request $request, Session $session)
+    // 🚀 NEW: Save Attendance & Notes directly to the pivot table
+    public function updateAttendance(Request $request, Session $session)
     {
-        abort_if($session->coach_id !== $request->user()->id, 403, 'Unauthorized access.');
+        abort_if($session->coach_id !== $request->user()->id, 403);
 
-        // Note: Make sure your `sessions` table has a `notes` text column!
-        $validated = $request->validate([
-            'notes' => 'required|string|max:2000',
+        $request->validate([
+            'attendance' => 'required|array',
+            'attendance.*.user_id' => 'required|exists:users,id',
+            'attendance.*.attended' => 'required|boolean',
+            'attendance.*.notes' => 'nullable|string|max:1000',
         ]);
 
-        $session->update([
-            'notes' => $validated['notes']
-        ]);
+        foreach ($request->attendance as $record) {
+            $session->clients()->updateExistingPivot($record['user_id'], [
+                'attended' => $record['attended'],
+                'notes' => $record['notes'],
+            ]);
+        }
 
-        return back()->with('success', 'Session notes successfully saved.');
+        return back()->with('success', 'Attendance and session notes saved successfully!');
     }
 
     public function destroy(Session $session, Request $request)
     {
         abort_if($session->coach_id !== $request->user()->id, 403);
-
         $session->delete();
-
         Cache::forget("coach:{$request->user()->id}:session_stats");
         Cache::forget("coach:{$request->user()->id}:schedule_stats");
 
-        return redirect()->route('coach.sessions.index')->with('success', 'Session cancelled successfully.');
+        return back()->with('success', 'Session cancelled successfully.');
     }
 }

@@ -9,13 +9,69 @@ use App\Notifications\SystemBroadcast;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PaymentController extends Controller
 {
+
+    // 🔥 ENHANCEMENT 2: Export to CSV
+    public function exportCsv(Request $request)
+    {
+        // Rebuild the same query without pagination
+        $query = Payment::with('user:id,name,email')->latest('paid_at');
+
+        if ($search = $request->input('search')) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        if ($status = $request->input('status') && $request->input('status') !== 'all') {
+            $query->where('status', $request->input('status'));
+        }
+        if ($method = $request->input('method') && $request->input('method') !== 'all') {
+            $query->where('method', $request->input('method'));
+        }
+
+        $payments = $query->get();
+
+        // Generate CSV Stream
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=financial_report_" . date('Y-m-d') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Transaction ID', 'Date', 'Client Name', 'Client Email', 'Amount', 'Payment Method', 'Status', 'Months Credited'];
+
+        $callback = function () use ($payments, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($payments as $payment) {
+                fputcsv($file, [
+                    $payment->id,
+                    $payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->format('Y-m-d H:i') : 'N/A',
+                    $payment->user->name ?? 'Deleted User',
+                    $payment->user->email ?? 'N/A',
+                    $payment->amount, // Export raw number for Excel sums
+                    strtoupper($payment->method),
+                    strtoupper($payment->status),
+                    $payment->installment_number ?? 1
+                ]);
+            }
+            fclose($file);
+        };
+
+        return new StreamedResponse($callback, 200, $headers);
+    }
+
+    // ... [KEEP YOUR EXISTING unpaid(), sendReminder(), and markAsPaid() METHODS HERE] ...
+
     public function unpaid(Request $request)
     {
         $query = User::role('client')->with(['coach', 'payments' => function ($q) {
-            // Order payments so the modal shows newest first!
             $q->orderBy('paid_at', 'desc');
         }]);
 
@@ -28,14 +84,12 @@ class PaymentController extends Controller
 
         $status = $request->input('status', 'all');
 
-        // 🔥 SQLITE COMPATIBLE QUERIES WITH NEW 'PAID THIS MONTH' FILTER
         if ($status === 'active') {
             $query->whereHas('payments', function ($q) {
                 $q->where('status', 'completed')
                     ->whereRaw('datetime(paid_at, "+" || installment_number || " months") >= ?', [now()]);
             });
         } elseif ($status === 'paid_this_month') {
-            // NEW: Shows only users who have a completed payment in the current month/year
             $query->whereHas('payments', function ($q) {
                 $q->where('status', 'completed')
                     ->whereMonth('paid_at', now()->month)
@@ -76,7 +130,6 @@ class PaymentController extends Controller
                 'grace_clients' => $grace,
                 'locked_clients' => $locked,
                 'estimated_revenue' => $locked * 300,
-                // Ensure we only sum revenue collected in the current month
                 'collected_revenue' => Payment::where('status', 'completed')
                     ->whereMonth('paid_at', now()->month)
                     ->whereYear('paid_at', now()->year)
@@ -118,6 +171,7 @@ class PaymentController extends Controller
         ]);
 
         Cache::forget('admin:financial_stats');
+        Cache::forget('admin:payments:all_stats'); // Clear the new cache too
 
         return back()->with('success', "Payment logged successfully. Account is now Active for {$months} month(s).");
     }

@@ -1,177 +1,141 @@
-import { Head, Link } from '@inertiajs/react';
-import {
-    Activity, Calendar, Clock, TrendingDown, User as UserIcon, Bot, Sparkles, Scale, ArrowRight
-} from 'lucide-react';
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
+import { Target, TrendingUp, Activity, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Badge } from '@/components/ui/badge';
 
-export default function ProgressIndex({ assessments, chartData, upcoming_sessions }: any) {
-    const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Progress & AI Insights', href: '/client/progress' },
-    ];
+export default function ProgressIndex({ assessments, chartData, goals, attendance_rate }: any) {
 
-    // Get the absolute latest assessment for the highlight cards
-    const latestAssessment = assessments[0];
+    // Safely calculate completion percentage for numeric goals
+    const getProgressPercent = (goal: any) => {
+        if (goal.type !== 'numeric' || !goal.target_value || !goal.current_value) return 0;
+
+        let percent = 0;
+        if (goal.direction === 'asc') {
+            // E.g., Bench press from 50kg to 100kg
+            percent = (goal.current_value / goal.target_value) * 100;
+        } else {
+            // E.g., Weight loss from 100kg to 80kg
+            const start = goal.current_value + (goal.current_value - goal.target_value); // Rough starting estimate for the bar
+            percent = ((start - goal.current_value) / (start - goal.target_value)) * 100;
+        }
+        return Math.min(Math.max(percent, 0), 100).toFixed(0);
+    };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Progress & AI Insights | Client" />
+        <AppLayout breadcrumbs={[{ title: 'My Progress', href: '/client/progress' }]}>
+            <Head title="Progress Analytics" />
 
             <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+                <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
+                    <TrendingUp className="h-8 w-8 text-indigo-600 dark:text-indigo-400" /> My Analytics Dashboard
+                </h2>
 
-                {/* Page Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Progress & AI Insights
-                        </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Track your physical development, AI recommendations, and upcoming training sessions.
-                        </p>
-                    </div>
+                {/* Stats Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="bg-indigo-50 dark:bg-indigo-500/10 border-none shadow-sm rounded-3xl">
+                        <CardContent className="p-6 flex flex-col gap-2">
+                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Current Weight</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">{assessments[0]?.weight || '--'} kg</span>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-emerald-50 dark:bg-emerald-500/10 border-none shadow-sm rounded-3xl">
+                        <CardContent className="p-6 flex flex-col gap-2">
+                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Attendance Rate</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">{attendance_rate}%</span>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-purple-50 dark:bg-purple-500/10 border-none shadow-sm rounded-3xl">
+                        <CardContent className="p-6 flex flex-col gap-2">
+                            <span className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Active Goals</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">{goals.filter((g:any) => g.status === 'active').length}</span>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Weight Tracking Chart */}
+                    <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Activity className="h-5 w-5 text-indigo-500" /> Biometric Trends
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[350px] p-6 pt-0">
+                            {chartData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                                        <YAxis domain={['dataMin - 5', 'dataMax + 5']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#4f46e5" strokeWidth={3} fill="url(#colorWeight)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-slate-400">No assessment data available yet.</div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                    {/* Left/Main Column: Biometrics & AI Feedback */}
-                    <div className="lg:col-span-2 space-y-8">
+                    {/* Dynamic Goals Tracker */}
+                    <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Target className="h-5 w-5 text-purple-500" /> Coach-Assigned Goals
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6 overflow-y-auto max-h-[350px] pr-2">
+                            {goals.length === 0 && <p className="text-slate-500 italic">Your coach has not assigned any goals yet.</p>}
 
-                        {/* Highlight Biometrics */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl bg-white dark:bg-zinc-950 overflow-hidden">
-                                <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center">
-                                    <Scale className="h-6 w-6 text-indigo-500 mb-3" />
-                                    <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Current Weight</p>
-                                    <p className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
-                                        {latestAssessment ? latestAssessment.weight : '--'} <span className="text-xl sm:text-2xl text-slate-400">kg</span>
-                                    </p>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="shadow-md border-transparent rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white overflow-hidden relative">
-                                <div className="absolute top-0 right-0 p-4 opacity-20">
-                                    <Bot className="h-16 w-16" />
-                                </div>
-                                <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center relative z-10">
-                                    <Sparkles className="h-6 w-6 text-indigo-200 mb-3" />
-                                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-wider mb-1">AI Ideal Target</p>
-                                    <p className="text-4xl sm:text-5xl font-extrabold">
-                                        {latestAssessment ? latestAssessment.ideal_weight_ai : '--'} <span className="text-xl sm:text-2xl text-indigo-200">kg</span>
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Progression Chart */}
-                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
-                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <TrendingDown className="h-5 w-5 text-indigo-500" /> Biometric History
-                                </CardTitle>
-                                <CardDescription>Your weight progression mapped over time.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                {chartData.length < 2 ? (
-                                    <div className="py-16 text-center text-slate-500 flex flex-col items-center">
-                                        <TrendingDown className="h-12 w-12 mb-3 opacity-20" />
-                                        <p className="font-medium text-slate-700 dark:text-slate-300">Not enough data to display chart.</p>
-                                        <p className="text-sm mt-1">Your coach needs to run at least two AI assessments.</p>
+                            {goals.map((goal: any) => (
+                                <div key={goal.id} className="space-y-2 p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                {goal.title}
+                                                {goal.status === 'reached' && <Badge className="bg-emerald-500 text-white border-none">Achieved</Badge>}
+                                            </h4>
+                                            {goal.deadline && <p className="text-xs text-slate-500 mt-1">Target Date: {new Date(goal.deadline).toLocaleDateString()}</p>}
+                                        </div>
+                                        {goal.type === 'numeric' && (
+                                            <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                                                {goal.current_value} / {goal.target_value} {goal.unit}
+                                            </span>
+                                        )}
                                     </div>
-                                ) : (
-                                    <div className="h-[300px] w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                                                <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
-                                                <Tooltip
-                                                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                                    formatter={(value: number) => [`${value} kg`, 'Weight']}
-                                                />
-                                                {latestAssessment?.ideal_weight_ai && (
-                                                    <ReferenceLine y={latestAssessment.ideal_weight_ai} stroke="#8b5cf6" strokeDasharray="3 3" label={{ position: 'top', value: 'AI Target', fill: '#8b5cf6', fontSize: 12 }} />
-                                                )}
-                                                <Line type="monotone" dataKey="weight" stroke="#4f46e5" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 8 }} />
-                                            </LineChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
 
-                        {/* AI Health Advice */}
-                        {latestAssessment?.advice && (
-                            <div className="p-6 sm:p-8 rounded-3xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 relative overflow-hidden">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-xl">
-                                        <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                                    </div>
-                                    <h4 className="text-lg font-extrabold text-purple-900 dark:text-purple-100">
-                                        Doctor Gemini's Strategy
-                                    </h4>
-                                </div>
-                                <p className="text-sm sm:text-base text-purple-800 dark:text-purple-200 leading-relaxed whitespace-pre-wrap">
-                                    {latestAssessment.advice}
-                                </p>
-                                <p className="text-xs text-purple-400 dark:text-purple-500/60 mt-4 font-medium uppercase tracking-wider">
-                                    Generated on {new Date(latestAssessment.created_at).toLocaleDateString()}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right Column: Upcoming Sessions */}
-                    <div className="space-y-6">
-                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950 sticky top-24">
-                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Calendar className="h-5 w-5 text-indigo-500" />
-                                    Upcoming Schedule
-                                </CardTitle>
-                                <CardDescription>Your next classes.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="divide-y divide-slate-100 dark:divide-zinc-800">
-                                    {upcoming_sessions.length === 0 ? (
-                                        <div className="p-8 text-center text-slate-500">
-                                            <Calendar className="h-8 w-8 text-slate-300 mx-auto mb-3" />
-                                            <p className="text-sm font-medium">No upcoming classes.</p>
+                                    {goal.type === 'numeric' ? (
+                                        <div className="w-full bg-slate-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden">
+                                            <div
+                                                className={`h-2.5 rounded-full transition-all duration-1000 ${goal.status === 'reached' ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                                                style={{ width: `${getProgressPercent(goal)}%` }}
+                                            />
                                         </div>
                                     ) : (
-                                        upcoming_sessions.map((session: any) => (
-                                            <div key={session.id} className="p-5 hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
-                                                <h4 className="font-bold text-slate-900 dark:text-white mb-2">{session.title}</h4>
+                                        <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2 rounded-xl">
+                                            <CheckCircle2 className="h-4 w-4" /> Qualitative Goal (Behavioral)
+                                        </div>
+                                    )}
 
-                                                <div className="flex flex-col gap-2 text-sm text-slate-500 dark:text-slate-400">
-                                                    <span className="flex items-center gap-2">
-                                                        <Clock className="h-4 w-4 text-indigo-500" />
-                                                        {new Date(session.scheduled_at).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                    </span>
-                                                    <span className="flex items-center gap-2">
-                                                        <UserIcon className="h-4 w-4 text-emerald-500" />
-                                                        Coach {session.coach?.name || 'Staff'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))
+                                    {goal.ai_strategy_advice && (
+                                        <div className="mt-3 p-3 bg-indigo-50/50 dark:bg-indigo-500/5 rounded-xl border border-indigo-100 dark:border-indigo-500/10 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">AI Strategy:</strong>
+                                            {goal.ai_strategy_advice}
+                                        </div>
                                     )}
                                 </div>
-                                <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30">
-                                    <Button asChild variant="outline" className="w-full bg-white dark:bg-zinc-950 rounded-xl">
-                                        <Link href="/client/schedule">
-                                            View Full Calendar <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            ))}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>

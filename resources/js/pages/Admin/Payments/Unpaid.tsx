@@ -9,13 +9,13 @@ import {
     AlertCircle,
     CheckCircle2,
     TrendingUp,
-    TrendingDown,
+    Lock,
     BellRing,
     Banknote,
     Clock,
     UserCircle,
-    Lock,
-    History
+    History,
+    Download
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,6 @@ import { toast } from 'sonner';
 export default function PaymentsUnpaid({ users, filters, stats }: any) {
     const { flash } = usePage().props as any;
 
-    // NEW: State to hold the user whose history modal is currently open
     const [historyUser, setHistoryUser] = useState<any>(null);
 
     useEffect(() => {
@@ -104,6 +103,9 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
         { title: 'Financials & Subscriptions', href: '/admin/unpaid' },
     ];
 
+    // 🔥 GENERATE EXPORT URL WITH FILTERS
+    const exportUrl = `/admin/unpaid/export?${new URLSearchParams(filters as any).toString()}`;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Financials | Admin" />
@@ -118,6 +120,15 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                             Monitor member subscriptions, track revenue, and manage overdue accounts.
                         </p>
+                    </div>
+
+                    {/* 🔥 EXPORT BUTTON HERE */}
+                    <div className="flex gap-3">
+                        <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl">
+                            <a href={exportUrl} target="_blank" rel="noreferrer">
+                                <Download className="mr-2 h-4 w-4" /> Export CSV
+                            </a>
+                        </Button>
                     </div>
                 </div>
 
@@ -176,7 +187,6 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                         <div className="flex w-full md:w-auto items-center gap-3">
                             <Filter className="h-4 w-4 text-slate-400 hidden md:block" />
 
-                            {/* NEW: Filter dropdown with 'Paid This Month' */}
                             <Select defaultValue={filters.status ?? "all"} onValueChange={handleStatusFilter}>
                                 <SelectTrigger className="w-full md:w-[220px] bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm">
                                     <SelectValue placeholder="All Statuses" />
@@ -253,7 +263,7 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                             <div className="flex flex-col gap-1">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="font-bold text-slate-900 dark:text-white">
-                                                                        {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' }).format(latestPayment.amount)}
+                                                                        {formatCurrency(latestPayment.amount)}
                                                                     </span>
                                                                     <Badge variant="secondary" className="text-[10px] uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-300">
                                                                         {latestPayment.method}
@@ -294,7 +304,6 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                                                                     </Link>
                                                                 </DropdownMenuItem>
 
-                                                                {/* NEW: Payment History Modal Trigger */}
                                                                 <DropdownMenuItem onClick={() => setHistoryUser(user)} className="cursor-pointer py-2.5">
                                                                     <History className="mr-2 h-4 w-4 text-blue-500" /> View Payment History
                                                                 </DropdownMenuItem>
@@ -335,7 +344,7 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                 </div>
             </div>
 
-            {/* NEW: The Payment History Modal */}
+            {/* Payment History Modal */}
             <Dialog open={!!historyUser} onOpenChange={(open) => !open && setHistoryUser(null)}>
                 <DialogContent className="sm:max-w-[700px] bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl">
                     <DialogHeader>

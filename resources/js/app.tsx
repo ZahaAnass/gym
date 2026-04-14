@@ -19,11 +19,9 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <StrictMode>
                 <TooltipProvider delayDuration={0}>
                     <App {...props} />
-                </TooltipProvider>
-            </StrictMode>,
+                </TooltipProvider>,
         );
     },
     progress: {

@@ -1,104 +1,132 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Users, Search, Activity, Target, ChevronRight } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Users, Search, Activity, Dumbbell, CalendarCheck, Eye } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { BreadcrumbItem } from '@/types';
 import InertiaPagination from '@/components/inertia-pagination';
-import { debounce } from 'lodash';
 
-export default function RosterIndex({ clients, filters, stats }: any) {
-    const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Coach Dashboard', href: '/dashboard' },
-        { title: 'My Roster', href: '/coach/clients' },
-    ];
+export default function ClientsIndex({ clients, filters }: any) {
+    const [search, setSearch] = useState(filters?.search || '');
 
-    const handleSearch = React.useRef(debounce((q: string) => {
-        router.get("/coach/clients", { search: q }, { preserveState: true, replace: true });
-    }, 500)).current;
+    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            router.get('/coach/clients', { search }, { preserveState: true });
+        }
+    };
 
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Clients | Coach" />
+        <AppLayout breadcrumbs={[{ title: 'Client Roster', href: '/coach/clients' }]}>
+            <Head title="Clients | Coach" />
 
-            <div className="p-6 space-y-6 w-full max-w-7xl mx-auto">
+            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
                             <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            My Client Roster
+                            Client Roster
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            You are currently training {stats.total_clients} athletes.
-                        </p>
-                    </div>
-                    <div className="relative w-full md:w-80">
-                        <Input
-                            defaultValue={filters?.search ?? ""}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            className="pl-10 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl"
-                            placeholder="Search your clients..."
-                        />
-                        <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <p className="text-slate-500 mt-1">Manage your assigned athletes and track their progress.</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {clients.data.length === 0 ? (
-                        <div className="col-span-full py-12 text-center text-slate-500">
-                            No clients found.
+                <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
+                    <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30">
+                        <div className="relative w-full max-w-md">
+                            <Input
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={handleSearch}
+                                className="pl-10 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl h-11"
+                                placeholder="Press Enter to search by name or email..."
+                            />
+                            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                         </div>
-                    ) : (
-                        clients.data.map((client: any) => {
-                            const latestAssessment = client.assessments?.[0];
-                            const activeGoals = client.goals?.length || 0;
+                    </div>
 
-                            return (
-                                <Card key={client.id} className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl hover:shadow-md transition-shadow bg-white dark:bg-zinc-950 flex flex-col h-full">
-                                    <CardContent className="p-6 flex-1">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-200 dark:border-indigo-500/30">
-                                                    {getInitials(client.name)}
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-slate-900 dark:text-white">{client.name}</h3>
-                                                    <p className="text-xs text-slate-500 truncate max-w-[150px]">{client.email}</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-slate-50/80 dark:bg-zinc-900/50 hover:bg-transparent border-b border-slate-100 dark:border-zinc-800">
+                                        <TableHead className="pl-6 py-4 font-bold">Athlete Profile</TableHead>
+                                        <TableHead className="font-bold">Latest Biometrics</TableHead>
+                                        <TableHead className="font-bold">Active Programs</TableHead>
+                                        <TableHead className="font-bold">Attendance Record</TableHead>
+                                        <TableHead className="text-right pr-6 font-bold">Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-slate-100 dark:divide-zinc-800">
+                                    {clients.data.map((client: any) => {
+                                        const latestAssessment = client.assessments?.[0];
+                                        const attendedCount = client.attended_sessions?.filter((s:any) => s.pivot.attended).length || 0;
 
-                                        <div className="grid grid-cols-2 gap-4 py-4 border-t border-slate-100 dark:border-zinc-800">
-                                            <div>
-                                                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Activity className="h-3 w-3"/> Current Weight</p>
-                                                <p className="font-semibold text-slate-900 dark:text-white">
-                                                    {latestAssessment ? `${latestAssessment.weight} kg` : '--'}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Target className="h-3 w-3"/> Active Goals</p>
-                                                <p className="font-semibold text-slate-900 dark:text-white">{activeGoals}</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
+                                        return (
+                                            <TableRow key={client.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                                                <TableCell className="pl-6 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm border border-indigo-200">
+                                                            {getInitials(client.name)}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-slate-900 dark:text-white">{client.name}</span>
+                                                            <span className="text-sm text-slate-500">{client.email}</span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
 
-                                    <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 rounded-b-2xl">
-                                        <Button asChild className="w-full bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-sm">
-                                            <Link href={`/coach/clients/${client.id}`}>
-                                                Open 360° Profile <ChevronRight className="ml-1 h-4 w-4" />
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                </Card>
-                            );
-                        })
-                    )}
-                </div>
+                                                <TableCell>
+                                                    {latestAssessment ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                                                                <Activity className="h-3 w-3 mr-1" /> {latestAssessment.weight} kg
+                                                            </Badge>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-sm italic text-slate-400">Needs Assessment</span>
+                                                    )}
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    {client.assigned_programs?.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {client.assigned_programs.map((prog: any) => (
+                                                                <Badge key={prog.id} variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 dark:border-indigo-900 dark:text-indigo-400 dark:bg-indigo-900/20">
+                                                                    <Dumbbell className="h-3 w-3 mr-1" /> {prog.title}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-slate-400 border border-dashed border-slate-300 dark:border-zinc-700 rounded px-2 py-1">No Programs</span>
+                                                    )}
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                        <CalendarCheck className="h-3 w-3 mr-1" /> {attendedCount} Sessions
+                                                    </Badge>
+                                                </TableCell>
+
+                                                <TableCell className="text-right pr-6">
+                                                    <Link
+                                                        href={`/coach/clients/${client.id}`}
+                                                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40 transition-colors"
+                                                    >
+                                                        <Eye className="h-4 w-4 mr-2"/> 360° Profile
+                                                    </Link>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="mt-6">
                     <InertiaPagination data={clients} />

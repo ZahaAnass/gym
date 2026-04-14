@@ -8,20 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('session_client', function (Blueprint $table) {
+        Schema::create('session_user', function (Blueprint $table) {
             $table->id();
-            // Point to the newly named 'gym_sessions' table
             $table->foreignId('session_id')->constrained('gym_sessions')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->boolean('is_attended')->default(false);
-            $table->text('client_realizations')->nullable();
-            $table->text('coach_remarks')->nullable();
+
+            // 🔥 NEW: Real Attendance & Coach Notes
+            $table->boolean('attended')->default(false);
+            $table->text('notes')->nullable();
+
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('session_client');
+        Schema::dropIfExists('session_user');
     }
 };

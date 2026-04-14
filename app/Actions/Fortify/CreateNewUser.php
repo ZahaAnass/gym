@@ -24,17 +24,24 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        // 1. Create the user and assign it to a variable
+        // 1. Find the coach with the lowest number of assigned clients
+        $availableCoach = User::role('coach')
+            ->withCount('clients')
+            ->orderBy('clients_count', 'asc')
+            ->first();
+
+        // 2. Create the user and assign them to the selected coach
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
+            // Assign the coach ID, or leave null if no coaches exist in the database yet
+            'coach_id' => $availableCoach ? $availableCoach->id : null,
         ]);
 
-        // 2. Assign the default 'client' role using Spatie
+        // 3. Assign the default 'client' role using Spatie
         $user->assignRole('client');
 
-        // 3. Return the fully configured user
         return $user;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -53,10 +54,22 @@ class User extends Authenticatable
         return $this->hasMany(Session::class, 'coach_id');
     }
 
-    public function sessionsAsClient()
+    public function sessionsAsClient(): BelongsToMany
     {
-        return $this->belongsToMany(Session::class, 'session_client')
-            ->withPivot('is_attended', 'client_realizations', 'coach_remarks')
+        return $this->belongsToMany(Session::class, 'session_user')
+            ->withPivot('attended', 'notes')
+            ->withTimestamps();
+    }
+
+    public function assignedPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(Program::class, 'program_user');
+    }
+
+    public function attendedSessions(): BelongsToMany
+    {
+        return $this->belongsToMany(Session::class, 'session_user')
+            ->withPivot(['attended', 'notes'])
             ->withTimestamps();
     }
 }
