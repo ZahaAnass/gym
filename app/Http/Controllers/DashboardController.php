@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -28,7 +28,7 @@ class DashboardController extends Controller
             $recentSessions = $user->sessionsAsCoach()
                 ->withCount([
                     'clients as total_roster',
-                    'clients as attended_count' => fn($q) => $q->where('session_user.attended', true)
+                    'clients as attended_count' => fn ($q) => $q->where('session_user.attended', true),
                 ])
                 ->where('scheduled_at', '>=', now()->subDays(30))
                 ->where('scheduled_at', '<=', now())
@@ -56,15 +56,16 @@ class DashboardController extends Controller
                 'totalPrograms' => $totalPrograms,
                 'chartData' => [
                     'attendance' => $attendanceTrend,
-                    'programs' => $programDistribution
-                ]
+                    'programs' => $programDistribution,
+                ],
             ]);
 
         } else {
             // -- 🔥 NEW: Client Dashboard Logic --
-            $user->load(['assessments' => function($q) {
-                $q->orderBy('created_at', 'asc'); // Load chronological for charts
-            }]);
+            // 1. Eager load the coach relationship here
+            $user->load(['assessments' => function ($q) {
+                $q->orderBy('created_at', 'asc');
+            }, 'coach']);
 
             $nextSession = $user->sessionsAsClient()
                 ->where('scheduled_at', '>=', now())
@@ -74,7 +75,6 @@ class DashboardController extends Controller
 
             $activeGoalsCount = $user->goals()->where('status', 'active')->count();
 
-            // Format Assessment History for the Area Chart
             $weightChart = $user->assessments->map(function ($a) {
                 return [
                     'date' => $a->created_at->format('M d'),
@@ -82,25 +82,24 @@ class DashboardController extends Controller
                 ];
             });
 
-            // Calculate overall Attendance for the Pie Chart
             $attended = $user->sessionsAsClient()->wherePivot('attended', true)->count();
-            // Count missed as past sessions where attended is false
             $missed = $user->sessionsAsClient()
                 ->where('scheduled_at', '<', now())
                 ->wherePivot('attended', false)
                 ->count();
 
             return Inertia::render('Client/Dashboard', [
-                'latestAssessment' => $user->assessments->last(), // Last chronological is the most recent
+                'latestAssessment' => $user->assessments->last(),
                 'nextSession' => $nextSession,
                 'activeGoalsCount' => $activeGoalsCount,
+                'coach' => $user->coach, // 2. Pass the coach to the view
                 'chartData' => [
                     'weight' => $weightChart,
                     'attendance' => [
                         ['name' => 'Classes Attended', 'value' => $attended],
-                        ['name' => 'Classes Missed', 'value' => $missed]
-                    ]
-                ]
+                        ['name' => 'Classes Missed', 'value' => $missed],
+                    ],
+                ],
             ]);
         }
     }

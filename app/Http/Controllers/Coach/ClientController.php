@@ -12,7 +12,11 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $clients = $request->user()->clients()
-            ->with(['assessments' => fn ($q) => $q->latest()])
+            ->with([
+                'assessments' => fn ($q) => $q->latest(),
+                'programs', // Load the active programs
+                'sessionsAsClient' => fn ($q) => $q->wherePivot('attended', true) // Load only attended sessions
+            ])
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
             })
@@ -25,24 +29,47 @@ class ClientController extends Controller
         ]);
     }
 
-    public function show(User $client, Request $request)
+    public function show(Request $request, User $client)
     {
-        abort_if($client->coach_id !== $request->user()->id, 403, 'Unauthorized access.');
+        // 🔒 SECURITY: Ensure this coach actually owns this client
+        if ($client->coach_id !== $request->user()->id) {
+            abort(403, 'Unauthorized: This client is not assigned to you.');
+        }
 
-        // Load 360° data including their currently assigned programs
+        // 1. Load Client Data
         $client->load([
-            'assessments' => fn ($q) => $q->latest(),
-            'goals' => fn ($q) => $q->latest(),
-            'payments' => fn ($q) => $q->latest(),
-            'assignedPrograms' // 🔥 NEW
+            'assessments' => fn($q) => $q->orderBy('created_at', 'asc'),
+            'goals' => fn($q) => $q->orderBy('created_at', 'desc')->take(5),
+            'programs' => fn($q) => $q->orderBy('created_at', 'desc'),
         ]);
 
-        // 🔥 NEW: Fetch all programs the coach has built so they can assign them
-        $programs = $request->user()->programs()->select('id', 'title')->get();
+        // 2. Load Session History
+        $recentSessions = $client->sessionsAsClient()->where('scheduled_at', '<=', now())->orderBy('scheduled_at', 'desc')->take(5)->get();
+        $upcomingSessions = $client->sessionsAsClient()->where('scheduled_at', '>=', now())->orderBy('scheduled_at', 'asc')->take(3)->get();
+
+        // 3. Calculate Stats for the UI
+        $attendedCount = $client->sessionsAsClient()->wherePivot('attended', true)->count();
+        $missedCount = $client->sessionsAsClient()->where('scheduled_at', '<', now())->wherePivot('attended', false)->count();
+
+        // 4. Format Biometrics for Recharts
+        $biometricsChart = $client->assessments->map(function ($a) {
+            return ['date' => $a->created_at->format('M d'), 'weight' => (float) $a->weight];
+        });
+
+        // 5. Fetch the coach's saved programs for the Assign Modal
+        $availablePrograms = $request->user()->programs()->select('programs.id', 'programs.title')->get();
 
         return Inertia::render('Coach/Clients/Show', [
             'client' => $client,
-            'programs' => $programs // Pass to React
+            'recentSessions' => $recentSessions,
+            'upcomingSessions' => $upcomingSessions,
+            'availablePrograms' => $availablePrograms,
+            'stats' => [
+                'attended' => $attendedCount,
+                'missed' => $missedCount,
+                'total_sessions' => $attendedCount + $missedCount
+            ],
+            'chartData' => ['biometrics' => $biometricsChart]
         ]);
     }
 
@@ -76,7 +103,8 @@ class ClientController extends Controller
         return back()->with('success', 'Goal successfully assigned to client!');
     }
 
-    // 🔥 NEW: Assign Program Logic
+    // 🔥 FIX: Assign Program Logic (Updated for HasMany)
+    // Assign Program Logic
     public function assignProgram(Request $request, User $client)
     {
         abort_if($client->coach_id !== $request->user()->id, 403);
@@ -85,9 +113,22 @@ class ClientController extends Controller
             'program_id' => 'required|exists:programs,id'
         ]);
 
-        // Attach the program without deleting their previous programs
-        $client->assignedPrograms()->syncWithoutDetaching([$validated['program_id']]);
+        // 🔥 USE THE PIVOT METHOD: attach()
+        // If your relationship in the User model is named something else (like assignedPrograms),
+        // change "programs()" below to match it.
+        $client->programs()->attach($validated['program_id']);
 
         return back()->with('success', 'Program successfully assigned to the client!');
+    }
+
+    // Remove Program Logic
+    public function removeProgram(Request $request, User $client, $programId)
+    {
+        abort_if($client->coach_id !== $request->user()->id, 403);
+
+        // 🔥 USE THE PIVOT METHOD: detach()
+        $client->programs()->detach($programId);
+
+        return back()->with('success', 'Program unassigned successfully.');
     }
 }

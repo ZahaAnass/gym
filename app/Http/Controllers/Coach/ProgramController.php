@@ -43,14 +43,29 @@ class ProgramController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'is_ai_generated' => 'boolean',
+            'client_id' => 'nullable|exists:users,id',
         ]);
 
-        $request->user()->programs()->create($validated);
+        // 🔥 FIX: Explicitly merge the coach_id so it is never null!
+        $programData = array_merge($validated, [
+            'coach_id' => $request->user()->id,
+        ]);
 
-        // Flush the Redis cache so the stats update instantly
+        // 1. Create the program in the coach's library
+        $program = Program::create($programData);
+
+        // 2. If it was generated for a specific client, assign it immediately
+        if (! empty($validated['client_id'])) {
+            $program->clients()->attach($validated['client_id']);
+            Cache::forget("coach:{$request->user()->id}:programs_stats");
+
+            return redirect()->route('coach.clients.show', $validated['client_id'])
+                ->with('success', 'AI Program generated and successfully assigned to the client!');
+        }
+
         Cache::forget("coach:{$request->user()->id}:programs_stats");
 
-        return back()->with('success', 'Workout program successfully saved to library.');
+        return redirect()->route('coach.programs.index')->with('success', 'Workout program successfully saved to library.');
     }
 
     public function destroy(Program $program, Request $request)
