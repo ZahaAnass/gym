@@ -9,7 +9,6 @@ import {
     Dumbbell,
     Mail,
     Menu,
-    MessageSquare,
     Moon,
     Sparkles,
     Sun,
@@ -26,35 +25,219 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+type Language = 'en' | 'fr' | 'ar';
+
+const translations = {
+    en: {
+        metaTitle: 'AI Gym — Intelligent Fitness Management',
+        nav: { features: 'Features', roles: 'Roles', pricing: 'Pricing', faq: 'FAQ', contact: 'Contact', login: 'Log in', getStarted: 'Get started', dashboard: 'Dashboard', lightMode: 'Light mode', darkMode: 'Dark mode' },
+        hero: {
+            fallbackBadge: 'Powered by Gemini 2.5 Flash',
+            title1: 'The Future',
+            title2: 'of Fitness is',
+            accent: 'Intelligent.',
+            subtitle: "Generate custom workouts, analyze biometrics instantly, and track every client's progress - all powered by AI, all in one enterprise platform.",
+            accessPortal: 'Access Portal',
+            startTrial: 'Start free trial',
+            seeFeatures: 'See features',
+            trustedBy: 'Trusted by',
+            trustCount: '1,200+',
+            trustSuffix: 'athletes & coaches',
+        },
+        common: { enterpriseFeatures: 'Enterprise Features', unifiedEcosystem: 'Unified Ecosystem', testimonials: 'Testimonials', pricing: 'Pricing', faq: 'FAQ', mostPopular: 'Most Popular' },
+        sections: {
+            featuresTitle: 'Built for coaches.\nDesigned for athletes.',
+            featuresSubtitle: 'Everything you need to manage gym operations, improve client outcomes, and process payments with confidence.',
+            rolesTitle: 'A dedicated portal\nfor every role',
+            rolesSubtitle: 'Switch between roles to see exactly what each user experiences on the platform.',
+            pricingTitle: 'Simple, transparent plans',
+            pricingSubtitle: 'Start free. Upgrade when your facility scales.',
+            testimonialsTitle: 'Loved by industry leaders',
+            faqTitle: 'Common questions',
+        },
+        cta: { title: "Ready to transform your gym's potential?", accent: "gym's potential?", subtitle: 'Join 1,200+ coaches already using AI Gym to deliver better results, faster.', talkToUs: 'Talk to us' },
+        contact: {
+            label: 'Get in touch',
+            title: "Let's talk about your gym",
+            bodyPrefix: 'Have questions? Send us a message or email us directly at',
+            bodySuffix: '.',
+            perks: ['Response within 24 hours', 'Free onboarding consultation', 'No commitment required'],
+            fullName: 'Full name',
+            email: 'Email',
+            message: 'Message',
+            sendMessage: 'Send Message',
+            placeholderName: 'John Doe',
+            placeholderEmail: 'john@example.com',
+            placeholderMessage: "Tell us about your gym and what you're looking for...",
+            toastSent: 'Message sent! Our team will contact you shortly.',
+        },
+        footer: { copy: 'PFE Project.' },
+    },
+    fr: {
+        metaTitle: 'AI Gym — Gestion Fitness Intelligente',
+        nav: { features: 'Fonctionnalites', roles: 'Roles', pricing: 'Tarifs', faq: 'FAQ', contact: 'Contact', login: 'Connexion', getStarted: 'Commencer', dashboard: 'Tableau de bord', lightMode: 'Mode clair', darkMode: 'Mode sombre' },
+        hero: {
+            fallbackBadge: 'Propulse par Gemini 2.5 Flash',
+            title1: "L'avenir",
+            title2: 'du fitness est',
+            accent: 'intelligent.',
+            subtitle: "Generez des programmes personnalises, analysez les donnees biometrie en instantane et suivez la progression de chaque client dans une seule plateforme.",
+            accessPortal: 'Acceder au portail',
+            startTrial: "Demarrer l'essai gratuit",
+            seeFeatures: 'Voir les fonctionnalites',
+            trustedBy: 'Adopte par',
+            trustCount: '1 200+',
+            trustSuffix: 'athletes et coachs',
+        },
+        common: { enterpriseFeatures: "Fonctionnalites Entreprise", unifiedEcosystem: 'Ecosysteme unifie', testimonials: 'Temoignages', pricing: 'Tarifs', faq: 'FAQ', mostPopular: 'Le plus populaire' },
+        sections: {
+            featuresTitle: 'Concu pour les coachs.\nPense pour les athletes.',
+            featuresSubtitle: "Tout ce qu'il faut pour gerer votre salle, ameliorer les resultats clients et securiser les paiements.",
+            rolesTitle: 'Un portail dedie\npour chaque role',
+            rolesSubtitle: "Basculez entre les roles pour voir l'experience exacte de chaque utilisateur.",
+            pricingTitle: 'Des offres simples et claires',
+            pricingSubtitle: 'Commencez gratuitement et evoluez quand votre salle grandit.',
+            testimonialsTitle: 'Apprecie par les leaders du secteur',
+            faqTitle: 'Questions frequentes',
+        },
+        cta: { title: 'Pret a transformer le potentiel de votre salle ?', accent: 'potentiel de votre salle ?', subtitle: 'Rejoignez 1 200+ coachs qui utilisent deja AI Gym pour obtenir de meilleurs resultats plus vite.', talkToUs: 'Parler avec nous' },
+        contact: {
+            label: 'Nous contacter',
+            title: 'Parlons de votre salle',
+            bodyPrefix: 'Des questions ? Envoyez-nous un message ou ecrivez-nous a',
+            bodySuffix: '.',
+            perks: ['Reponse sous 24 heures', 'Consultation de demarrage offerte', 'Aucun engagement requis'],
+            fullName: 'Nom complet',
+            email: 'Email',
+            message: 'Message',
+            sendMessage: 'Envoyer le message',
+            placeholderName: 'Jean Dupont',
+            placeholderEmail: 'jean@example.com',
+            placeholderMessage: 'Parlez-nous de votre salle et de vos objectifs...',
+            toastSent: 'Message envoye ! Notre equipe vous contactera rapidement.',
+        },
+        footer: { copy: 'Projet PFE.' },
+    },
+    ar: {
+        metaTitle: 'AI Gym - ادارة اللياقة الذكية',
+        nav: { features: 'المميزات', roles: 'الادوار', pricing: 'الاسعار', faq: 'الاسئلة', contact: 'تواصل', login: 'تسجيل الدخول', getStarted: 'ابدأ الان', dashboard: 'لوحة التحكم', lightMode: 'الوضع الفاتح', darkMode: 'الوضع الداكن' },
+        hero: {
+            fallbackBadge: 'مدعوم بواسطة Gemini 2.5 Flash',
+            title1: 'مستقبل',
+            title2: 'اللياقة البدنية',
+            accent: 'ذكي.',
+            subtitle: 'انشئ برامج تدريب مخصصة، حلل البيانات الحيوية فورا، وتابع تقدم كل عميل في منصة واحدة.',
+            accessPortal: 'الدخول للمنصة',
+            startTrial: 'ابدأ تجربة مجانية',
+            seeFeatures: 'عرض المميزات',
+            trustedBy: 'موثوق من قبل',
+            trustCount: '+1200',
+            trustSuffix: 'رياضي ومدرب',
+        },
+        common: { enterpriseFeatures: 'مميزات المؤسسات', unifiedEcosystem: 'منظومة موحدة', testimonials: 'آراء العملاء', pricing: 'الاسعار', faq: 'الاسئلة الشائعة', mostPopular: 'الاكثر طلبا' },
+        sections: {
+            featuresTitle: 'مصمم للمدربين.\nومبني للرياضيين.',
+            featuresSubtitle: 'كل ما تحتاجه لادارة النادي وتحسين نتائج العملاء وتنظيم المدفوعات بثقة.',
+            rolesTitle: 'بوابة مخصصة\nلكل دور',
+            rolesSubtitle: 'بدل بين الادوار لتشاهد تجربة كل مستخدم داخل المنصة.',
+            pricingTitle: 'خطط واضحة ومرنة',
+            pricingSubtitle: 'ابدأ مجانا ثم طور خطتك مع نمو النادي.',
+            testimonialsTitle: 'محبوب من قادة المجال',
+            faqTitle: 'اسئلة متكررة',
+        },
+        cta: { title: 'جاهز لتطوير امكانيات ناديك؟', accent: 'امكانيات ناديك؟', subtitle: 'انضم لاكثر من 1200 مدرب يستخدمون AI Gym لتحقيق نتائج افضل بشكل اسرع.', talkToUs: 'تواصل معنا' },
+        contact: {
+            label: 'تواصل معنا',
+            title: 'دعنا نتحدث عن ناديك',
+            bodyPrefix: 'عندك اسئلة؟ ارسل لنا رسالة او راسلنا مباشرة على',
+            bodySuffix: '.',
+            perks: ['رد خلال 24 ساعة', 'استشارة انطلاق مجانية', 'بدون اي التزام'],
+            fullName: 'الاسم الكامل',
+            email: 'البريد الالكتروني',
+            message: 'الرسالة',
+            sendMessage: 'ارسال الرسالة',
+            placeholderName: 'محمد علي',
+            placeholderEmail: 'mohamed@example.com',
+            placeholderMessage: 'اخبرنا عن ناديك وما الذي تبحث عنه...',
+            toastSent: 'تم ارسال الرسالة! فريقنا سيتواصل معك قريبا.',
+        },
+        footer: { copy: 'مشروع التخرج PFE.' },
+    },
+} as const;
+
+/* ─────────────────────────────────────────────────────────
+   ANIMATED COUNTER HOOK
+───────────────────────────────────────────────────────── */
 function useCounter(target: number, duration = 2000) {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (!entry.isIntersecting) return;
+                if (!entry.isIntersecting) {
+return;
+}
+
                 observer.disconnect();
                 let start = 0;
                 const step = target / (duration / 16);
                 const tick = () => {
                     start = Math.min(start + step, target);
                     setCount(Math.round(start));
-                    if (start < target) requestAnimationFrame(tick);
+
+                    if (start < target) {
+requestAnimationFrame(tick);
+}
                 };
                 requestAnimationFrame(tick);
             },
             { threshold: 0.3 },
         );
-        if (ref.current) observer.observe(ref.current);
+
+        if (ref.current) {
+observer.observe(ref.current);
+}
+
         return () => observer.disconnect();
     }, [target, duration]);
+
     return { count, ref };
 }
 
+/* ─────────────────────────────────────────────────────────
+   SCROLL-IN ANIMATION HOOK
+───────────────────────────────────────────────────────── */
+function useScrollReveal() {
+    const ref = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+ if (entry.isIntersecting) {
+ setVisible(true); observer.disconnect(); 
+} 
+},
+            { threshold: 0.1 },
+        );
+
+        if (ref.current) {
+observer.observe(ref.current);
+}
+
+        return () => observer.disconnect();
+    }, []);
+
+    return { ref, visible };
+}
+
+/* ─────────────────────────────────────────────────────────
+   SUB-COMPONENTS
+───────────────────────────────────────────────────────── */
 function StatCard({ value, suffix, label, icon }: { value: number; suffix: string; label: string; icon: React.ReactNode }) {
     const { count, ref } = useCounter(value);
+
     return (
-        <div ref={ref} className="stat-card">
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="stat-card">
             <div className="stat-icon">{icon}</div>
             <span className="stat-value">{count.toLocaleString()}{suffix}</span>
             <span className="stat-label">{label}</span>
@@ -65,8 +248,10 @@ function StatCard({ value, suffix, label, icon }: { value: number; suffix: strin
 function FeatureCard({ icon, accent, title, description }: {
     icon: React.ReactNode; accent: string; title: string; description: string;
 }) {
+    const { ref, visible } = useScrollReveal();
+
     return (
-        <div className="feature-card">
+        <div ref={ref} className={`feature-card ${visible ? 'reveal-in' : 'reveal-pre'}`}>
             <div className={`feature-icon-wrap ${accent}`}>{icon}</div>
             <h3 className="feature-title">{title}</h3>
             <p className="feature-desc">{description}</p>
@@ -78,8 +263,10 @@ function FeatureCard({ icon, accent, title, description }: {
 function TestimonialCard({ quote, name, role, initials, accent }: {
     quote: string; name: string; role: string; initials: string; accent: string;
 }) {
+    const { ref, visible } = useScrollReveal();
+
     return (
-        <div className="testimonial-card">
+        <div ref={ref} className={`testimonial-card ${visible ? 'reveal-in' : 'reveal-pre'}`}>
             <div className="stars">
                 {[...Array(5)].map((_, i) => (
                     <svg key={i} className="star" viewBox="0 0 20 20">
@@ -99,13 +286,15 @@ function TestimonialCard({ quote, name, role, initials, accent }: {
     );
 }
 
-function PricingCard({ plan, price, period, description, features, cta, highlighted, canRegister }: {
+function PricingCard({ plan, price, period, description, features, cta, highlighted, canRegister, badgeLabel }: {
     plan: string; price: string; period: string; description: string;
-    features: string[]; cta: string; highlighted?: boolean; canRegister: boolean;
+    features: string[]; cta: string; highlighted?: boolean; canRegister: boolean; badgeLabel: string;
 }) {
+    const { ref, visible } = useScrollReveal();
+
     return (
-        <div className={`pricing-card ${highlighted ? 'pricing-card--featured' : ''}`}>
-            {highlighted && <div className="pricing-badge">Most Popular</div>}
+        <div ref={ref} className={`pricing-card ${highlighted ? 'pricing-card--featured' : ''} ${visible ? 'reveal-in' : 'reveal-pre'}`}>
+            {highlighted && <div className="pricing-badge">{badgeLabel}</div>}
             <p className="pricing-plan">{plan}</p>
             <div className="pricing-price-row">
                 <span className="pricing-price">{price}</span>
@@ -131,6 +320,7 @@ function PricingCard({ plan, price, period, description, features, cta, highligh
 
 function FAQItem({ q, a }: { q: string; a: string }) {
     const [open, setOpen] = useState(false);
+
     return (
         <div className={`faq-item ${open ? 'faq-item--open' : ''}`}>
             <button onClick={() => setOpen(!open)} className="faq-question">
@@ -176,133 +366,152 @@ function HeroImageGrid() {
     );
 }
 
+/* ─────────────────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────────────────── */
 export default function Welcome({ auth, canRegister, content }: any) {
-    const [isDark, setIsDark] = useState(true);
+    const [isDark, setIsDark] = useState(() => {
+        if (typeof window === 'undefined') {
+            return true;
+        }
+
+        return localStorage.theme !== 'light';
+    });
+    const [language, setLanguage] = useState<Language>(() => {
+        if (typeof window === 'undefined') {
+            return 'en';
+        }
+
+        const savedLang = localStorage.getItem('landing-language');
+
+        return savedLang === 'en' || savedLang === 'fr' || savedLang === 'ar' ? savedLang : 'en';
+    });
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeRole, setActiveRole] = useState<'admin' | 'coach' | 'client'>('coach');
     const [scrolled, setScrolled] = useState(false);
+    const isRTL = language === 'ar';
+    const copy = translations[language];
 
     const { data, setData, processing, reset } = useForm({ name: '', email: '', message: '' });
 
     const handleContactSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        toast.success('Message sent! Our team will contact you shortly.');
+        toast.success(copy.contact.toastSent);
         reset();
     };
 
     useEffect(() => {
-        const dark = localStorage.theme !== 'light';
-        setIsDark(dark);
-        document.documentElement.classList.toggle('dark', dark);
-    }, []);
+        document.documentElement.classList.toggle('dark', isDark);
+    }, [isDark]);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', onScroll, { passive: true });
+
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
     const toggleTheme = () => {
         const next = !isDark;
         setIsDark(next);
-        document.documentElement.classList.toggle('dark', next);
         localStorage.theme = next ? 'dark' : 'light';
+    };
+
+    const switchLanguage = (lang: Language) => {
+        setLanguage(lang);
+        localStorage.setItem('landing-language', lang);
     };
 
     const roles = {
         admin: {
-            label: 'Administrator', emoji: '⚙️',
+            label: language === 'fr' ? 'Administrateur' : language === 'ar' ? 'مدير النظام' : 'Administrator', emoji: '⚙️',
             features: [
-                { icon: <Shield size={18} />, text: 'Full user management & RBAC' },
-                { icon: <BarChart3 size={18} />, text: 'Revenue analytics & reporting' },
-                { icon: <Activity size={18} />, text: 'System audit logs' },
-                { icon: <Zap size={18} />, text: 'Public CMS management' },
-                { icon: <CreditCard size={18} />, text: 'Stripe payment oversight' },
+                { icon: <Shield size={18} />, text: language === 'fr' ? 'Gestion complete des utilisateurs et RBAC' : language === 'ar' ? 'ادارة كاملة للمستخدمين وصلاحيات RBAC' : 'Full user management & RBAC' },
+                { icon: <BarChart3 size={18} />, text: language === 'fr' ? 'Analyse des revenus et reporting' : language === 'ar' ? 'تحليلات الايرادات والتقارير' : 'Revenue analytics & reporting' },
+                { icon: <Activity size={18} />, text: language === 'fr' ? 'Journaux d audit systeme' : language === 'ar' ? 'سجلات تدقيق النظام' : 'System audit logs' },
+                { icon: <Zap size={18} />, text: language === 'fr' ? 'Gestion du CMS public' : language === 'ar' ? 'ادارة محتوى الموقع العام' : 'Public CMS management' },
+                { icon: <CreditCard size={18} />, text: language === 'fr' ? 'Supervision des paiements Stripe' : language === 'ar' ? 'متابعة مدفوعات Stripe' : 'Stripe payment oversight' },
             ],
         },
         coach: {
-            label: 'Coach', emoji: '🏋️',
+            label: language === 'fr' ? 'Coach' : language === 'ar' ? 'مدرب' : 'Coach', emoji: '🏋️',
             features: [
-                { icon: <Users size={18} />, text: 'Manage client rosters' },
-                { icon: <Brain size={18} />, text: 'AI workout program generation' },
-                { icon: <Activity size={18} />, text: 'Biometric assessment tools' },
-                { icon: <Timer size={18} />, text: 'Session notes & scheduling' },
-                { icon: <TrendingUp size={18} />, text: 'Client progress tracking' },
+                { icon: <Users size={18} />, text: language === 'fr' ? 'Gestion des listes clients' : language === 'ar' ? 'ادارة قوائم العملاء' : 'Manage client rosters' },
+                { icon: <Brain size={18} />, text: language === 'fr' ? 'Generation IA des programmes' : language === 'ar' ? 'توليد برامج تدريب بالذكاء الاصطناعي' : 'AI workout program generation' },
+                { icon: <Activity size={18} />, text: language === 'fr' ? 'Outils d evaluation biometrie' : language === 'ar' ? 'ادوات تقييم القياسات الحيوية' : 'Biometric assessment tools' },
+                { icon: <Timer size={18} />, text: language === 'fr' ? 'Notes de sessions et planning' : language === 'ar' ? 'ملاحظات الجلسات والجدولة' : 'Session notes & scheduling' },
+                { icon: <TrendingUp size={18} />, text: language === 'fr' ? 'Suivi de progression client' : language === 'ar' ? 'تتبع تقدم العملاء' : 'Client progress tracking' },
             ],
         },
         client: {
-            label: 'Client', emoji: '🎯',
+            label: language === 'fr' ? 'Client' : language === 'ar' ? 'عميل' : 'Client', emoji: '🎯',
             features: [
-                { icon: <Dumbbell size={18} />, text: 'View assigned programs' },
-                { icon: <TrendingUp size={18} />, text: 'Log physical progress' },
-                { icon: <Zap size={18} />, text: 'Manage personal goals' },
-                { icon: <CreditCard size={18} />, text: 'Secure installment payments' },
-                { icon: <Timer size={18} />, text: 'Track session attendance' },
+                { icon: <Dumbbell size={18} />, text: language === 'fr' ? 'Consulter les programmes assignes' : language === 'ar' ? 'عرض البرامج المخصصة لك' : 'View assigned programs' },
+                { icon: <TrendingUp size={18} />, text: language === 'fr' ? 'Suivre la progression physique' : language === 'ar' ? 'تسجيل التقدم البدني' : 'Log physical progress' },
+                { icon: <Zap size={18} />, text: language === 'fr' ? 'Gerer les objectifs personnels' : language === 'ar' ? 'ادارة الاهداف الشخصية' : 'Manage personal goals' },
+                { icon: <CreditCard size={18} />, text: language === 'fr' ? 'Paiements securises en plusieurs fois' : language === 'ar' ? 'مدفوعات آمنة بالتقسيط' : 'Secure installment payments' },
+                { icon: <Timer size={18} />, text: language === 'fr' ? 'Suivre la presence en session' : language === 'ar' ? 'تتبع حضور الجلسات' : 'Track session attendance' },
             ],
         },
     };
 
     const navLinks = [
-        { href: '#features', label: 'Features' },
-        { href: '#how-it-works', label: 'Roles' },
-        { href: '#pricing', label: 'Pricing' },
-        { href: '#faq', label: 'FAQ' },
-        { href: '#contact', label: 'Contact' },
+        { href: '#features', label: copy.nav.features },
+        { href: '#how-it-works', label: copy.nav.roles },
+        { href: '#pricing', label: copy.nav.pricing },
+        { href: '#faq', label: copy.nav.faq },
+        { href: '#contact', label: copy.nav.contact },
     ];
 
     return (
         <>
-            <Head title="AI Gym — Intelligent Fitness Management" />
+            <Head title={copy.metaTitle} />
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
-                /* ═══════════════════════════════════════════════════
-                   DARK MODE — Deep charcoal with electric lime
-                   ═══════════════════════════════════════════════════ */
+                /* ═══════════════════════════════════════════
+                   DESIGN TOKENS — DARK (default)
+                ═══════════════════════════════════════════ */
                 :root {
-                    --brand:       #C8F04E;
-                    --brand-dim:   #a8cc38;
-                    --brand-muted: #8aaa25;
-                    --brand-glow:  rgba(200,240,78,0.18);
-                    --brand-tint:  rgba(200,240,78,0.07);
-                    --brand-tint2: rgba(200,240,78,0.12);
+                    --brand:        #C8F04E;
+                    --brand-dim:    #b0d83a;
+                    --brand-muted:  #8aaa25;
+                    --on-brand:     #0d0e0b;
+                    --brand-glow:   rgba(200,240,78,0.20);
+                    --brand-tint:   rgba(200,240,78,0.07);
+                    --brand-tint2:  rgba(200,240,78,0.13);
 
-                    /* Backgrounds — rich, warm-tinted darks */
-                    --bg-base:     #0c0d0b;
-                    --bg-raised:   #131410;
-                    --bg-elevated: #191a16;
-                    --bg-high:     #1f211b;
-                    --bg-highest:  #262820;
+                    --bg-base:      #0d0e0b;
+                    --bg-raised:    #131510;
+                    --bg-elevated:  #1a1c16;
+                    --bg-high:      #20231c;
+                    --bg-card:      #161810;
 
-                    /* Borders */
                     --border-subtle:  rgba(200,240,78,0.06);
-                    --border-muted:   rgba(200,240,78,0.10);
+                    --border-muted:   rgba(200,240,78,0.11);
                     --border-soft:    rgba(255,255,255,0.07);
                     --border-default: rgba(255,255,255,0.11);
-                    --border-hover:   rgba(255,255,255,0.20);
+                    --border-hover:   rgba(255,255,255,0.22);
 
-                    /* Text */
-                    --text-primary:   #eef0e8;
-                    --text-secondary: #8e9182;
-                    --text-tertiary:  #555848;
+                    --text-primary:   #eef0e6;
+                    --text-secondary: #8c9080;
+                    --text-tertiary:  #515548;
                     --text-brand:     var(--brand);
 
-                    /* Feature accents — richer in dark */
-                    --accent-purple-bg:   rgba(162,110,255,0.12);
+                    --accent-purple-bg:   rgba(162,110,255,0.13);
                     --accent-purple-fg:   #c4a0ff;
-                    --accent-emerald-bg:  rgba(52,211,153,0.12);
+                    --accent-emerald-bg:  rgba(52,211,153,0.13);
                     --accent-emerald-fg:  #6ee7b7;
-                    --accent-sky-bg:      rgba(56,189,248,0.12);
+                    --accent-sky-bg:      rgba(56,189,248,0.13);
                     --accent-sky-fg:      #7dd3fc;
-                    --accent-amber-bg:    rgba(251,191,36,0.12);
+                    --accent-amber-bg:    rgba(251,191,36,0.13);
                     --accent-amber-fg:    #fcd34d;
-                    --accent-rose-bg:     rgba(251,113,133,0.12);
+                    --accent-rose-bg:     rgba(251,113,133,0.13);
                     --accent-rose-fg:     #fda4af;
-                    --accent-lime-bg:     rgba(200,240,78,0.12);
+                    --accent-lime-bg:     rgba(200,240,78,0.13);
                     --accent-lime-fg:     var(--brand);
 
-                    /* Testimonial avatars */
                     --av-purple-bg: rgba(162,110,255,0.18);
                     --av-purple-fg: #c4a0ff;
                     --av-sky-bg:    rgba(56,189,248,0.18);
@@ -312,63 +521,73 @@ export default function Welcome({ auth, canRegister, content }: any) {
 
                     --radius:    16px;
                     --radius-sm: 10px;
-                    --radius-lg: 24px;
-                    --radius-xl: 32px;
+                    --radius-lg: 22px;
+                    --radius-xl: 30px;
 
                     --font-display: 'Syne', sans-serif;
                     --font-body:    'DM Sans', sans-serif;
+
+                    --nav-bg-scroll: rgba(13,14,11,0.85);
                 }
 
-                /* ═══════════════════════════════════════════════════
-                   LIGHT MODE — Warm cream with deep olive branding
-                   ═══════════════════════════════════════════════════ */
+                /* ═══════════════════════════════════════════
+                   LIGHT MODE OVERRIDES
+                ═══════════════════════════════════════════ */
                 .light-mode {
-                    --brand:       #5a7a00;
-                    --brand-dim:   #4a6600;
-                    --brand-muted: #3d5500;
-                    --brand-glow:  rgba(90,122,0,0.12);
-                    --brand-tint:  rgba(90,122,0,0.06);
-                    --brand-tint2: rgba(90,122,0,0.10);
+                    --brand:        #3f7a0f;
+                    --brand-dim:    #34670b;
+                    --brand-muted:  #2b5809;
+                    --on-brand:     #f6ffec;
+                    --brand-glow:   rgba(63,122,15,0.16);
+                    --brand-tint:   rgba(63,122,15,0.06);
+                    --brand-tint2:  rgba(63,122,15,0.12);
 
-                    --bg-base:     #f7f5ef;
-                    --bg-raised:   #f2f0e9;
-                    --bg-elevated: #eae8e0;
-                    --bg-high:     #e2e0d7;
-                    --bg-highest:  #d8d6cd;
+                    --bg-base:      #f7f8f4;
+                    --bg-raised:    #eef1e9;
+                    --bg-elevated:  #e6eadf;
+                    --bg-high:      #dde4d3;
+                    --bg-card:      #ffffff;
 
-                    --border-subtle:  rgba(90,122,0,0.08);
-                    --border-muted:   rgba(90,122,0,0.12);
+                    --border-subtle:  rgba(90,122,0,0.09);
+                    --border-muted:   rgba(90,122,0,0.14);
                     --border-soft:    rgba(0,0,0,0.07);
                     --border-default: rgba(0,0,0,0.11);
-                    --border-hover:   rgba(0,0,0,0.22);
+                    --border-hover:   rgba(0,0,0,0.24);
 
-                    --text-primary:   #1a1c14;
-                    --text-secondary: #5a5c50;
-                    --text-tertiary:  #9a9b90;
+                    --text-primary:   #1a2114;
+                    --text-secondary: #4b5a3d;
+                    --text-tertiary:  #849375;
                     --text-brand:     var(--brand);
 
-                    --accent-purple-bg:   rgba(109,40,217,0.08);
+                    --accent-purple-bg:   rgba(109,40,217,0.09);
                     --accent-purple-fg:   #6d28d9;
-                    --accent-emerald-bg:  rgba(4,120,87,0.08);
+                    --accent-emerald-bg:  rgba(4,120,87,0.09);
                     --accent-emerald-fg:  #047857;
-                    --accent-sky-bg:      rgba(2,132,199,0.08);
+                    --accent-sky-bg:      rgba(2,132,199,0.09);
                     --accent-sky-fg:      #0284c7;
-                    --accent-amber-bg:    rgba(180,83,9,0.08);
+                    --accent-amber-bg:    rgba(180,83,9,0.09);
                     --accent-amber-fg:    #b45309;
-                    --accent-rose-bg:     rgba(190,18,60,0.08);
+                    --accent-rose-bg:     rgba(190,18,60,0.09);
                     --accent-rose-fg:     #be123c;
-                    --accent-lime-bg:     rgba(90,122,0,0.10);
+                    --accent-lime-bg:     rgba(90,122,0,0.11);
                     --accent-lime-fg:     var(--brand);
 
-                    --av-purple-bg: rgba(109,40,217,0.10);
+                    --av-purple-bg: rgba(109,40,217,0.11);
                     --av-purple-fg: #6d28d9;
-                    --av-sky-bg:    rgba(2,132,199,0.10);
+                    --av-sky-bg:    rgba(2,132,199,0.11);
                     --av-sky-fg:    #0284c7;
-                    --av-mint-bg:   rgba(4,120,87,0.10);
+                    --av-mint-bg:   rgba(4,120,87,0.11);
                     --av-mint-fg:   #047857;
+
+                    --nav-bg-scroll: rgba(248,246,240,0.90);
                 }
 
-                * { box-sizing: border-box; margin: 0; padding: 0; }
+                /* ═══════════════════════════════════════════
+                   RESET & BASE
+                ═══════════════════════════════════════════ */
+                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+                html { scroll-behavior: smooth; }
 
                 body {
                     background: var(--bg-base);
@@ -377,105 +596,140 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     font-size: 16px;
                     line-height: 1.65;
                     overflow-x: hidden;
+                    -webkit-font-smoothing: antialiased;
                 }
 
-                /* ── NOISE TEXTURE OVERLAY ── */
-                body::before {
+                /* Grain texture */
+                body::after {
                     content: '';
-                    position: fixed;
-                    inset: 0;
-                    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+                    position: fixed; inset: 0; z-index: 999;
                     pointer-events: none;
-                    z-index: 0;
-                    opacity: 0.4;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+                    opacity: 0.5;
                 }
-                .light-mode body::before { opacity: 0.2; }
+                .light-mode body::after { opacity: 0.25; }
 
-                /* ── NAV ── */
+                /* ═══════════════════════════════════════════
+                   SCROLL REVEAL
+                ═══════════════════════════════════════════ */
+                .reveal-pre {
+                    opacity: 0;
+                    transform: translateY(28px);
+                }
+                .reveal-in {
+                    opacity: 1;
+                    transform: translateY(0);
+                    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+                }
+
+                /* ═══════════════════════════════════════════
+                   AMBIENT ORBS
+                ═══════════════════════════════════════════ */
+                .ambient {
+                    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+                }
+                .ambient-orb {
+                    position: absolute; border-radius: 50%;
+                    filter: blur(90px);
+                    animation: float 14s ease-in-out infinite;
+                    will-change: transform;
+                }
+                .ambient-orb-1 {
+                    width: 700px; height: 600px; left: -180px; top: 5%;
+                    background: radial-gradient(circle, rgba(200,240,78,0.08) 0%, transparent 70%);
+                }
+                .ambient-orb-2 {
+                    width: 560px; height: 460px; right: -120px; top: 18%;
+                    background: radial-gradient(circle, rgba(162,110,255,0.06) 0%, transparent 70%);
+                    animation-delay: -5s;
+                }
+                .ambient-orb-3 {
+                    width: 440px; height: 440px; left: 38%; top: 58%;
+                    background: radial-gradient(circle, rgba(56,189,248,0.05) 0%, transparent 70%);
+                    animation-delay: -9s;
+                }
+                .light-mode .ambient-orb-1 { background: radial-gradient(circle, rgba(90,122,0,0.07) 0%, transparent 70%); }
+                .light-mode .ambient-orb-2 { background: radial-gradient(circle, rgba(109,40,217,0.05) 0%, transparent 70%); }
+                .light-mode .ambient-orb-3 { background: radial-gradient(circle, rgba(2,132,199,0.04) 0%, transparent 70%); }
+
+                @keyframes float {
+                    0%,100% { transform: translate(0,0) scale(1); }
+                    33%     { transform: translate(28px,-18px) scale(1.04); }
+                    66%     { transform: translate(-18px,14px) scale(0.97); }
+                }
+
+                /* ═══════════════════════════════════════════
+                   NAV
+                ═══════════════════════════════════════════ */
                 .nav {
                     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-                    transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+                    transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s, box-shadow 0.4s;
                 }
                 .nav--scrolled {
-                    background: rgba(12,13,11,0.82);
-                    backdrop-filter: blur(24px) saturate(180%);
-                    -webkit-backdrop-filter: blur(24px) saturate(180%);
+                    background: var(--nav-bg-scroll);
+                    backdrop-filter: blur(28px) saturate(180%);
+                    -webkit-backdrop-filter: blur(28px) saturate(180%);
                     border-bottom: 1px solid var(--border-subtle);
-                    box-shadow: 0 1px 40px rgba(0,0,0,0.3);
-                }
-                .light-mode .nav--scrolled {
-                    background: rgba(247,245,239,0.88);
-                    box-shadow: 0 1px 40px rgba(0,0,0,0.08);
+                    box-shadow: 0 2px 48px rgba(0,0,0,0.28);
                 }
                 .nav-inner {
                     max-width: 1280px; margin: 0 auto;
-                    padding: 0 2rem;
+                    padding: 0 clamp(1rem, 4vw, 2rem);
                     display: flex; align-items: center; justify-content: space-between;
-                    height: 70px;
+                    height: 68px;
                 }
-                .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+                .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
                 .nav-logo-mark {
-                    width: 34px; height: 34px;
+                    width: 34px; height: 34px; border-radius: 9px;
                     background: var(--brand);
-                    border-radius: 9px;
                     display: flex; align-items: center; justify-content: center;
-                    box-shadow: 0 0 20px var(--brand-glow);
+                    box-shadow: 0 0 22px var(--brand-glow);
+                    flex-shrink: 0;
                 }
                 .light-mode .nav-logo-mark { box-shadow: none; }
-                .nav-logo-mark svg { color: #0c0d0b; }
-                .light-mode .nav-logo-mark svg { color: #fff; }
+                .nav-logo-mark svg { color: #0d0e0b; }
+                .light-mode .nav-logo-mark svg { color: var(--on-brand); }
                 .nav-logo-text {
                     font-family: var(--font-display);
                     font-weight: 800; font-size: 17px;
-                    color: var(--text-primary);
-                    letter-spacing: -0.3px;
+                    color: var(--text-primary); letter-spacing: -0.3px;
                 }
                 .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
                 .nav-links a {
                     color: var(--text-secondary); text-decoration: none;
-                    font-size: 14px; font-weight: 500;
+                    font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
                     transition: color 0.2s;
-                    letter-spacing: 0.1px;
                 }
                 .nav-links a:hover { color: var(--text-primary); }
                 .nav-actions { display: flex; align-items: center; gap: 10px; }
                 .nav-theme-btn {
                     width: 34px; height: 34px; border-radius: 50%;
                     border: 1px solid var(--border-default);
-                    background: var(--bg-elevated);
-                    color: var(--text-secondary);
-                    cursor: pointer;
-                    display: flex; align-items: center; justify-content: center;
-                    transition: all 0.2s;
+                    background: var(--bg-elevated); color: var(--text-secondary);
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: border-color 0.2s, color 0.2s;
                 }
                 .nav-theme-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
                 .btn-ghost {
-                    padding: 8px 18px;
-                    border: 1px solid var(--border-default);
-                    border-radius: 50px;
-                    background: transparent;
-                    color: var(--text-secondary);
-                    font-size: 14px; font-weight: 500;
+                    padding: 8px 18px; border: 1px solid var(--border-default);
+                    border-radius: 50px; background: transparent;
+                    color: var(--text-secondary); font-size: 14px; font-weight: 500;
                     cursor: pointer; text-decoration: none;
-                    transition: all 0.2s;
+                    transition: border-color 0.2s, color 0.2s, background 0.2s;
                     display: inline-flex; align-items: center;
                 }
                 .btn-ghost:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-elevated); }
                 .btn-primary {
                     padding: 9px 20px; border-radius: 50px;
-                    background: var(--brand); color: #0c0d0b;
+                    background: var(--brand); color: var(--on-brand);
                     font-size: 14px; font-weight: 700;
-                    cursor: pointer; text-decoration: none;
-                    transition: all 0.2s;
+                    cursor: pointer; text-decoration: none; border: none;
+                    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
                     display: inline-flex; align-items: center; gap: 6px;
-                    border: none;
-                    box-shadow: 0 0 0 0 var(--brand-glow);
                 }
-                .btn-primary:hover { background: var(--brand-dim); transform: translateY(-1px); box-shadow: 0 4px 20px var(--brand-glow); }
-                .light-mode .btn-primary { color: #fff; }
-                .light-mode .btn-primary:hover { box-shadow: 0 4px 20px rgba(90,122,0,0.25); }
+                .btn-primary:hover { background: var(--brand-dim); transform: translateY(-1px); box-shadow: 0 5px 22px var(--brand-glow); }
 
-                /* ── MOBILE MENU ── */
+                /* Mobile menu btn */
                 .mobile-menu-btn {
                     display: none; width: 40px; height: 40px;
                     background: var(--bg-elevated); border: 1px solid var(--border-default);
@@ -484,149 +738,106 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     align-items: center; justify-content: center;
                 }
                 .mobile-menu {
-                    display: none;
-                    position: fixed; top: 70px; left: 0; right: 0;
+                    display: none; position: fixed; top: 68px; left: 0; right: 0;
                     background: var(--bg-raised);
                     border-bottom: 1px solid var(--border-soft);
-                    padding: 1rem 2rem 1.5rem; z-index: 99;
-                    flex-direction: column; gap: 4px;
+                    padding: 1rem clamp(1rem,4vw,2rem) 1.5rem; z-index: 99;
+                    flex-direction: column; gap: 2px;
+                    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
                 }
                 .mobile-menu.open { display: flex; }
                 .mobile-menu a {
-                    padding: 11px 14px; color: var(--text-primary);
-                    text-decoration: none; font-weight: 500;
+                    padding: 12px 14px; color: var(--text-primary);
+                    text-decoration: none; font-weight: 500; font-size: 15px;
                     border-radius: var(--radius-sm); transition: background 0.2s;
                 }
                 .mobile-menu a:hover { background: var(--bg-elevated); }
                 .mobile-menu-actions {
                     display: flex; flex-direction: column; gap: 8px;
-                    padding-top: 12px; border-top: 1px solid var(--border-soft); margin-top: 4px;
+                    padding-top: 14px; border-top: 1px solid var(--border-soft); margin-top: 8px;
                 }
+
                 @media (max-width: 768px) {
                     .nav-links, .nav-actions { display: none; }
                     .mobile-menu-btn { display: flex; }
                 }
 
-                /* ── AMBIENT BG ── */
-                .ambient {
-                    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-                    overflow: hidden;
-                }
-                .ambient-orb {
-                    position: absolute; border-radius: 50%;
-                    filter: blur(80px);
-                    animation: float 12s ease-in-out infinite;
-                }
-                .ambient-orb-1 {
-                    width: 600px; height: 500px;
-                    left: -100px; top: 10%;
-                    background: radial-gradient(circle, rgba(200,240,78,0.07) 0%, transparent 70%);
-                    animation-delay: 0s;
-                }
-                .ambient-orb-2 {
-                    width: 500px; height: 400px;
-                    right: -80px; top: 20%;
-                    background: radial-gradient(circle, rgba(162,110,255,0.05) 0%, transparent 70%);
-                    animation-delay: -4s;
-                }
-                .ambient-orb-3 {
-                    width: 400px; height: 400px;
-                    left: 40%; top: 60%;
-                    background: radial-gradient(circle, rgba(56,189,248,0.04) 0%, transparent 70%);
-                    animation-delay: -8s;
-                }
-                .light-mode .ambient-orb-1 { background: radial-gradient(circle, rgba(90,122,0,0.06) 0%, transparent 70%); }
-                .light-mode .ambient-orb-2 { background: radial-gradient(circle, rgba(109,40,217,0.04) 0%, transparent 70%); }
-                .light-mode .ambient-orb-3 { background: radial-gradient(circle, rgba(2,132,199,0.03) 0%, transparent 70%); }
-                @keyframes float {
-                    0%, 100% { transform: translate(0,0) scale(1); }
-                    33%       { transform: translate(30px,-20px) scale(1.05); }
-                    66%       { transform: translate(-20px,15px) scale(0.97); }
-                }
-
-                /* ── HERO ── */
+                /* ═══════════════════════════════════════════
+                   HERO
+                ═══════════════════════════════════════════ */
                 .hero-wrap {
                     position: relative; z-index: 1;
                     max-width: 1280px; margin: 0 auto;
-                    padding: 128px 2rem 80px;
-                    display: flex; align-items: center; gap: 5rem;
+                    padding: clamp(110px,12vw,140px) clamp(1rem,4vw,2rem) clamp(60px,8vw,100px);
+                    display: flex; align-items: center; gap: clamp(2rem,5vw,5rem);
                     min-height: 100vh;
                 }
                 @media (max-width: 1024px) {
-                    .hero-wrap { flex-direction: column; padding: 110px 1.5rem 60px; min-height: auto; }
+                    .hero-wrap {
+                        flex-direction: column; min-height: auto;
+                        padding-top: 110px;
+                    }
                 }
-                .hero-content { flex: 1; max-width: 590px; position: relative; }
+                .hero-content { flex: 1; max-width: 600px; }
                 .hero-badge {
                     display: inline-flex; align-items: center; gap: 8px;
-                    padding: 6px 14px;
-                    border: 1px solid rgba(200,240,78,0.25);
-                    border-radius: 50px;
+                    padding: 6px 14px; border-radius: 50px;
+                    border: 1px solid rgba(200,240,78,0.28);
                     background: rgba(200,240,78,0.07);
                     font-size: 11.5px; font-weight: 600;
-                    color: var(--brand);
-                    letter-spacing: 0.6px; text-transform: uppercase;
-                    margin-bottom: 2rem;
+                    color: var(--brand); letter-spacing: 0.6px; text-transform: uppercase;
+                    margin-bottom: 1.75rem;
                 }
                 .light-mode .hero-badge {
-                    border-color: rgba(90,122,0,0.2);
-                    background: rgba(90,122,0,0.06);
+                    border-color: rgba(90,122,0,0.22);
+                    background: rgba(90,122,0,0.07);
                 }
                 .badge-dot {
                     width: 6px; height: 6px; border-radius: 50%; background: var(--brand);
-                    animation: pulse-dot 2s infinite;
+                    animation: pulse-dot 2.2s infinite;
                 }
                 @keyframes pulse-dot {
                     0%,100% { opacity:1; transform:scale(1); }
-                    50% { opacity:0.4; transform:scale(0.75); }
+                    50% { opacity:0.35; transform:scale(0.7); }
                 }
                 .hero-title {
                     font-family: var(--font-display);
-                    font-size: clamp(46px, 5.5vw, 78px);
-                    font-weight: 800; line-height: 1.0;
-                    letter-spacing: -2.5px;
-                    color: var(--text-primary);
-                    margin-bottom: 1.5rem;
+                    font-size: clamp(44px, 5.8vw, 80px);
+                    font-weight: 800; line-height: 1.0; letter-spacing: -2.5px;
+                    color: var(--text-primary); margin-bottom: 1.4rem;
                 }
                 .hero-title-accent {
                     color: var(--brand); display: block;
-                    /* Subtle text-shadow in dark for depth */
-                    text-shadow: 0 0 60px var(--brand-glow);
+                    text-shadow: 0 0 70px var(--brand-glow);
                 }
                 .light-mode .hero-title-accent { text-shadow: none; }
                 .hero-subtitle {
-                    font-size: 17px; color: var(--text-secondary);
-                    line-height: 1.75; max-width: 460px; margin-bottom: 2.5rem;
-                    font-weight: 300;
+                    font-size: clamp(15px, 2vw, 17px);
+                    color: var(--text-secondary); line-height: 1.75;
+                    max-width: 470px; margin-bottom: 2.4rem; font-weight: 300;
                 }
-                .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 3rem; }
+                .hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 2.8rem; }
                 .btn-hero {
-                    padding: 14px 28px; border-radius: 50px;
-                    background: var(--brand); color: #0c0d0b;
-                    font-size: 15px; font-weight: 700;
-                    text-decoration: none;
+                    padding: 13px 26px; border-radius: 50px;
+                    background: var(--brand); color: var(--on-brand);
+                    font-size: 15px; font-weight: 700; border: none;
+                    text-decoration: none; cursor: pointer;
                     display: inline-flex; align-items: center; gap: 8px;
-                    transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
                     font-family: var(--font-display);
-                    box-shadow: 0 0 0 0 var(--brand-glow);
-                    border: none;
+                    transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
                 }
-                .btn-hero:hover { background: var(--brand-dim); transform: translateY(-2px); box-shadow: 0 8px 40px var(--brand-glow); }
-                .light-mode .btn-hero { color: #fff; }
+                .btn-hero:hover { background: var(--brand-dim); transform: translateY(-2px); box-shadow: 0 10px 44px var(--brand-glow); }
                 .btn-hero-outline {
-                    padding: 14px 28px; border-radius: 50px;
+                    padding: 13px 26px; border-radius: 50px;
                     border: 1px solid var(--border-default);
-                    color: var(--text-primary);
-                    font-size: 15px; font-weight: 500;
+                    color: var(--text-primary); font-size: 15px; font-weight: 500;
                     text-decoration: none;
                     display: inline-flex; align-items: center; gap: 8px;
-                    transition: all 0.25s;
                     background: var(--bg-elevated);
+                    transition: border-color 0.2s, background 0.2s;
                 }
                 .btn-hero-outline:hover { border-color: var(--border-hover); background: var(--bg-high); }
-                .hero-trust {
-                    display: flex; align-items: center; gap: 12px;
-                    color: var(--text-tertiary); font-size: 13px;
-                }
+                .hero-trust { display: flex; align-items: center; gap: 12px; }
                 .hero-trust-avatars { display: flex; }
                 .hero-trust-avatar {
                     width: 28px; height: 28px; border-radius: 50%;
@@ -634,19 +845,19 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     margin-left: -8px;
                 }
                 .hero-trust-avatar:first-child { margin-left: 0; }
-                .hero-trust-avatar img { width: 100%; height: 100%; object-fit: cover; }
-                .hero-trust-text { color: var(--text-secondary); }
+                .hero-trust-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+                .hero-trust-text { font-size: 13px; color: var(--text-secondary); }
                 .hero-trust-text strong { color: var(--brand); font-weight: 600; }
 
-                /* ── HERO IMAGES ── */
-                .hero-visual { flex: 1; max-width: 500px; position: relative; }
-                @media (max-width: 1024px) { .hero-visual { width: 100%; max-width: 100%; } }
+                /* Hero images */
+                .hero-visual { flex: 1; max-width: 500px; width: 100%; }
+                @media (max-width: 1024px) { .hero-visual { max-width: 100%; } }
                 .hero-image-grid {
-                    display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; height: 520px;
+                    display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px;
+                    height: clamp(300px, 50vw, 520px);
                 }
-                @media (max-width: 1024px) { .hero-image-grid { height: 360px; } }
                 .hero-img { border-radius: var(--radius-lg); overflow: hidden; position: relative; }
-                .hero-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+                .hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
                 .hero-img:hover img { transform: scale(1.05); }
                 .hero-img--main { grid-row: span 2; }
                 .hero-img-stack { display: flex; flex-direction: column; gap: 12px; }
@@ -658,55 +869,65 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 .img-badge {
                     position: absolute; bottom: 14px; left: 14px;
                     display: flex; align-items: center; gap: 6px;
-                    background: rgba(12,13,11,0.75);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255,255,255,0.10);
-                    border-radius: 50px; padding: 6px 12px;
-                    font-size: 12px; font-weight: 600; color: #fff;
+                    background: rgba(13,14,11,0.76); backdrop-filter: blur(14px);
+                    border: 1px solid rgba(255,255,255,0.11); border-radius: 50px;
+                    padding: 6px 12px; font-size: 12px; font-weight: 600; color: #fff;
                 }
                 .img-badge .badge-dot { background: #22c55e; }
                 .img-stat-card {
                     position: absolute; bottom: 14px; left: 14px; right: 14px;
-                    background: rgba(12,13,11,0.78);
-                    backdrop-filter: blur(14px);
-                    border: 1px solid rgba(200,240,78,0.18);
-                    border-radius: var(--radius-sm); padding: 10px 14px;
-                    display: flex; align-items: center; gap: 10px;
+                    background: rgba(13,14,11,0.80); backdrop-filter: blur(16px);
+                    border: 1px solid rgba(200,240,78,0.20); border-radius: var(--radius-sm);
+                    padding: 10px 14px; display: flex; align-items: center; gap: 10px;
                 }
-                .img-stat-icon { color: var(--brand); }
+                .img-stat-icon { color: var(--brand); flex-shrink: 0; }
                 .img-stat-val { font-size: 16px; font-weight: 700; color: var(--brand); font-family: var(--font-display); line-height: 1; }
                 .img-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
-                /* ── MARQUEE ── */
+                /* Hero content animation */
+                .hero-content > * { animation: fadeUp 0.65s ease both; }
+                .hero-content > *:nth-child(1) { animation-delay: 0.05s; }
+                .hero-content > *:nth-child(2) { animation-delay: 0.15s; }
+                .hero-content > *:nth-child(3) { animation-delay: 0.25s; }
+                .hero-content > *:nth-child(4) { animation-delay: 0.35s; }
+                .hero-content > *:nth-child(5) { animation-delay: 0.45s; }
+                .hero-visual { animation: fadeUp 0.8s 0.2s ease both; }
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(24px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+
+                /* ═══════════════════════════════════════════
+                   MARQUEE
+                ═══════════════════════════════════════════ */
                 .marquee-wrap {
                     border-top: 1px solid var(--border-soft);
                     border-bottom: 1px solid var(--border-soft);
                     padding: 18px 0; overflow: hidden;
-                    background: var(--bg-raised);
-                    position: relative; z-index: 1;
+                    background: var(--bg-raised); position: relative; z-index: 1;
                 }
                 .marquee-track {
-                    display: flex; gap: 3rem;
-                    animation: marquee 32s linear infinite;
-                    white-space: nowrap;
+                    display: flex; gap: 3rem; width: max-content;
+                    animation: marquee 34s linear infinite;
                 }
                 .marquee-track:hover { animation-play-state: paused; }
                 @keyframes marquee {
-                    0%   { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
+                    from { transform: translateX(0); }
+                    to   { transform: translateX(-50%); }
                 }
                 .marquee-item {
                     display: inline-flex; align-items: center; gap: 10px;
                     color: var(--text-tertiary); font-size: 12.5px; font-weight: 500;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.5px; white-space: nowrap;
                 }
-                .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brand); opacity: 0.6; }
+                .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brand); opacity: 0.7; flex-shrink: 0; }
 
-                /* ── STATS ── */
+                /* ═══════════════════════════════════════════
+                   STATS
+                ═══════════════════════════════════════════ */
                 .stats-section {
-                    padding: 80px 2rem;
-                    max-width: 1280px; margin: 0 auto;
-                    position: relative; z-index: 1;
+                    padding: clamp(60px,8vw,90px) clamp(1rem,4vw,2rem);
+                    max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;
                 }
                 .stats-grid {
                     display: grid; grid-template-columns: repeat(4, 1fr);
@@ -715,49 +936,50 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     border-radius: var(--radius-lg); overflow: hidden;
                 }
                 @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+                @media (max-width: 400px)  { .stats-grid { grid-template-columns: 1fr; } }
                 .stat-card {
-                    background: var(--bg-raised);
-                    padding: 2.5rem 2rem;
-                    display: flex; flex-direction: column; align-items: center; gap: 8px;
-                    text-align: center; transition: background 0.25s;
+                    background: var(--bg-raised); padding: clamp(1.5rem,3vw,2.5rem) 1.5rem;
+                    display: flex; flex-direction: column; align-items: center;
+                    gap: 8px; text-align: center; transition: background 0.25s;
                 }
                 .stat-card:hover { background: var(--bg-elevated); }
                 .stat-icon { color: var(--brand); margin-bottom: 4px; opacity: 0.85; }
                 .stat-value {
                     font-family: var(--font-display);
-                    font-size: 44px; font-weight: 800;
-                    color: var(--text-primary);
-                    letter-spacing: -1.5px; line-height: 1;
+                    font-size: clamp(36px,4vw,46px); font-weight: 800;
+                    color: var(--text-primary); letter-spacing: -1.5px; line-height: 1;
                 }
                 .stat-label { font-size: 13.5px; color: var(--text-secondary); }
 
-                /* ── SECTIONS ── */
+                /* ═══════════════════════════════════════════
+                   SECTIONS
+                ═══════════════════════════════════════════ */
                 .section {
-                    padding: 100px 2rem;
-                    max-width: 1280px; margin: 0 auto;
-                    position: relative; z-index: 1;
+                    padding: clamp(70px,9vw,110px) clamp(1rem,4vw,2rem);
+                    max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;
                 }
                 .section-tag {
                     display: inline-flex; align-items: center; gap: 6px;
-                    font-size: 11.5px; font-weight: 600;
-                    text-transform: uppercase; letter-spacing: 1.2px;
-                    color: var(--brand); margin-bottom: 16px;
+                    font-size: 11.5px; font-weight: 600; text-transform: uppercase;
+                    letter-spacing: 1.2px; color: var(--brand); margin-bottom: 14px;
                 }
                 .section-title {
                     font-family: var(--font-display);
-                    font-size: clamp(30px, 3.8vw, 50px);
-                    font-weight: 800; letter-spacing: -1.5px; line-height: 1.08;
+                    font-size: clamp(28px,3.8vw,50px); font-weight: 800;
+                    letter-spacing: -1.5px; line-height: 1.08;
                     color: var(--text-primary); margin-bottom: 1rem;
                 }
                 .section-subtitle {
-                    font-size: 16.5px; color: var(--text-secondary);
-                    max-width: 500px; line-height: 1.75; font-weight: 300;
+                    font-size: 16px; color: var(--text-secondary);
+                    max-width: 500px; line-height: 1.78; font-weight: 300;
                 }
-                .section-header { margin-bottom: 4rem; }
+                .section-header { margin-bottom: clamp(2.5rem,5vw,4rem); }
                 .section-header--center { text-align: center; }
                 .section-header--center .section-subtitle { margin: 0 auto; }
 
-                /* ── FEATURES ── */
+                /* ═══════════════════════════════════════════
+                   FEATURES GRID
+                ═══════════════════════════════════════════ */
                 .features-grid {
                     display: grid; grid-template-columns: repeat(3, 1fr);
                     gap: 1px; background: var(--border-subtle);
@@ -765,23 +987,24 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     border-radius: var(--radius-lg); overflow: hidden;
                 }
                 @media (max-width: 1024px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
-                @media (max-width: 640px)  { .features-grid { grid-template-columns: 1fr; } }
+                @media (max-width: 600px)  { .features-grid { grid-template-columns: 1fr; } }
                 .feature-card {
-                    background: var(--bg-raised);
-                    padding: 2rem; position: relative;
-                    transition: background 0.25s; cursor: default; overflow: hidden;
+                    background: var(--bg-raised); padding: clamp(1.4rem,2.5vw,2rem);
+                    position: relative; overflow: hidden;
+                    transition: background 0.25s;
+                    cursor: default;
                 }
                 .feature-card::before {
                     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
                     background: linear-gradient(90deg, var(--brand) 0%, transparent 100%);
-                    transform: scaleX(0); transition: transform 0.35s ease; transform-origin: left;
+                    transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease;
                 }
                 .feature-card:hover { background: var(--bg-elevated); }
                 .feature-card:hover::before { transform: scaleX(1); }
                 .feature-icon-wrap {
                     width: 44px; height: 44px; border-radius: var(--radius-sm);
                     display: flex; align-items: center; justify-content: center;
-                    margin-bottom: 1.25rem;
+                    margin-bottom: 1.2rem;
                 }
                 .accent-purple  { background: var(--accent-purple-bg);  color: var(--accent-purple-fg); }
                 .accent-emerald { background: var(--accent-emerald-bg); color: var(--accent-emerald-fg); }
@@ -790,73 +1013,104 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 .accent-rose    { background: var(--accent-rose-bg);    color: var(--accent-rose-fg); }
                 .accent-lime    { background: var(--accent-lime-bg);    color: var(--accent-lime-fg); }
                 .feature-title {
-                    font-family: var(--font-display);
-                    font-size: 16.5px; font-weight: 700;
+                    font-family: var(--font-display); font-size: 16px; font-weight: 700;
                     color: var(--text-primary); margin-bottom: 8px;
                 }
                 .feature-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
                 .feature-arrow {
-                    position: absolute; bottom: 1.5rem; right: 1.5rem;
+                    position: absolute; bottom: 1.4rem; right: 1.4rem;
                     color: var(--text-tertiary); opacity: 0;
-                    transform: translateX(-4px); transition: all 0.25s;
+                    transform: translateX(-4px); transition: opacity 0.22s, transform 0.22s, color 0.22s;
                 }
                 .feature-card:hover .feature-arrow { opacity: 1; transform: translateX(0); color: var(--brand); }
 
-                /* ── ROLES ── */
+                /* ═══════════════════════════════════════════
+                   SHOWCASE
+                ═══════════════════════════════════════════ */
+                .showcase-section {
+                    padding: 0 clamp(1rem,4vw,2rem) clamp(60px,8vw,100px);
+                    max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;
+                }
+                .showcase-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+                @media (max-width: 768px) { .showcase-grid { grid-template-columns: 1fr; } }
+                .showcase-img { position: relative; overflow: hidden; border-radius: var(--radius-lg); }
+                .showcase-img img {
+                    width: 100%; height: clamp(220px,30vw,380px);
+                    object-fit: cover; display: block;
+                    transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+                }
+                .showcase-img:hover img { transform: scale(1.04); }
+                .showcase-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, transparent 55%);
+                    display: flex; align-items: flex-end; padding: 1.6rem;
+                }
+                .showcase-label {
+                    background: rgba(13,14,11,0.68); backdrop-filter: blur(14px);
+                    border: 1px solid rgba(255,255,255,0.11); border-radius: 50px;
+                    padding: 7px 16px; font-size: 13px; font-weight: 600; color: #fff;
+                    display: flex; align-items: center; gap: 7px;
+                }
+                .showcase-label svg { color: var(--brand); }
+                .showcase-side { display: flex; flex-direction: column; gap: 14px; }
+                .showcase-side .showcase-img img { height: clamp(100px,15vw,183px); }
+
+                /* ═══════════════════════════════════════════
+                   ROLES SECTION
+                ═══════════════════════════════════════════ */
                 .roles-section {
-                    padding: 100px 2rem;
+                    padding: clamp(70px,9vw,110px) clamp(1rem,4vw,2rem);
                     background: var(--bg-raised);
                     border-top: 1px solid var(--border-soft);
                     border-bottom: 1px solid var(--border-soft);
                     position: relative; z-index: 1;
                 }
                 .roles-inner { max-width: 1280px; margin: 0 auto; }
-                .roles-tabs { display: flex; gap: 8px; margin-bottom: 3rem; flex-wrap: wrap; }
+                .roles-tabs { display: flex; gap: 8px; margin-bottom: 2.5rem; flex-wrap: wrap; }
                 .role-tab {
-                    padding: 10px 22px; border-radius: 50px;
+                    padding: 9px 20px; border-radius: 50px;
                     border: 1px solid var(--border-default);
                     background: transparent; color: var(--text-secondary);
                     font-size: 14px; font-weight: 600; cursor: pointer;
-                    transition: all 0.2s; font-family: var(--font-body);
+                    transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+                    font-family: var(--font-body);
                 }
                 .role-tab:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-elevated); }
                 .role-tab--active {
-                    background: var(--brand); border-color: var(--brand);
-                    color: #0c0d0b;
-                    box-shadow: 0 0 20px var(--brand-glow);
+                    background: var(--brand); border-color: var(--brand); color: var(--on-brand);
+                    box-shadow: 0 0 24px var(--brand-glow);
                 }
                 .light-mode .role-tab--active { color: #fff; box-shadow: none; }
-                .roles-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+                .roles-content {
+                    display: grid; grid-template-columns: 1fr 1fr;
+                    gap: clamp(2rem,5vw,4rem); align-items: center;
+                }
                 @media (max-width: 900px) { .roles-content { grid-template-columns: 1fr; } }
                 .role-features { display: flex; flex-direction: column; gap: 10px; }
                 .role-feature-item {
                     display: flex; align-items: center; gap: 16px;
-                    padding: 15px 18px;
-                    background: var(--bg-base);
-                    border: 1px solid var(--border-soft);
-                    border-radius: var(--radius); transition: all 0.2s;
+                    padding: 14px 18px;
+                    background: var(--bg-base); border: 1px solid var(--border-soft);
+                    border-radius: var(--radius);
+                    transition: border-color 0.2s, background 0.2s;
                 }
-                .role-feature-item:hover {
-                    border-color: var(--border-muted);
-                    background: var(--brand-tint);
-                }
+                .role-feature-item:hover { border-color: var(--border-muted); background: var(--brand-tint); }
                 .role-feature-num {
                     width: 28px; height: 28px; min-width: 28px; border-radius: 50%;
                     background: var(--brand-tint2); color: var(--brand);
                     display: flex; align-items: center; justify-content: center;
                     font-size: 12px; font-weight: 700; font-family: var(--font-display);
                 }
-                .role-feature-icon { color: var(--text-secondary); }
+                .role-feature-icon { color: var(--text-secondary); flex-shrink: 0; }
                 .role-feature-text { font-size: 14.5px; font-weight: 500; color: var(--text-primary); }
 
-                /* ── ROLE MOCKUP ── */
+                /* Role mockup */
                 .role-mockup {
-                    background: var(--bg-base);
-                    border: 1px solid var(--border-default);
+                    background: var(--bg-base); border: 1px solid var(--border-default);
                     border-radius: var(--radius-xl); overflow: hidden; padding: 2px;
                 }
                 .role-mockup-inner { background: #0a0b08; border-radius: calc(var(--radius-xl) - 2px); overflow: hidden; }
-                .light-mode .role-mockup-inner { background: #e8e6df; }
+                .light-mode .role-mockup-inner { background: #e8e5de; }
                 .mockup-topbar {
                     display: flex; align-items: center; justify-content: space-between;
                     padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -867,18 +1121,21 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 .mockup-dot--r { background: #ff5f56; }
                 .mockup-dot--y { background: #ffbd2e; }
                 .mockup-dot--g { background: #27c93f; }
-                .mockup-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+                .mockup-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
                 .mockup-header { display: flex; align-items: center; justify-content: space-between; }
                 .mockup-title-wrap { display: flex; flex-direction: column; gap: 4px; }
                 .mockup-bar { height: 11px; border-radius: 4px; background: rgba(255,255,255,0.07); }
-                .light-mode .mockup-bar { background: rgba(0,0,0,0.08); }
+                .light-mode .mockup-bar { background: rgba(0,0,0,0.09); }
                 .mockup-bar--wide { width: 140px; }
-                .mockup-bar--sm { width: 80px; height: 9px; }
-                .mockup-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(200,240,78,0.18); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-                .mockup-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+                .mockup-bar--sm   { width: 80px; height: 9px; }
+                .mockup-avatar {
+                    width: 34px; height: 34px; border-radius: 50%;
+                    background: rgba(200,240,78,0.18);
+                    display: flex; align-items: center; justify-content: center; font-size: 14px;
+                }
+                .mockup-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
                 .mockup-stat {
-                    background: rgba(255,255,255,0.04);
-                    border: 1px solid rgba(255,255,255,0.05);
+                    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05);
                     border-radius: 12px; padding: 14px;
                 }
                 .light-mode .mockup-stat { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07); }
@@ -886,133 +1143,119 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 .mockup-stat-label { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 2px; }
                 .light-mode .mockup-stat-label { color: rgba(0,0,0,0.3); }
                 .mockup-chart {
-                    height: 80px;
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.05);
-                    border-radius: 12px; padding: 12px 16px;
-                    display: flex; align-items: flex-end; gap: 6px;
+                    height: 80px; background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+                    padding: 12px 16px; display: flex; align-items: flex-end; gap: 6px;
                 }
                 .light-mode .mockup-chart { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.07); }
                 .mockup-bar-chart { flex: 1; border-radius: 3px 3px 0 0; background: rgba(200,240,78,0.18); transition: background 0.3s; }
                 .mockup-bar-chart--active { background: var(--brand); }
                 .mockup-ai-block {
-                    background: rgba(200,240,78,0.05);
-                    border: 1px solid rgba(200,240,78,0.12);
+                    background: rgba(200,240,78,0.06); border: 1px solid rgba(200,240,78,0.13);
                     border-radius: 14px; padding: 16px;
                     display: flex; align-items: center; gap: 12px;
                 }
-                .mockup-ai-icon { color: var(--brand); }
+                .mockup-ai-icon { color: var(--brand); flex-shrink: 0; }
                 .mockup-ai-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-                .mockup-ai-line { height: 7px; border-radius: 4px; background: rgba(200,240,78,0.12); }
+                .mockup-ai-line { height: 7px; border-radius: 4px; background: rgba(200,240,78,0.13); }
                 .mockup-role-pill {
-                    display: inline-flex; padding: 4px 12px;
-                    border-radius: 50px;
-                    font-size: 11px; font-weight: 600;
-                    text-transform: uppercase; letter-spacing: 0.5px;
+                    display: inline-flex; padding: 4px 12px; border-radius: 50px;
+                    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
                 }
 
-                /* ── SHOWCASE ── */
-                .showcase-section { padding: 0 2rem 100px; max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
-                .showcase-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
-                @media (max-width: 768px) { .showcase-grid { grid-template-columns: 1fr; } }
-                .showcase-img { position: relative; overflow: hidden; border-radius: var(--radius-lg); }
-                .showcase-img img { width: 100%; height: 380px; object-fit: cover; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-                .showcase-img:hover img { transform: scale(1.04); }
-                .showcase-overlay {
-                    position: absolute; inset: 0;
-                    background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, transparent 55%);
-                    display: flex; align-items: flex-end; padding: 1.75rem;
+                /* ═══════════════════════════════════════════
+                   PRICING
+                ═══════════════════════════════════════════ */
+                .pricing-grid {
+                    display: grid; grid-template-columns: repeat(3,1fr);
+                    gap: 16px; align-items: stretch;
                 }
-                .showcase-label {
-                    background: rgba(12,13,11,0.65);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255,255,255,0.10);
-                    border-radius: 50px; padding: 7px 16px;
-                    font-size: 13px; font-weight: 600; color: #fff;
-                    display: flex; align-items: center; gap: 6px;
-                }
-                .showcase-label svg { color: var(--brand); }
-                .showcase-side { display: flex; flex-direction: column; gap: 14px; }
-                .showcase-side .showcase-img img { height: 183px; }
-
-                /* ── PRICING ── */
-                .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
-                @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; } }
+                @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
                 .pricing-card {
-                    background: var(--bg-raised);
-                    border: 1px solid var(--border-default);
-                    border-radius: var(--radius-lg); padding: 2rem;
-                    display: flex; flex-direction: column;
-                    position: relative; transition: border-color 0.25s, transform 0.25s;
+                    background: var(--bg-raised); border: 1px solid var(--border-default);
+                    border-radius: var(--radius-lg); padding: clamp(1.4rem,2.5vw,2rem);
+                    display: flex; flex-direction: column; position: relative;
+                    transition: border-color 0.25s, transform 0.25s;
                 }
-                .pricing-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+                .pricing-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
                 .pricing-card--featured {
-                    background: var(--brand);
-                    border-color: var(--brand);
-                    box-shadow: 0 0 60px var(--brand-glow);
-                    transform: scale(1.02);
+                    background: var(--brand); border-color: var(--brand);
+                    box-shadow: 0 0 70px var(--brand-glow); transform: scale(1.025);
                 }
-                .pricing-card--featured:hover { transform: scale(1.02) translateY(-2px); }
-                .pricing-card--featured * { color: #0c0d0b !important; }
+                .pricing-card--featured:hover { transform: scale(1.025) translateY(-3px); }
+                .pricing-card--featured * { color: #0d0e0b !important; }
                 .light-mode .pricing-card--featured * { color: #fff !important; }
                 .pricing-badge {
                     position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-                    background: #0c0d0b; color: var(--brand) !important;
+                    background: #0d0e0b; color: var(--brand) !important;
                     font-size: 10.5px; font-weight: 700; padding: 4px 14px;
                     border-radius: 50px; white-space: nowrap;
                     letter-spacing: 0.8px; text-transform: uppercase;
                 }
                 .light-mode .pricing-badge { background: #1a1c14; }
-                .pricing-plan { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--brand); margin-bottom: 12px; }
+                .pricing-plan {
+                    font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+                    letter-spacing: 1.2px; color: var(--brand); margin-bottom: 12px;
+                }
                 .pricing-card--featured .pricing-plan { color: rgba(12,13,11,0.55) !important; }
                 .pricing-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
-                .pricing-price { font-family: var(--font-display); font-size: 46px; font-weight: 800; color: var(--text-primary); letter-spacing: -2px; }
+                .pricing-price {
+                    font-family: var(--font-display); font-size: clamp(38px,4vw,48px);
+                    font-weight: 800; color: var(--text-primary); letter-spacing: -2px;
+                }
                 .pricing-period { font-size: 14px; color: var(--text-secondary); }
-                .pricing-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-soft); }
-                .pricing-card--featured .pricing-desc { border-color: rgba(12,13,11,0.15); }
-                .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 11px; flex: 1; margin-bottom: 1.5rem; }
+                .pricing-desc {
+                    font-size: 14px; color: var(--text-secondary);
+                    margin-bottom: 1.4rem; padding-bottom: 1.4rem;
+                    border-bottom: 1px solid var(--border-soft);
+                }
+                .pricing-card--featured .pricing-desc { border-color: rgba(12,13,11,0.16); }
+                .pricing-features {
+                    list-style: none; display: flex; flex-direction: column;
+                    gap: 10px; flex: 1; margin-bottom: 1.4rem;
+                }
                 .pricing-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
                 .pricing-check { color: var(--brand); flex-shrink: 0; }
                 .pricing-card--featured .pricing-check { color: rgba(12,13,11,0.55) !important; }
                 .pricing-cta {
                     display: flex; align-items: center; justify-content: center; gap: 6px;
                     padding: 12px 20px; border-radius: 50px;
-                    border: 1px solid var(--border-hover);
-                    background: transparent; color: var(--text-primary);
-                    font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+                    border: 1px solid var(--border-hover); background: transparent;
+                    color: var(--text-primary); font-size: 14px; font-weight: 600;
+                    text-decoration: none; transition: background 0.2s;
                 }
                 .pricing-cta:hover { background: var(--bg-elevated); }
-                .pricing-cta--featured { background: #0c0d0b !important; color: var(--brand) !important; border-color: #0c0d0b !important; }
+                .pricing-cta--featured { background: #0d0e0b !important; color: var(--brand) !important; border-color: #0d0e0b !important; }
                 .pricing-cta--featured:hover { opacity: 0.88; }
                 .light-mode .pricing-cta--featured { background: #1a1c14 !important; }
 
-                /* ── TESTIMONIALS ── */
+                /* ═══════════════════════════════════════════
+                   TESTIMONIALS
+                ═══════════════════════════════════════════ */
                 .testimonials-section {
-                    padding: 100px 2rem;
+                    padding: clamp(70px,9vw,110px) clamp(1rem,4vw,2rem);
                     background: var(--bg-raised);
                     border-top: 1px solid var(--border-soft);
                     border-bottom: 1px solid var(--border-soft);
                     position: relative; z-index: 1;
                 }
                 .testimonials-inner { max-width: 1280px; margin: 0 auto; }
-                .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+                .testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
                 @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
                 .testimonial-card {
-                    background: var(--bg-base);
-                    border: 1px solid var(--border-default);
-                    border-radius: var(--radius-lg); padding: 2rem;
+                    background: var(--bg-base); border: 1px solid var(--border-default);
+                    border-radius: var(--radius-lg); padding: 1.75rem;
                     display: flex; flex-direction: column; gap: 1rem;
                     transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
                 }
                 .testimonial-card:hover {
-                    border-color: var(--brand-muted);
-                    transform: translateY(-3px);
-                    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+                    border-color: var(--brand-muted); transform: translateY(-4px);
+                    box-shadow: 0 16px 48px rgba(0,0,0,0.24);
                 }
-                .light-mode .testimonial-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+                .light-mode .testimonial-card:hover { box-shadow: 0 10px 34px rgba(0,0,0,0.09); }
                 .stars { display: flex; gap: 4px; }
-                .star { width: 14px; height: 14px; fill: #f59e0b; }
-                .testimonial-quote { font-size: 14.5px; color: var(--text-secondary); line-height: 1.75; flex: 1; font-style: italic; }
+                .star { width: 14px; height: 14px; fill: #f59e0b; flex-shrink: 0; }
+                .testimonial-quote { font-size: 14.5px; color: var(--text-secondary); line-height: 1.78; flex: 1; font-style: italic; }
                 .testimonial-author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
                 .author-avatar {
                     width: 40px; height: 40px; border-radius: 50%;
@@ -1025,105 +1268,172 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 .author-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
                 .author-role { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
 
-                /* ── FAQ ── */
+                /* ═══════════════════════════════════════════
+                   FAQ
+                ═══════════════════════════════════════════ */
                 .faq-item { border-bottom: 1px solid var(--border-soft); }
                 .faq-question {
                     width: 100%; background: none; border: none; cursor: pointer;
                     display: flex; align-items: center; justify-content: space-between;
-                    padding: 1.5rem 0; text-align: left; gap: 1rem;
+                    padding: 1.4rem 0; text-align: left; gap: 1rem;
                     color: var(--text-primary); font-size: 15.5px; font-weight: 600;
                     font-family: var(--font-body); transition: color 0.2s;
                 }
                 .faq-question:hover { color: var(--brand); }
-                .faq-chevron { color: var(--text-tertiary); transition: transform 0.3s; flex-shrink: 0; }
+                .faq-chevron { color: var(--text-tertiary); transition: transform 0.3s, color 0.2s; flex-shrink: 0; }
                 .faq-chevron.rotate { transform: rotate(180deg); color: var(--brand); }
-                .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
-                .faq-answer--open { max-height: 300px; padding-bottom: 1.5rem; }
-                .faq-answer p { font-size: 15px; color: var(--text-secondary); line-height: 1.75; padding-right: 3rem; font-weight: 300; }
+                .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+                .faq-answer--open { max-height: 300px; padding-bottom: 1.4rem; }
+                .faq-answer p { font-size: 15px; color: var(--text-secondary); line-height: 1.78; padding-right: 3rem; font-weight: 300; }
 
-                /* ── CONTACT ── */
-                .contact-section { padding: 100px 2rem; max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
-                .contact-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 6rem; align-items: start; }
-                @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; gap: 3rem; } }
-                .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+                /* ═══════════════════════════════════════════
+                   CONTACT
+                ═══════════════════════════════════════════ */
+                .contact-section {
+                    padding: clamp(70px,9vw,110px) clamp(1rem,4vw,2rem);
+                    max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;
+                }
+                .contact-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: clamp(2.5rem,6vw,6rem); align-items: start; }
+                @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+                .contact-info { display: flex; flex-direction: column; gap: 1.25rem; }
                 .contact-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--brand); }
-                .contact-title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -1.5px; color: var(--text-primary); line-height: 1.1; }
-                .contact-body { font-size: 16px; color: var(--text-secondary); line-height: 1.75; font-weight: 300; }
+                .contact-title { font-family: var(--font-display); font-size: clamp(30px,4vw,42px); font-weight: 800; letter-spacing: -1.5px; color: var(--text-primary); line-height: 1.1; }
+                .contact-body { font-size: 16px; color: var(--text-secondary); line-height: 1.78; font-weight: 300; }
                 .contact-email { color: var(--brand); text-decoration: none; font-weight: 600; }
                 .contact-email:hover { text-decoration: underline; }
-                .contact-perks { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+                .contact-perks { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
                 .contact-perk { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
                 .contact-perk-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--brand); flex-shrink: 0; }
-                .contact-form { display: flex; flex-direction: column; gap: 16px; }
-                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                .contact-form { display: flex; flex-direction: column; gap: 14px; }
+                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
                 @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
                 .form-group { display: flex; flex-direction: column; gap: 6px; }
                 .form-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-tertiary); }
                 .form-input, .form-textarea {
-                    background: var(--bg-raised);
-                    border: 1px solid var(--border-default);
+                    background: var(--bg-raised); border: 1px solid var(--border-default);
                     border-radius: var(--radius); padding: 13px 17px;
                     font-size: 15px; color: var(--text-primary);
-                    font-family: var(--font-body); outline: none;
-                    transition: border-color 0.2s, background 0.2s; width: 100%;
+                    font-family: var(--font-body); outline: none; width: 100%;
+                    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
                 }
                 .form-input:focus, .form-textarea:focus {
-                    border-color: var(--brand-muted);
-                    background: var(--bg-elevated);
+                    border-color: var(--brand-muted); background: var(--bg-elevated);
                     box-shadow: 0 0 0 3px var(--brand-tint);
                 }
                 .form-input::placeholder, .form-textarea::placeholder { color: var(--text-tertiary); }
                 .form-textarea { resize: none; }
                 .form-submit {
-                    padding: 14px 28px; background: var(--brand); color: #0c0d0b;
+                    padding: 14px 28px; background: var(--brand); color: var(--on-brand);
                     border: none; border-radius: 50px; font-size: 15px; font-weight: 700;
                     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-                    transition: all 0.2s; font-family: var(--font-display);
-                    box-shadow: 0 0 0 0 var(--brand-glow);
+                    font-family: var(--font-display);
+                    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
                 }
-                .form-submit:hover { background: var(--brand-dim); transform: translateY(-1px); box-shadow: 0 6px 30px var(--brand-glow); }
+                .form-submit:hover { background: var(--brand-dim); transform: translateY(-1px); box-shadow: 0 8px 32px var(--brand-glow); }
                 .form-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-                .light-mode .form-submit { color: #fff; }
+                .lang-switch {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px;
+                    border: 1px solid var(--border-default);
+                    border-radius: 999px;
+                    background: var(--bg-elevated);
+                }
+                .lang-switch-btn {
+                    border: none;
+                    background: transparent;
+                    color: var(--text-secondary);
+                    padding: 6px 10px;
+                    border-radius: 999px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: background 0.2s, color 0.2s;
+                }
+                .lang-switch-btn.active {
+                    background: var(--brand);
+                    color: var(--on-brand);
+                }
+                .rtl { direction: rtl; }
+                .rtl .hero-trust-avatar { margin-left: 0; margin-right: -8px; }
+                .rtl .hero-trust-avatar:first-child { margin-right: 0; }
+                .rtl .feature-arrow { right: auto; left: 1.4rem; transform: translateX(4px); }
+                .rtl .feature-card:hover .feature-arrow { transform: translateX(0); }
+                .rtl .faq-question { text-align: right; }
+                .rtl .faq-answer p { padding-right: 0; padding-left: 3rem; }
 
-                /* ── FOOTER ── */
+                /* ═══════════════════════════════════════════
+                   FOOTER
+                ═══════════════════════════════════════════ */
                 .footer {
                     border-top: 1px solid var(--border-soft);
-                    background: var(--bg-raised); padding: 2.5rem 2rem;
+                    background: var(--bg-raised);
+                    padding: 2.5rem clamp(1rem,4vw,2rem);
                     position: relative; z-index: 1;
                 }
                 .footer-inner {
                     max-width: 1280px; margin: 0 auto;
                     display: flex; align-items: center; justify-content: space-between;
-                    gap: 2rem; flex-wrap: wrap;
+                    gap: 1.5rem; flex-wrap: wrap;
                 }
-                .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+                .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
                 .footer-links a { font-size: 14px; color: var(--text-tertiary); text-decoration: none; transition: color 0.2s; }
                 .footer-links a:hover { color: var(--text-primary); }
                 .footer-copy { font-size: 13px; color: var(--text-tertiary); }
 
-                /* ── ANIMATIONS ── */
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(22px); }
-                    to   { opacity: 1; transform: translateY(0); }
-                }
-                .hero-content > * { animation: fadeInUp 0.65s ease both; }
-                .hero-content > *:nth-child(1) { animation-delay: 0.08s; }
-                .hero-content > *:nth-child(2) { animation-delay: 0.18s; }
-                .hero-content > *:nth-child(3) { animation-delay: 0.28s; }
-                .hero-content > *:nth-child(4) { animation-delay: 0.38s; }
-                .hero-content > *:nth-child(5) { animation-delay: 0.48s; }
-                .hero-visual { animation: fadeInUp 0.75s 0.25s ease both; }
-
-                /* ── DIVIDER ── */
+                /* ═══════════════════════════════════════════
+                   DIVIDER
+                ═══════════════════════════════════════════ */
                 .divider-line {
                     width: 100%; height: 1px;
                     background: linear-gradient(90deg, transparent 0%, var(--border-default) 30%, var(--border-default) 70%, transparent 100%);
                     position: relative; z-index: 1;
                 }
+
+                /* ═══════════════════════════════════════════
+                   CTA BANNER
+                ═══════════════════════════════════════════ */
+                .cta-banner {
+                    margin: 0 clamp(1rem,4vw,2rem) clamp(60px,8vw,90px);
+                    max-width: 1280px; margin-left: auto; margin-right: auto;
+                    margin-bottom: clamp(60px,8vw,90px);
+                    position: relative; z-index: 1;
+                    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-high) 100%);
+                    border: 1px solid var(--border-muted);
+                    border-radius: var(--radius-xl);
+                    padding: clamp(2.5rem,5vw,4rem) clamp(1.5rem,5vw,4rem);
+                    text-align: center; overflow: hidden;
+                }
+                .cta-banner::before {
+                    content: ''; position: absolute; inset: 0;
+                    background: radial-gradient(ellipse 60% 60% at 50% 0%, var(--brand-tint) 0%, transparent 70%);
+                    pointer-events: none;
+                }
+                .cta-banner-title {
+                    font-family: var(--font-display);
+                    font-size: clamp(28px,4vw,50px); font-weight: 800;
+                    letter-spacing: -1.5px; color: var(--text-primary);
+                    margin-bottom: 1rem; position: relative;
+                }
+                .cta-banner-title span { color: var(--brand); }
+                .cta-banner-sub {
+                    font-size: 16px; color: var(--text-secondary);
+                    margin-bottom: 2.2rem; font-weight: 300; position: relative;
+                }
+                .cta-banner-actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; position: relative; }
+
+                /* ═══════════════════════════════════════════
+                   RESPONSIVE UTILITIES
+                ═══════════════════════════════════════════ */
+                @media (max-width: 480px) {
+                    .hero-trust { flex-direction: column; align-items: flex-start; }
+                    .cta-banner { margin-left: 1rem; margin-right: 1rem; }
+                }
             `}</style>
 
-            <div className={isDark ? '' : 'light-mode'}>
-                {/* Ambient background orbs */}
+            <div className={`${isDark ? '' : 'light-mode'} ${isRTL ? 'rtl' : ''}`} lang={language} dir={isRTL ? 'rtl' : 'ltr'}>
+                {/* Ambient */}
                 <div className="ambient">
                     <div className="ambient-orb ambient-orb-1" />
                     <div className="ambient-orb ambient-orb-2" />
@@ -1141,19 +1451,26 @@ export default function Welcome({ auth, canRegister, content }: any) {
                             {navLinks.map(l => <li key={l.href}><a href={l.href}>{l.label}</a></li>)}
                         </ul>
                         <div className="nav-actions">
-                            <button onClick={toggleTheme} className="nav-theme-btn">
+                            <div className="lang-switch" aria-label="Language switcher">
+                                {(['en', 'fr', 'ar'] as Language[]).map((lang) => (
+                                    <button key={lang} onClick={() => switchLanguage(lang)} className={`lang-switch-btn ${language === lang ? 'active' : ''}`}>
+                                        {lang.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                            <button onClick={toggleTheme} className="nav-theme-btn" aria-label="Toggle theme">
                                 {isDark ? <Sun size={15} /> : <Moon size={15} />}
                             </button>
                             {auth.user ? (
-                                <Link href="/dashboard" className="btn-primary">Dashboard <ArrowRight size={14} /></Link>
+                                <Link href="/dashboard" className="btn-primary">{copy.nav.dashboard} <ArrowRight size={14} /></Link>
                             ) : (
                                 <>
-                                    <Link href="/login" className="btn-ghost">Log in</Link>
-                                    {canRegister && <Link href="/register" className="btn-primary">Get started <ArrowRight size={14} /></Link>}
+                                    <Link href="/login" className="btn-ghost">{copy.nav.login}</Link>
+                                    {canRegister && <Link href="/register" className="btn-primary">{copy.nav.getStarted} <ArrowRight size={14} /></Link>}
                                 </>
                             )}
                         </div>
-                        <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                        <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Menu">
                             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
                     </div>
@@ -1161,14 +1478,26 @@ export default function Welcome({ auth, canRegister, content }: any) {
 
                 {/* Mobile Menu */}
                 <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-                    {navLinks.map(l => <a key={l.href} href={l.href} onClick={() => setIsMobileMenuOpen(false)}>{l.label}</a>)}
+                    {navLinks.map(l => (
+                        <a key={l.href} href={l.href} onClick={() => setIsMobileMenuOpen(false)}>{l.label}</a>
+                    ))}
                     <div className="mobile-menu-actions">
+                        <div className="lang-switch" aria-label="Language switcher mobile">
+                            {(['en', 'fr', 'ar'] as Language[]).map((lang) => (
+                                <button key={lang} onClick={() => switchLanguage(lang)} className={`lang-switch-btn ${language === lang ? 'active' : ''}`}>
+                                    {lang.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+                        <button onClick={toggleTheme} className="btn-ghost" style={{ justifyContent: 'center' }}>
+                            {isDark ? <><Sun size={15} /> {copy.nav.lightMode}</> : <><Moon size={15} /> {copy.nav.darkMode}</>}
+                        </button>
                         {auth.user ? (
-                            <Link href="/dashboard" className="btn-primary" style={{ justifyContent: 'center' }}>Dashboard</Link>
+                            <Link href="/dashboard" className="btn-primary" style={{ justifyContent: 'center' }}>{copy.nav.dashboard}</Link>
                         ) : (
                             <>
-                                <Link href="/login" className="btn-ghost" style={{ justifyContent: 'center' }}>Log in</Link>
-                                {canRegister && <Link href="/register" className="btn-primary" style={{ justifyContent: 'center' }}>Get started</Link>}
+                                <Link href="/login" className="btn-ghost" style={{ justifyContent: 'center' }}>{copy.nav.login}</Link>
+                                {canRegister && <Link href="/register" className="btn-primary" style={{ justifyContent: 'center' }}>{copy.nav.getStarted}</Link>}
                             </>
                         )}
                     </div>
@@ -1180,22 +1509,20 @@ export default function Welcome({ auth, canRegister, content }: any) {
                         {content?.announcement ? (
                             <div className="hero-badge"><span className="badge-dot" /><BellRing size={12} />{content.announcement}</div>
                         ) : (
-                            <div className="hero-badge"><span className="badge-dot" /><Sparkles size={12} />Powered by Gemini 2.5 Flash</div>
+                            <div className="hero-badge"><span className="badge-dot" /><Sparkles size={12} />{copy.hero.fallbackBadge}</div>
                         )}
                         <h1 className="hero-title">
-                            The Future<br />of Fitness is
-                            <span className="hero-title-accent">Intelligent.</span>
+                            {copy.hero.title1}<br />{copy.hero.title2}
+                            <span className="hero-title-accent">{copy.hero.accent}</span>
                         </h1>
-                        <p className="hero-subtitle">
-                            Generate custom workouts, analyze biometrics instantly, and track every client's progress — all powered by AI, all in one enterprise platform.
-                        </p>
+                        <p className="hero-subtitle">{copy.hero.subtitle}</p>
                         <div className="hero-actions">
                             {auth.user ? (
-                                <Link href="/dashboard" className="btn-hero">Access Portal <ArrowRight size={16} /></Link>
+                                <Link href="/dashboard" className="btn-hero">{copy.hero.accessPortal} <ArrowRight size={16} /></Link>
                             ) : (
                                 <>
-                                    {canRegister && <Link href="/register" className="btn-hero">Start free trial <ArrowRight size={16} /></Link>}
-                                    <a href="#features" className="btn-hero-outline"><Play size={14} /> Watch demo</a>
+                                    {canRegister && <Link href="/register" className="btn-hero">{copy.hero.startTrial} <ArrowRight size={16} /></Link>}
+                                    <a href="#features" className="btn-hero-outline"><Play size={14} /> {copy.hero.seeFeatures}</a>
                                 </>
                             )}
                         </div>
@@ -1207,7 +1534,7 @@ export default function Welcome({ auth, canRegister, content }: any) {
                                     </div>
                                 ))}
                             </div>
-                            <span className="hero-trust-text">Trusted by <strong>1,200+</strong> athletes & coaches</span>
+                            <span className="hero-trust-text">{copy.hero.trustedBy} <strong>{copy.hero.trustCount}</strong> {copy.hero.trustSuffix}</span>
                         </div>
                     </div>
                     <div className="hero-visual"><HeroImageGrid /></div>
@@ -1216,21 +1543,28 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 {/* ── MARQUEE ── */}
                 <div className="marquee-wrap">
                     <div className="marquee-track">
-                        {['AI Workout Generation','Smart Biometrics','Stripe Payments','Role-Based Access','Progress Tracking','Redis Caching','Session Scheduling','Client Analytics','AI Workout Generation','Smart Biometrics','Stripe Payments','Role-Based Access','Progress Tracking','Redis Caching','Session Scheduling','Client Analytics'].map((item, i) => (
-                            <span key={i} className="marquee-item">
-                                <span className="marquee-dot" />{item}
-                            </span>
-                        ))}
+                        {[...Array(2)].flatMap(() =>
+                            (language === 'ar'
+                                ? ['توليد برامج AI','قياسات ذكية','مدفوعات Stripe','صلاحيات حسب الدور','تتبع التقدم','تخزين Redis','جدولة الجلسات','تحليلات العملاء']
+                                : language === 'fr'
+                                    ? ['Generation IA','Biometrie intelligente','Paiements Stripe','Acces par roles','Suivi progression','Cache Redis','Planning sessions','Analytique clients']
+                                    : ['AI Workout Generation','Smart Biometrics','Stripe Payments','Role-Based Access','Progress Tracking','Redis Caching','Session Scheduling','Client Analytics']
+                            ).map((item, i) => (
+                                <span key={`${item}-${i}`} className="marquee-item">
+                                    <span className="marquee-dot" />{item}
+                                </span>
+                            ))
+                        )}
                     </div>
                 </div>
 
                 {/* ── STATS ── */}
                 <div className="stats-section">
                     <div className="stats-grid">
-                        <StatCard value={1200} suffix="+" label="Active members"      icon={<Users size={20} />} />
-                        <StatCard value={48}   suffix="k" label="Programs generated" icon={<Brain size={20} />} />
-                        <StatCard value={98}   suffix="%" label="Client satisfaction" icon={<Activity size={20} />} />
-                        <StatCard value={10}   suffix="x" label="Faster workflow"    icon={<Zap size={20} />} />
+                        <StatCard value={1200} suffix="+" label={language === 'ar' ? 'اعضاء نشطون' : language === 'fr' ? 'Membres actifs' : 'Active members'}       icon={<Users size={20} />} />
+                        <StatCard value={48}   suffix="k"  label={language === 'ar' ? 'برامج مولدة' : language === 'fr' ? 'Programmes generes' : 'Programs generated'}  icon={<Brain size={20} />} />
+                        <StatCard value={98}   suffix="%"  label={language === 'ar' ? 'رضا العملاء' : language === 'fr' ? 'Satisfaction client' : 'Client satisfaction'}  icon={<Activity size={20} />} />
+                        <StatCard value={10}   suffix="x"  label={language === 'ar' ? 'سير عمل اسرع' : language === 'fr' ? 'Workflow accelere' : 'Faster workflow'}      icon={<Zap size={20} />} />
                     </div>
                 </div>
 
@@ -1239,21 +1573,21 @@ export default function Welcome({ auth, canRegister, content }: any) {
                     <div className="showcase-grid">
                         <div className="showcase-img">
                             <img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=900&q=80&auto=format&fit=crop" alt="Gym floor" />
-                            <div className="showcase-overlay">
-                                <div className="showcase-label"><Brain size={14} /> AI-Powered Training</div>
+                                <div className="showcase-overlay">
+                                    <div className="showcase-label"><Brain size={14} /> {language === 'ar' ? 'تدريب مدعوم بالذكاء الاصطناعي' : language === 'fr' ? "Entrainement pilote par IA" : 'AI-Powered Training'}</div>
+                                </div>
                             </div>
-                        </div>
                         <div className="showcase-side">
                             <div className="showcase-img">
                                 <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=80&auto=format&fit=crop" alt="Barbell training" />
                                 <div className="showcase-overlay">
-                                    <div className="showcase-label"><TrendingUp size={14} /> Performance Tracking</div>
+                                    <div className="showcase-label"><TrendingUp size={14} /> {language === 'ar' ? 'تتبع الاداء' : language === 'fr' ? 'Suivi de performance' : 'Performance Tracking'}</div>
                                 </div>
                             </div>
                             <div className="showcase-img">
                                 <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&q=80&auto=format&fit=crop" alt="Coach and client" />
                                 <div className="showcase-overlay">
-                                    <div className="showcase-label"><Users size={14} /> Coach & Client Portals</div>
+                                    <div className="showcase-label"><Users size={14} /> {language === 'ar' ? 'بوابات المدرب والعميل' : language === 'fr' ? 'Portails coach et client' : 'Coach & Client Portals'}</div>
                                 </div>
                             </div>
                         </div>
@@ -1263,17 +1597,17 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 {/* ── FEATURES ── */}
                 <section id="features" className="section">
                     <div className="section-header">
-                        <div className="section-tag"><Sparkles size={12} /> Enterprise Features</div>
-                        <h2 className="section-title">Built for coaches.<br />Designed for athletes.</h2>
-                        <p className="section-subtitle">Everything you need to manage gym operations, improve client outcomes, and process payments with confidence.</p>
+                        <div className="section-tag"><Sparkles size={12} /> {copy.common.enterpriseFeatures}</div>
+                        <h2 className="section-title">{copy.sections.featuresTitle.split('\n')[0]}<br />{copy.sections.featuresTitle.split('\n')[1]}</h2>
+                        <p className="section-subtitle">{copy.sections.featuresSubtitle}</p>
                     </div>
                     <div className="features-grid">
-                        <FeatureCard icon={<Brain size={22} />}      accent="accent-purple"  title="AI Workout Generation" description="Instantly generate tailored 4-week programs based on client goals, fitness level, and medical constraints — powered by Gemini." />
-                        <FeatureCard icon={<Activity size={22} />}   accent="accent-emerald" title="Smart Biometrics"       description="Enter physical stats and get ideal weight targets, BMI insights, and personalised medical strategies from Gemini AI." />
-                        <FeatureCard icon={<CreditCard size={22} />} accent="accent-sky"     title="Automated Billing"      description="Stripe integration. Clients pay in full or split memberships over 3 months. Delinquent accounts are automatically flagged." />
-                        <FeatureCard icon={<TrendingUp size={22} />} accent="accent-amber"   title="Visual Progression"    description="Interactive dashboards for coaches and clients. Track weight, attendance, and goals over time with React Recharts." />
-                        <FeatureCard icon={<Users size={22} />}      accent="accent-rose"    title="Role-Based Security"   description="Granular RBAC ensures admins, coaches, and clients only see what they need. Secure by design, backed by Spatie." />
-                        <FeatureCard icon={<Zap size={22} />}        accent="accent-lime"    title="Redis Cached CMS"      description="Lightning-fast performance. Analytics, dashboard stats, and this landing page load in 0ms using Predis caching." />
+                        <FeatureCard icon={<Brain size={22} />}      accent="accent-purple"  title={language === 'ar' ? 'توليد برامج AI' : language === 'fr' ? 'Generation IA de programmes' : 'AI Workout Generation'} description={language === 'ar' ? 'انشئ برامج تدريب مخصصة بسرعة حسب الهدف والمستوى والقيود الصحية.' : language === 'fr' ? 'Generez instantanement des programmes adaptes selon objectif, niveau et contraintes medicales.' : 'Instantly generate tailored 4-week programs based on client goals, fitness level, and medical constraints.'} />
+                        <FeatureCard icon={<Activity size={22} />}   accent="accent-emerald" title={language === 'ar' ? 'قياسات حيوية ذكية' : language === 'fr' ? 'Biometrie intelligente' : 'Smart Biometrics'}       description={language === 'ar' ? 'ادخل القياسات لتحصل على مؤشرات وتوصيات عملية مدعومة بالذكاء الاصطناعي.' : language === 'fr' ? 'Saisissez les donnees physiques pour obtenir des recommandations intelligentes immediates.' : 'Enter physical stats and get ideal weight targets, BMI insights, and personalised strategies from AI.'} />
+                        <FeatureCard icon={<CreditCard size={22} />} accent="accent-sky"     title={language === 'ar' ? 'فوترة تلقائية' : language === 'fr' ? 'Facturation automatisee' : 'Automated Billing'}      description={language === 'ar' ? 'تكامل Stripe مع الدفع الكامل او بالتقسيط والتنبيه للحسابات المتاخرة.' : language === 'fr' ? 'Integration Stripe avec paiement integral ou fractionne et detection des impayes.' : 'Stripe integration with full or split payments and automatic delinquent account flags.'} />
+                        <FeatureCard icon={<TrendingUp size={22} />} accent="accent-amber"   title={language === 'ar' ? 'تقدم مرئي' : language === 'fr' ? 'Progression visuelle' : 'Visual Progression'}    description={language === 'ar' ? 'لوحات تفاعلية لتتبع الوزن والحضور والاهداف عبر الزمن.' : language === 'fr' ? 'Tableaux de bord interactifs pour suivre poids, presence et objectifs dans le temps.' : 'Interactive dashboards to track weight, attendance, and goals over time.'} />
+                        <FeatureCard icon={<Users size={22} />}      accent="accent-rose"    title={language === 'ar' ? 'امان حسب الدور' : language === 'fr' ? 'Securite par role' : 'Role-Based Security'}   description={language === 'ar' ? 'صلاحيات دقيقة تضمن ان كل مستخدم يرى فقط ما يحتاجه.' : language === 'fr' ? 'RBAC granulaire pour que chaque utilisateur n accede qu a ce qui le concerne.' : 'Granular RBAC ensures each role sees only what it needs.'} />
+                        <FeatureCard icon={<Zap size={22} />}        accent="accent-lime"    title={language === 'ar' ? 'CMS سريع عبر Redis' : language === 'fr' ? 'CMS accelere via Redis' : 'Redis Cached CMS'}      description={language === 'ar' ? 'اداء فائق السرعة للصفحات والتحليلات بفضل التخزين المؤقت.' : language === 'fr' ? 'Performance tres rapide des pages et analytics grace au cache Redis.' : 'Fast landing pages and analytics powered by Redis caching.'} />
                     </div>
                 </section>
 
@@ -1283,9 +1617,9 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 <div id="how-it-works" className="roles-section">
                     <div className="roles-inner">
                         <div className="section-header">
-                            <div className="section-tag"><Users size={12} /> Unified Ecosystem</div>
-                            <h2 className="section-title">A dedicated portal<br />for every role</h2>
-                            <p className="section-subtitle">Switch between roles to see exactly what each user experiences on the platform.</p>
+                            <div className="section-tag"><Users size={12} /> {copy.common.unifiedEcosystem}</div>
+                            <h2 className="section-title">{copy.sections.rolesTitle.split('\n')[0]}<br />{copy.sections.rolesTitle.split('\n')[1]}</h2>
+                            <p className="section-subtitle">{copy.sections.rolesSubtitle}</p>
                         </div>
                         <div className="roles-tabs">
                             {(Object.keys(roles) as Array<keyof typeof roles>).map(role => (
@@ -1327,7 +1661,7 @@ export default function Welcome({ auth, canRegister, content }: any) {
                                         </div>
                                         <div>
                                             <span className="mockup-role-pill" style={{
-                                                background: activeRole === 'admin' ? 'rgba(239,68,68,0.12)' : activeRole === 'coach' ? 'rgba(162,110,255,0.12)' : 'rgba(56,189,248,0.12)',
+                                                background: activeRole === 'admin' ? 'rgba(239,68,68,0.13)' : activeRole === 'coach' ? 'rgba(162,110,255,0.13)' : 'rgba(56,189,248,0.13)',
                                                 color: activeRole === 'admin' ? '#fca5a5' : activeRole === 'coach' ? '#c4a0ff' : '#7dd3fc',
                                             }}>
                                                 {roles[activeRole].label} Portal
@@ -1363,14 +1697,14 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 {/* ── PRICING ── */}
                 <section id="pricing" className="section">
                     <div className="section-header section-header--center">
-                        <div className="section-tag"><CreditCard size={12} /> Pricing</div>
-                        <h2 className="section-title">Simple, transparent plans</h2>
-                        <p className="section-subtitle">Start free. Upgrade when your facility scales.</p>
+                        <div className="section-tag"><CreditCard size={12} /> {copy.common.pricing}</div>
+                        <h2 className="section-title">{copy.sections.pricingTitle}</h2>
+                        <p className="section-subtitle">{copy.sections.pricingSubtitle}</p>
                     </div>
                     <div className="pricing-grid">
-                        <PricingCard plan="Starter" price="Free"  period="forever"  description="For solo coaches just getting started." features={['Up to 5 clients','AI program generator (10/mo)','Basic biometrics','Community support']} cta="Get started free" canRegister={canRegister} />
-                        <PricingCard plan="Pro"     price="$49"   period="/ month"  description="For growing gyms and serious coaches." features={['Unlimited clients','Unlimited AI generation','Stripe split payments','FullCalendar integration','Priority support']} cta="Start Pro trial" highlighted canRegister={canRegister} />
-                        <PricingCard plan="Enterprise" price="$199" period="/ month" description="For multi-location gym chains." features={['Multi-location support','Custom branding','Redis CMS Access','Dedicated account manager','SLA guarantee']} cta="Contact sales" canRegister={canRegister} />
+                        <PricingCard plan={language === 'ar' ? 'مبتدئ' : language === 'fr' ? 'Starter' : 'Starter'}    price={language === 'ar' ? 'مجاني' : 'Free'}  period={language === 'ar' ? 'مدى الحياة' : language === 'fr' ? 'a vie' : 'forever'}  description={language === 'ar' ? 'للمدربين المستقلين في البداية.' : language === 'fr' ? 'Pour les coachs independants qui demarrent.' : 'For solo coaches just getting started.'}      features={language === 'ar' ? ['حتى 5 عملاء','مولد برامج AI (10 شهريا)','قياسات حيوية اساسية','دعم المجتمع'] : language === 'fr' ? ['Jusqu a 5 clients','Generateur IA (10/mois)','Biometrie de base','Support communaute'] : ['Up to 5 clients','AI program generator (10/mo)','Basic biometrics','Community support']}                           cta={language === 'ar' ? 'ابدأ مجانا' : language === 'fr' ? 'Commencer gratuitement' : 'Get started free'}  canRegister={canRegister} badgeLabel={copy.common.mostPopular} />
+                        <PricingCard plan="Pro"        price="$49"   period={language === 'ar' ? '/ شهر' : language === 'fr' ? '/ mois' : '/ month'}  description={language === 'ar' ? 'للنوادي المتنامية والمدربين المحترفين.' : language === 'fr' ? 'Pour les salles en croissance et les coachs exigeants.' : 'For growing gyms and serious coaches.'}        features={language === 'ar' ? ['عملاء غير محدودين','توليد AI غير محدود','مدفوعات Stripe بالتقسيط','تكامل FullCalendar','دعم اولوية'] : language === 'fr' ? ['Clients illimites','Generation IA illimitee','Paiements Stripe fractionnes','Integration FullCalendar','Support prioritaire'] : ['Unlimited clients','Unlimited AI generation','Stripe split payments','FullCalendar integration','Priority support']} cta={language === 'ar' ? 'ابدأ تجربة Pro' : language === 'fr' ? "Demarrer l'essai Pro" : 'Start Pro trial'}   highlighted canRegister={canRegister} badgeLabel={copy.common.mostPopular} />
+                        <PricingCard plan={language === 'ar' ? 'مؤسسات' : 'Enterprise'} price="$199"  period={language === 'ar' ? '/ شهر' : language === 'fr' ? '/ mois' : '/ month'}  description={language === 'ar' ? 'لسلاسل النوادي متعددة الفروع.' : language === 'fr' ? 'Pour les chaines multi-sites.' : 'For multi-location gym chains.'}              features={language === 'ar' ? ['دعم عدة فروع','هوية بصرية مخصصة','وصول CMS Redis','مدير حساب مخصص','اتفاقية SLA'] : language === 'fr' ? ['Multi-sites','Branding personnalise','Acces CMS Redis','Account manager dedie','Garantie SLA'] : ['Multi-location support','Custom branding','Redis CMS Access','Dedicated account manager','SLA guarantee']}           cta={language === 'ar' ? 'تواصل مع المبيعات' : language === 'fr' ? 'Contacter les ventes' : 'Contact sales'}     canRegister={canRegister} badgeLabel={copy.common.mostPopular} />
                     </div>
                 </section>
 
@@ -1378,8 +1712,8 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 <div className="testimonials-section">
                     <div className="testimonials-inner">
                         <div className="section-header section-header--center">
-                            <div className="section-tag"><Users size={12} /> Testimonials</div>
-                            <h2 className="section-title">Loved by industry leaders</h2>
+                            <div className="section-tag"><Users size={12} /> {copy.common.testimonials}</div>
+                            <h2 className="section-title">{copy.sections.testimonialsTitle}</h2>
                         </div>
                         <div className="testimonials-grid">
                             <TestimonialCard quote="The AI program generator saved me hours every week. My clients are getting better results than ever and the programs feel genuinely personalised." name="Sarah M." role="Head Coach, Casablanca Fitness" initials="SM" accent="av-purple" />
@@ -1392,32 +1726,42 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 {/* ── FAQ ── */}
                 <section id="faq" className="section" style={{ maxWidth: '820px' }}>
                     <div className="section-header section-header--center">
-                        <div className="section-tag">FAQ</div>
-                        <h2 className="section-title">Common questions</h2>
+                        <div className="section-tag">{copy.common.faq}</div>
+                        <h2 className="section-title">{copy.sections.faqTitle}</h2>
                     </div>
                     <div>
-                        <FAQItem q="How does the AI workout generator work?" a="Coaches fill in a client profile — goal, fitness level, available equipment, and any injuries. We send this to Google Gemini 2.5 Flash via our backend Service. It returns a structured JSON program instantly." />
-                        <FAQItem q="Is my data secure?" a="Yes. All data is protected by strict Spatie Role-Based Access Control (RBAC). Payment data never touches our servers — it's handled entirely by Stripe. We also maintain strict System Audit Logs." />
-                        <FAQItem q="How does split payment work for clients?" a="Clients can choose to pay their membership fee in monthly instalments via Stripe. If a payment fails, the backend automatically flags their account as 'Overdue', and the Admin can trigger automated email reminders." />
-                        <FAQItem q="How is the platform so fast?" a="We aggressively use Redis (Predis) caching. Our Analytics Dashboard, User Directories, and this CMS Landing page are all cached in RAM, eliminating heavy MySQL queries." />
-                        <FAQItem q="Can I try it before committing?" a="Absolutely. The Starter plan is completely free and lets you onboard up to 5 clients with 10 AI program generations per month. No credit card required." />
+                        <FAQItem q={language === 'ar' ? 'كيف يعمل مولد برامج التدريب بالذكاء الاصطناعي؟' : language === 'fr' ? "Comment fonctionne le generateur d entrainement IA ?" : 'How does the AI workout generator work?'} a={language === 'ar' ? 'يقوم المدرب بادخال ملف العميل مثل الهدف والمستوى والادوات والاصابات، ثم نرسل البيانات الى Gemini عبر الخادم الخلفي ليعيد برنامجا منظما فورا.' : language === 'fr' ? 'Le coach renseigne le profil client (objectif, niveau, equipement, blessures). Le backend envoie ces donnees a Gemini qui retourne un programme structure instantanement.' : 'Coaches fill in a client profile - goal, fitness level, available equipment, and any injuries. We send this to Gemini via our backend service and it returns a structured program instantly.'} />
+                        <FAQItem q={language === 'ar' ? 'هل بياناتي آمنة؟' : language === 'fr' ? 'Mes donnees sont-elles securisees ?' : 'Is my data secure?'} a={language === 'ar' ? 'نعم. يتم حماية البيانات بصلاحيات RBAC، وبيانات الدفع لا تمر عبر خوادمنا بل تتم بالكامل عبر Stripe مع سجلات تدقيق للنظام.' : language === 'fr' ? 'Oui. Les donnees sont protegees par RBAC, les paiements sont geres par Stripe, et le systeme conserve des journaux d audit stricts.' : "Yes. Data is protected by strict RBAC. Payment data never touches our servers and is handled by Stripe, with system audit logs in place."} />
+                        <FAQItem q={language === 'ar' ? 'كيف يعمل الدفع بالتقسيط للعملاء؟' : language === 'fr' ? 'Comment fonctionne le paiement fractionne ?' : 'How does split payment work for clients?'} a={language === 'ar' ? 'يمكن للعميل اختيار الدفع على اقساط شهرية عبر Stripe، وعند فشل الدفع يتم تمييز الحساب تلقائيا كمتاخر.' : language === 'fr' ? 'Le client peut payer son abonnement en mensualites via Stripe. En cas d echec de paiement, le compte est automatiquement marque en retard.' : "Clients can pay memberships in monthly installments via Stripe. If a payment fails, the account is automatically marked overdue."} />
+                        <FAQItem q={language === 'ar' ? 'لماذا المنصة سريعة جدا؟' : language === 'fr' ? 'Pourquoi la plateforme est-elle si rapide ?' : 'How is the platform so fast?'} a={language === 'ar' ? 'نستخدم تخزين Redis بشكل مكثف لتحميل التحليلات وصفحات المحتوى بسرعة عالية مع تقليل الاستعلامات الثقيلة.' : language === 'fr' ? 'Nous utilisons intensivement Redis pour mettre en cache les tableaux de bord et le contenu, ce qui reduit les requetes lourdes.' : 'We heavily use Redis caching for dashboards and content pages, reducing expensive database queries.'} />
+                        <FAQItem q={language === 'ar' ? 'هل يمكنني التجربة قبل الاشتراك؟' : language === 'fr' ? "Puis-je essayer avant de m engager ?" : 'Can I try it before committing?'} a={language === 'ar' ? 'بالتأكيد. خطة البداية مجانية بالكامل وتسمح لك باضافة حتى 5 عملاء مع 10 توليدات AI شهريا.' : language === 'fr' ? 'Oui. Le plan Starter est gratuit et permet jusqu a 5 clients avec 10 generations IA par mois.' : 'Absolutely. The Starter plan is free and includes up to 5 clients with 10 AI generations per month.'} />
                     </div>
                 </section>
+
+                {/* ── CTA BANNER ── */}
+                <div className="cta-banner">
+                    <h2 className="cta-banner-title">{copy.cta.title.replace(copy.cta.accent, '')}<span>{copy.cta.accent}</span></h2>
+                    <p className="cta-banner-sub">{copy.cta.subtitle}</p>
+                    <div className="cta-banner-actions">
+                        {canRegister && <Link href="/register" className="btn-hero">{copy.hero.startTrial} <ArrowRight size={16} /></Link>}
+                        <a href="#contact" className="btn-hero-outline"><Mail size={14} /> {copy.cta.talkToUs}</a>
+                    </div>
+                </div>
 
                 {/* ── CONTACT ── */}
                 <section id="contact" className="contact-section">
                     <div className="contact-grid">
                         <div className="contact-info">
-                            <div className="contact-label">Get in touch</div>
-                            <h2 className="contact-title">Let's talk about your gym</h2>
+                            <div className="contact-label">{copy.contact.label}</div>
+                            <h2 className="contact-title">{copy.contact.title}</h2>
                             <p className="contact-body">
-                                Have questions? Send us a message or email us directly at{' '}
+                                {copy.contact.bodyPrefix}{' '}
                                 <a href={`mailto:${content?.contact_email || 'hello@aigym.io'}`} className="contact-email">
                                     {content?.contact_email || 'hello@aigym.io'}
-                                </a>.
+                                </a>{copy.contact.bodySuffix}
                             </p>
                             <div className="contact-perks">
-                                {['Response within 24 hours', 'Free onboarding consultation', 'No commitment required'].map(p => (
+                                {copy.contact.perks.map(p => (
                                     <div key={p} className="contact-perk">
                                         <div className="contact-perk-dot" />{p}
                                     </div>
@@ -1427,20 +1771,20 @@ export default function Welcome({ auth, canRegister, content }: any) {
                         <form onSubmit={handleContactSubmit} className="contact-form">
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label className="form-label">Full name</label>
-                                    <input type="text" required value={data.name} onChange={e => setData('name', e.target.value)} placeholder="John Doe" className="form-input" />
+                                    <label className="form-label">{copy.contact.fullName}</label>
+                                    <input type="text" required value={data.name} onChange={e => setData('name', e.target.value)} placeholder={copy.contact.placeholderName} className="form-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Email</label>
-                                    <input type="email" required value={data.email} onChange={e => setData('email', e.target.value)} placeholder="john@example.com" className="form-input" />
+                                    <label className="form-label">{copy.contact.email}</label>
+                                    <input type="email" required value={data.email} onChange={e => setData('email', e.target.value)} placeholder={copy.contact.placeholderEmail} className="form-input" />
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Message</label>
-                                <textarea required rows={5} value={data.message} onChange={e => setData('message', e.target.value)} placeholder="Tell us about your gym and what you're looking for…" className="form-textarea form-input" />
+                                <label className="form-label">{copy.contact.message}</label>
+                                <textarea required rows={5} value={data.message} onChange={e => setData('message', e.target.value)} placeholder={copy.contact.placeholderMessage} className="form-textarea form-input" />
                             </div>
                             <button type="submit" disabled={processing} className="form-submit">
-                                <Mail size={16} /> Send Message
+                                <Mail size={16} /> {copy.contact.sendMessage}
                             </button>
                         </form>
                     </div>
@@ -1449,14 +1793,14 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 {/* ── FOOTER ── */}
                 <footer className="footer">
                     <div className="footer-inner">
-                        <a href="/" className="nav-logo" style={{ textDecoration: 'none' }}>
+                        <a href="/" className="nav-logo">
                             <div className="nav-logo-mark"><Dumbbell size={16} /></div>
                             <span className="nav-logo-text">AI GYM</span>
                         </a>
                         <div className="footer-links">
                             {navLinks.map(l => <a key={l.href} href={l.href}>{l.label}</a>)}
                         </div>
-                        <p className="footer-copy">© {new Date().getFullYear()} AI Gym. PFE Project.</p>
+                        <p className="footer-copy">© {new Date().getFullYear()} AI Gym. {copy.footer.copy}</p>
                     </div>
                 </footer>
             </div>
