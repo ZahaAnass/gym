@@ -69,6 +69,7 @@ Route::middleware(['auth', 'role:coach'])->prefix('coach')->name('coach.')->grou
     // 🔥 Assigning Goals and Programs to Clients
     Route::post('clients/{client}/goals', [ClientController::class, 'storeGoal'])->name('clients.goals.store');
     Route::post('clients/{client}/programs', [ClientController::class, 'assignProgram'])->name('clients.programs.assign');
+    Route::delete('clients/{client}/programs/{program}', [ClientController::class, 'removeProgram'])->name('clients.programs.remove');
 
     // AI Programs
     Route::resource('programs', ProgramController::class);
@@ -95,6 +96,9 @@ Route::middleware(['auth', 'role:client', EnsureActiveSubscription::class])->pre
     // Goals + AI Advice
     Route::resource('goals', GoalController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('goals/{goal}/ai-advice', [GoalController::class, 'getAIAdvice'])->name('goals.ai');
+
+    // 🔥 NEW: Client Programs (Viewing their assigned workouts)
+    Route::get('programs', [App\Http\Controllers\Client\ProgramController::class, 'index'])->name('programs.index');
 
     // Stripe Payments & Invoices
     Route::get('payments', [ClientPaymentController::class, 'index'])->name('payments.index');

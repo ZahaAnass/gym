@@ -12,8 +12,8 @@ class ProgramController extends Controller
     {
         $user = $request->user();
 
-        // 1. Fetch ONLY the programs assigned to this specific client
-        $programs = $user->programs()
+        // 🔥 FIX: Use assignedPrograms() instead of programs()
+        $programs = $user->assignedPrograms()
             ->with('coach:id,name')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -30,7 +30,7 @@ class ProgramController extends Controller
             ->wherePivot('attended', true)
             ->count();
 
-        // 4. Return the read-only Client view
+
         return Inertia::render('Client/Programs/Index', [
             'programs' => $programs,
             'upcomingSessions' => $upcomingSessions,

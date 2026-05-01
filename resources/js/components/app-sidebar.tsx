@@ -1,17 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    LayoutGrid,
-    ShieldAlert,
-    Users,
-    Dumbbell,
-    CreditCard,
-    TrendingUp,
-    BookOpen,
-    Target,
-    Megaphone,
-    Calendar,
-    Send,
-    BellRing
+    LayoutGrid, ShieldAlert, Users, Dumbbell, CreditCard, TrendingUp, BookOpen, Target, Megaphone, Calendar, Send, BellRing
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -22,20 +11,21 @@ export function AppSidebar() {
     const { auth } = usePage().props as any;
     const roles = auth.user?.roles || [];
 
-    // 🔥 FIXED: Helper function to safely check role objects OR strings
+    // 🔥 Grab the subscription status from the backend (defaults to true for admins/coaches)
+    const hasActiveSub = auth.user?.has_active_subscription ?? true;
+
     const hasRole = (roleName: string) => {
         return roles.some((role: any) => role.name === roleName || role === roleName);
     };
 
-    // Calculate unread notifications if you pass it via Inertia share
     const unreadCount = auth.user?.unreadNotificationsCount || 0;
 
+    // 🔥 FIXED: Added disabled state to Dashboard and Notifications
     const menuItems = [
-        { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
-        { title: 'Inbox Alerts', href: '/notifications', icon: BellRing, badge: unreadCount > 0 ? unreadCount : undefined },
+        { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid, disabled: !hasActiveSub },
+        { title: 'Inbox Alerts', href: '/notifications', icon: BellRing, badge: unreadCount > 0 ? unreadCount : undefined, disabled: !hasActiveSub },
     ];
 
-    // Use the new hasRole helper!
     if (hasRole('admin')) {
         menuItems.push(
             { title: 'User Directory', href: '/admin/users', icon: Users },
@@ -57,10 +47,12 @@ export function AppSidebar() {
 
     if (hasRole('client')) {
         menuItems.push(
-            { title: 'Progress & AI', href: '/client/progress', icon: TrendingUp },
-            { title: 'My Schedule', href: '/client/schedule', icon: Calendar },
-            { title: 'My Goals', href: '/client/goals', icon: Target },
-            { title: 'Billing & Payments', href: '/client/payments', icon: CreditCard }
+            { title: 'Progress & AI', href: '/client/progress', icon: TrendingUp, disabled: !hasActiveSub },
+            { title: 'My Schedule', href: '/client/schedule', icon: Calendar, disabled: !hasActiveSub },
+            { title: "My Programs", href: "/client/programs", icon: Dumbbell, disabled: !hasActiveSub },
+            { title: 'My Goals', href: '/client/goals', icon: Target, disabled: !hasActiveSub },
+            // 🟢 The billing page is NEVER disabled so they can always pay!
+            { badge: undefined, disabled: false, title: 'Billing & Payments', href: '/client/payments', icon: CreditCard }
         );
     }
 
@@ -70,6 +62,8 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
+                            {/* We don't disable the logo link here, because clicking it redirects to dashboard,
+                                and your backend middleware will auto-redirect unpaid users back to billing! */}
                             <Link href="/dashboard"><AppLogo /></Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

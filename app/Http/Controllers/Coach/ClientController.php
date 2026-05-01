@@ -14,8 +14,8 @@ class ClientController extends Controller
         $clients = $request->user()->clients()
             ->with([
                 'assessments' => fn ($q) => $q->latest(),
-                'programs', // Load the active programs
-                'sessionsAsClient' => fn ($q) => $q->wherePivot('attended', true) // Load only attended sessions
+                'assignedPrograms', // Loaded correctly!
+                'sessionsAsClient' => fn ($q) => $q->wherePivot('attended', true)
             ])
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
@@ -40,7 +40,7 @@ class ClientController extends Controller
         $client->load([
             'assessments' => fn($q) => $q->orderBy('created_at', 'asc'),
             'goals' => fn($q) => $q->orderBy('created_at', 'desc')->take(5),
-            'programs' => fn($q) => $q->orderBy('created_at', 'desc'),
+            'assignedPrograms' => fn($q) => $q->orderBy('created_at', 'desc'),
         ]);
 
         // 2. Load Session History
@@ -103,7 +103,6 @@ class ClientController extends Controller
         return back()->with('success', 'Goal successfully assigned to client!');
     }
 
-    // 🔥 FIX: Assign Program Logic (Updated for HasMany)
     // Assign Program Logic
     public function assignProgram(Request $request, User $client)
     {
@@ -113,10 +112,7 @@ class ClientController extends Controller
             'program_id' => 'required|exists:programs,id'
         ]);
 
-        // 🔥 USE THE PIVOT METHOD: attach()
-        // If your relationship in the User model is named something else (like assignedPrograms),
-        // change "programs()" below to match it.
-        $client->programs()->attach($validated['program_id']);
+        $client->assignedPrograms()->syncWithoutDetaching([$validated['program_id']]);
 
         return back()->with('success', 'Program successfully assigned to the client!');
     }
@@ -126,8 +122,7 @@ class ClientController extends Controller
     {
         abort_if($client->coach_id !== $request->user()->id, 403);
 
-        // 🔥 USE THE PIVOT METHOD: detach()
-        $client->programs()->detach($programId);
+        $client->assignedPrograms()->detach($programId);
 
         return back()->with('success', 'Program unassigned successfully.');
     }

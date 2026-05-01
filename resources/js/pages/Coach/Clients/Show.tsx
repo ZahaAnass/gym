@@ -1,264 +1,228 @@
 import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { Head, useForm } from '@inertiajs/react';
-import { Target, Activity, Dumbbell, Clock, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import {
+    User, ArrowLeft, Target, TrendingDown, Calendar, Activity, Clock, CheckCircle2, XCircle, Dumbbell, Trash2,
+    History as HistoryIcon
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BreadcrumbItem } from '@/types';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 
-export default function ClientShow({ client, programs }: any) {
-    const latestAssessment = client.assessments?.[0];
-    const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
-    const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
+export default function ClientShow({ client, recentSessions, upcomingSessions, availablePrograms, stats, chartData }: any) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Dashboard', href: '/coach/dashboard' },
+        { title: 'My Roster', href: '/coach/clients' },
+        { title: client.name, href: `/coach/clients/${client.id}` },
+    ];
 
-    // Goal Form
-    const { data: goalData, setData: setGoalData, post: postGoal, processing: goalProcessing, reset: resetGoal, errors: goalErrors } = useForm({
-        title: '', type: 'numeric', target_value: '', current_value: '', unit: 'kg', direction: 'desc', deadline: ''
-    });
+    const latestAssessment = client.assessments?.length > 0 ? client.assessments[client.assessments.length - 1] : null;
+    const attendanceRate = stats.total_sessions > 0 ? Math.round((stats.attended / stats.total_sessions) * 100) : 0;
 
-    // Program Form
-    const { data: progData, setData: setProgData, post: postProg, processing: progProcessing, reset: resetProg } = useForm({
+    // 🔥 Filter out programs that are ALREADY assigned to the client
+    const assignedProgramIds = client.assigned_programs?.map((p: any) => p.id) || [];
+    const unassignedPrograms = availablePrograms?.filter((p: any) => !assignedProgramIds.includes(p.id)) || [];
+
+    // Modal & Form State for Assigning a Program
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const { data, setData, post, processing, reset } = useForm({
         program_id: ''
     });
 
-    const submitGoal = (e: React.FormEvent) => {
+    const submitAssignment = (e: React.FormEvent) => {
         e.preventDefault();
-        postGoal(`/coach/clients/${client.id}/goals`, {
-            onSuccess: () => { setIsGoalModalOpen(false); resetGoal(); toast.success('Goal assigned!'); }
+        post(`/coach/clients/${client.id}/programs`, {
+            onSuccess: () => {
+                setIsAssignModalOpen(false);
+                reset();
+                toast.success("Program successfully assigned!");
+            }
         });
     };
 
-    const submitProgram = (e: React.FormEvent) => {
-        e.preventDefault();
-        postProg(`/coach/clients/${client.id}/programs`, {
-            onSuccess: () => { setIsProgramModalOpen(false); resetProg(); toast.success('Program assigned!'); }
-        });
+    // Remove Program Logic
+    const removeProgram = (programId: number) => {
+        if (confirm("Are you sure you want to unassign this program from the client?")) {
+            router.delete(`/coach/clients/${client.id}/programs/${programId}`, {
+                preserveScroll: true,
+                onSuccess: () => toast.success("Program removed from client.")
+            });
+        }
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Client Roster', href: '/coach/clients' }, { title: client.name, href: '#' }]}>
-            <Head title={`${client.name} | 360° Profile`} />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={`${client.name} | Client Profile`} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="p-6 space-y-6 w-full max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-zinc-950 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-zinc-800">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-2xl">
-                            {client.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
-                        </div>
+                        <Button variant="outline" size="icon" asChild className="h-10 w-10 rounded-full border-slate-200 dark:border-zinc-800">
+                            <Link href="/coach/clients"><ArrowLeft className="h-4 w-4" /></Link>
+                        </Button>
                         <div>
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">{client.name}</h2>
-                            <p className="text-slate-500 font-medium">{client.email}</p>
+                            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                                {client.name}
+                                {client.is_active === false && (
+                                    <Badge variant="destructive" className="uppercase text-[10px]">Suspended</Badge>
+                                )}
+                            </h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                                <User className="h-3.5 w-3.5" /> Client Since {new Date(client.created_at).getFullYear()}
+                            </p>
                         </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3">
+                        <Button onClick={() => setIsAssignModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md rounded-xl">
+                            <Dumbbell className="mr-2 h-4 w-4" /> Assign Program
+                        </Button>
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
+                        <CardContent className="p-6">
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2"><TrendingDown className="h-4 w-4 text-indigo-500"/> Current Weight</p>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-3xl font-black text-slate-900 dark:text-white">{latestAssessment?.weight || '--'}</span>
+                                <span className="text-sm font-bold text-slate-500">kg</span>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                    {/* Left Column: Biometrics & Programs */}
-                    <div className="space-y-8 lg:col-span-1">
+                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
+                        <CardContent className="p-6">
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2"><Target className="h-4 w-4 text-emerald-500"/> Attendance Rate</p>
+                            <span className="text-3xl font-black text-slate-900 dark:text-white">{attendanceRate}%</span>
+                            <p className="text-xs text-slate-400 mt-1">{stats.attended} attended, {stats.missed} missed</p>
+                        </CardContent>
+                    </Card>
 
-                        {/* Biometrics Card */}
-                        <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800">
-                            <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
-                                <CardTitle className="text-lg flex items-center gap-2 font-bold">
-                                    <Activity className="h-5 w-5 text-indigo-500" /> Latest Biometrics
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-5 space-y-4">
-                                {latestAssessment ? (
-                                    <>
-                                        <div className="flex justify-between py-2 border-b border-slate-100 dark:border-zinc-800">
-                                            <span className="text-slate-500">Weight</span>
-                                            <span className="font-extrabold">{latestAssessment.weight} kg</span>
-                                        </div>
-                                        <div className="flex justify-between py-2 border-b border-slate-100 dark:border-zinc-800">
-                                            <span className="text-slate-500">Height</span>
-                                            <span className="font-extrabold">{latestAssessment.height} cm</span>
-                                        </div>
-                                        <div className="flex justify-between py-2 border-b border-slate-100 dark:border-zinc-800">
-                                            <span className="text-slate-500">Blood Pressure</span>
-                                            <span className="font-extrabold">{latestAssessment.blood_pressure || 'N/A'}</span>
-                                        </div>
-                                        <div className="pt-2">
-                                            <span className="text-slate-500 block mb-1 text-sm font-medium">AI Ideal Target</span>
-                                            <Badge className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 w-full justify-center text-sm py-1.5 border-none font-bold">
-                                                {latestAssessment.ideal_weight_ai} kg
-                                            </Badge>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="text-slate-400 italic text-center py-4 font-medium">No assessments logged yet.</p>
-                                )}
-                            </CardContent>
-                        </Card>
+                    {/* 🔥 FIXED: Removed max-h-[160px] so the programs actually show up! */}
+                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-indigo-50 dark:bg-indigo-500/5 flex flex-col">
+                        <CardContent className="p-6 flex-grow flex flex-col">
+                            <div className="flex justify-between items-center mb-4">
+                                <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Assigned Programs</p>
+                                <Badge className="bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-none">
+                                    {client.assigned_programs?.length || 0}
+                                </Badge>
+                            </div>
 
-                        {/* 🔥 NEW: Assigned Programs Card */}
-                        <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800">
-                            <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4 flex flex-row items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2 font-bold">
-                                    <Dumbbell className="h-5 w-5 text-emerald-500" /> Programs
-                                </CardTitle>
-
-                                {/* Program Assign Modal */}
-                                <Dialog open={isProgramModalOpen} onOpenChange={setIsProgramModalOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button size="sm" variant="outline" className="h-8 rounded-lg text-emerald-600 border-emerald-200 hover:bg-emerald-50">
-                                            <Plus className="h-4 w-4 mr-1" /> Assign
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[400px] rounded-3xl">
-                                        <DialogHeader><DialogTitle>Assign Program</DialogTitle></DialogHeader>
-                                        <form onSubmit={submitProgram} className="space-y-4 mt-4">
-                                            <div>
-                                                <Label>Select Workout Program</Label>
-                                                <Select value={progData.program_id} onValueChange={v => setProgData('program_id', v)}>
-                                                    <SelectTrigger className="mt-1"><SelectValue placeholder="Choose a program..." /></SelectTrigger>
-                                                    <SelectContent>
-                                                        {programs?.map((p: any) => (
-                                                            <SelectItem key={p.id} value={p.id.toString()}>{p.title}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                            <div className="space-y-3">
+                                {client.assigned_programs && client.assigned_programs.length > 0 ? (
+                                    client.assigned_programs.map((program: any) => (
+                                        <div key={program.id} className="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate">{program.title}</h4>
+                                                <p className="text-xs text-slate-500 mt-0.5">Assigned Plan</p>
                                             </div>
-                                            <Button type="submit" disabled={progProcessing} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
-                                                Save Assignment
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => removeProgram(program.id)}
+                                                className="h-8 w-8 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 shrink-0"
+                                                title="Unassign Program"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
                                             </Button>
-                                        </form>
-                                    </DialogContent>
-                                </Dialog>
-                            </CardHeader>
-                            <CardContent className="p-5 space-y-3">
-                                {client.assigned_programs?.length > 0 ? (
-                                    client.assigned_programs.map((prog: any) => (
-                                        <div key={prog.id} className="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
-                                            <span className="font-bold text-emerald-900 dark:text-emerald-400 block text-sm">{prog.title}</span>
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-slate-400 italic text-center py-4 font-medium">No active programs.</p>
+                                    <div className="py-4 flex items-center justify-center">
+                                        <p className="text-sm text-slate-500 italic">No programs assigned.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Biometrics Chart & History */}
+                <div className="grid lg:grid-cols-3 gap-6">
+                    <Card className="lg:col-span-2 shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
+                        <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
+                            <CardTitle className="text-lg flex items-center gap-2"><Activity className="h-5 w-5 text-indigo-500"/> Weight Progression</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[300px] p-6 pt-4">
+                            {chartData.biometrics.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData.biometrics} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 500}} dy={10} />
+                                        <YAxis domain={['dataMin - 2', 'dataMax + 2']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 500}} />
+                                        <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
+                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#4f46e5" strokeWidth={4} fill="url(#colorWeight)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-slate-400 italic font-medium">No assessment data logged yet.</div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <div className="space-y-6">
+                        {/* Upcoming Sessions */}
+                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
+                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/30 border-b border-slate-100 dark:border-zinc-800 pb-3">
+                                <CardTitle className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2"><Calendar className="h-4 w-4"/> Upcoming</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                {upcomingSessions.length === 0 ? (
+                                    <div className="p-4 text-center text-sm text-slate-500 italic">No upcoming sessions.</div>
+                                ) : (
+                                    <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+                                        {upcomingSessions.map((session: any) => (
+                                            <div key={session.id} className="p-4 hover:bg-slate-50 dark:hover:bg-zinc-900/50">
+                                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">{session.title}</h4>
+                                                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-1">
+                                                    <Clock className="h-3 w-3 text-indigo-400" />
+                                                    {new Date(session.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
-                    </div>
 
-                    {/* Right Column: Goal Management */}
-                    <div className="lg:col-span-2">
-                        <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 h-full">
-                            <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4 flex flex-row items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2 font-bold">
-                                    <Target className="h-5 w-5 text-purple-500" /> Active Goals
-                                </CardTitle>
-
-                                {/* Goal Creation Modal */}
-                                <Dialog open={isGoalModalOpen} onOpenChange={setIsGoalModalOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm">
-                                            <Plus className="h-4 w-4 mr-1" /> Assign Goal
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[500px] rounded-3xl">
-                                        <DialogHeader><DialogTitle className="text-2xl font-extrabold">Assign New Goal</DialogTitle></DialogHeader>
-                                        <form onSubmit={submitGoal} className="space-y-5 mt-4">
-                                            <div>
-                                                <Label>Goal Title</Label>
-                                                <Input value={goalData.title} onChange={e => setGoalData('title', e.target.value)} placeholder="e.g., Increase Bench Press" className="mt-1" required />
-                                                {goalErrors.title && <p className="text-red-500 text-xs mt-1">{goalErrors.title}</p>}
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label>Goal Type</Label>
-                                                    <Select value={goalData.type} onValueChange={(val: any) => setGoalData('type', val)}>
-                                                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="numeric">Numeric (Trackable)</SelectItem>
-                                                            <SelectItem value="text">Qualitative (Behavioral)</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div>
-                                                    <Label>Deadline</Label>
-                                                    <Input type="date" value={goalData.deadline} onChange={e => setGoalData('deadline', e.target.value)} className="mt-1" required />
-                                                </div>
-                                            </div>
-
-                                            {goalData.type === 'numeric' && (
-                                                <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 space-y-4">
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div>
-                                                            <Label>Current Value</Label>
-                                                            <Input type="number" step="0.1" value={goalData.current_value} onChange={e => setGoalData('current_value', e.target.value)} className="mt-1 bg-white" required />
-                                                        </div>
-                                                        <div>
-                                                            <Label>Target Value</Label>
-                                                            <Input type="number" step="0.1" value={goalData.target_value} onChange={e => setGoalData('target_value', e.target.value)} className="mt-1 bg-white" required />
-                                                        </div>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div>
-                                                            <Label>Unit</Label>
-                                                            <Select value={goalData.unit} onValueChange={val => setGoalData('unit', val)}>
-                                                                <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                                                                    <SelectItem value="lbs">Pounds (lbs)</SelectItem>
-                                                                    <SelectItem value="%">Percentage (%)</SelectItem>
-                                                                    <SelectItem value="km">Kilometers (km)</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                        <div>
-                                                            <Label>Progression Direction</Label>
-                                                            <Select value={goalData.direction} onValueChange={(val: any) => setGoalData('direction', val)}>
-                                                                <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="asc">Ascending (e.g. Gain Muscle)</SelectItem>
-                                                                    <SelectItem value="desc">Descending (e.g. Lose Weight)</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <Button type="submit" disabled={goalProcessing} className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl h-11">
-                                                Save & Assign Goal
-                                            </Button>
-                                        </form>
-                                    </DialogContent>
-                                </Dialog>
+                        {/* Recent Sessions */}
+                        <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
+                            <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/30 border-b border-slate-100 dark:border-zinc-800 pb-3">
+                                <CardTitle className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2"><HistoryIcon className="h-4 w-4"/> Recent History</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-5 space-y-4">
-                                {client.goals?.length > 0 ? (
-                                    client.goals.map((goal: any) => (
-                                        <div key={goal.id} className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-slate-900 dark:text-white">{goal.title}</h4>
-                                                {goal.type === 'numeric' && (
-                                                    <Badge variant="outline" className="bg-white dark:bg-zinc-950 font-black text-purple-600 border-purple-200">
-                                                        {goal.current_value} / {goal.target_value} {goal.unit}
-                                                    </Badge>
+                            <CardContent className="p-0">
+                                {recentSessions.length === 0 ? (
+                                    <div className="p-4 text-center text-sm text-slate-500 italic">No past sessions.</div>
+                                ) : (
+                                    <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+                                        {recentSessions.map((session: any) => (
+                                            <div key={session.id} className="p-4 hover:bg-slate-50 dark:hover:bg-zinc-900/50 flex justify-between items-center">
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{session.title}</h4>
+                                                    <p className="text-xs text-slate-500 mt-1">{new Date(session.scheduled_at).toLocaleDateString()}</p>
+                                                </div>
+                                                {session.pivot.attended ? (
+                                                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800"><CheckCircle2 className="h-3 w-3 mr-1"/> Attended</Badge>
+                                                ) : (
+                                                    <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800"><XCircle className="h-3 w-3 mr-1"/> Missed</Badge>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-4 text-xs text-slate-500 mt-3 font-medium">
-                                                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Due: {new Date(goal.deadline).toLocaleDateString()}</span>
-                                                <span className="flex items-center gap-1">
-                                                    {goal.status === 'active' ? <AlertCircle className="h-3 w-3 text-amber-500" /> : <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
-                                                    <span className="capitalize">{goal.status}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-10 text-slate-400 flex flex-col items-center">
-                                        <Target className="h-10 w-10 mb-2 opacity-20" />
-                                        <p className="font-medium">No goals assigned yet.</p>
+                                        ))}
                                     </div>
                                 )}
                             </CardContent>
@@ -266,6 +230,49 @@ export default function ClientShow({ client, programs }: any) {
                     </div>
                 </div>
             </div>
+
+            {/* 🔥 Modal updated to use unassignedPrograms */}
+            <Dialog open={isAssignModalOpen} onOpenChange={setIsAssignModalOpen}>
+                <DialogContent className="sm:max-w-[425px] rounded-2xl">
+                    <form onSubmit={submitAssignment}>
+                        <DialogHeader>
+                            <DialogTitle>Assign Program</DialogTitle>
+                            <DialogDescription>
+                                Select a workout program from your library to assign to {client.name.split(' ')[0]}.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="py-6 space-y-4">
+                            <div className="space-y-2">
+                                <Select value={data.program_id} onValueChange={(val) => setData('program_id', val)}>
+                                    <SelectTrigger className="w-full bg-slate-50 dark:bg-zinc-900 rounded-xl">
+                                        <SelectValue placeholder="Select a program..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {unassignedPrograms.length > 0 ? (
+                                            unassignedPrograms.map((prog: any) => (
+                                                <SelectItem key={prog.id} value={prog.id.toString()}>
+                                                    {prog.title}
+                                                </SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>No new programs available to assign</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="ghost" onClick={() => setIsAssignModalOpen(false)}>Cancel</Button>
+                            <Button type="submit" disabled={processing || !data.program_id} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                                {processing ? 'Assigning...' : 'Assign Program'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
         </AppLayout>
     );
 }

@@ -2,20 +2,25 @@
 
 namespace Database\Factories;
 
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PaymentFactory extends Factory
 {
+    protected $model = Payment::class;
+
     public function definition(): array
     {
+        $status = $this->faker->randomElement(['completed', 'completed', 'completed', 'failed']); // Majoritairement complétés
+
         return [
-            'amount' => $this->faker->randomElement([299.99, 499.99, 899.99]),
-            'method' => $this->faker->randomElement(['stripe', 'cash', 'check']),
-            'installment_number' => $this->faker->numberBetween(1, 3),
-            // REMOVED 'pending'
-            'status' => $this->faker->randomElement(['completed', 'failed']),
-            'paid_at' => $this->faker->optional(0.8)->dateTimeThisYear(),
-            'created_at' => $this->faker->dateTimeBetween('-3 months', 'now'),
+            'stripe_payment_intent_id' => 'pi_' . $this->faker->lexify('?????????????????'), // Simulation d'ID Stripe
+            'amount' => $this->faker->randomElement([29.99, 49.99, 99.00, 299.00]), // Forfaits Basique, Pro, Premium, Annuel
+            'method' => $this->faker->randomElement(['stripe', 'stripe', 'cash']),
+            'installment_number' => $this->faker->randomElement([1, 3, 12]), // 1 mois, 3 mois, ou 1 an
+            'status' => $status,
+            'paid_at' => $status === 'completed' ? $this->faker->dateTimeBetween('-4 months', 'now') : null,
+            'created_at' => $this->faker->dateTimeBetween('-5 months', 'now'),
         ];
     }
 }

@@ -61,67 +61,82 @@ export default function ClientsIndex({ clients, filters }: any) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody className="divide-y divide-slate-100 dark:divide-zinc-800">
-                                    {clients.data.map((client: any) => {
-                                        const latestAssessment = client.assessments?.[0];
-                                        const attendedCount = client.attended_sessions?.filter((s:any) => s.pivot.attended).length || 0;
+                                    {clients.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center py-10 text-slate-500">
+                                                No clients assigned to your roster yet.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        clients.data.map((client: any) => {
+                                            // The Laravel eager-load structure we set up in Step 1
+                                            const latestAssessment = client.assessments?.[0];
+                                            const attendedCount = client.sessions_as_client?.length || 0;
+                                            const activePrograms = client.assigned_programs || [];
 
-                                        return (
-                                            <TableRow key={client.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
-                                                <TableCell className="pl-6 py-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm border border-indigo-200">
-                                                            {getInitials(client.name)}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-slate-900 dark:text-white">{client.name}</span>
-                                                            <span className="text-sm text-slate-500">{client.email}</span>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
+                                            return (
+                                                <TableRow key={client.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
 
-                                                <TableCell>
-                                                    {latestAssessment ? (
-                                                        <div className="flex items-center gap-2">
+                                                    {/* Col 1: Combined Initials + Name + Email */}
+                                                    <TableCell className="pl-6 py-4">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm border border-indigo-200 shrink-0">
+                                                                {getInitials(client.name)}
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <span className="font-bold text-slate-900 dark:text-white">{client.name}</span>
+                                                                <span className="text-sm text-slate-500">{client.email}</span>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+
+                                                    {/* Col 2: Biometrics */}
+                                                    <TableCell>
+                                                        {latestAssessment ? (
                                                             <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                                                 <Activity className="h-3 w-3 mr-1" /> {latestAssessment.weight} kg
                                                             </Badge>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-sm italic text-slate-400">Needs Assessment</span>
-                                                    )}
-                                                </TableCell>
+                                                        ) : (
+                                                            <span className="text-sm italic text-slate-400">Needs Assessment</span>
+                                                        )}
+                                                    </TableCell>
 
-                                                <TableCell>
-                                                    {client.assigned_programs?.length > 0 ? (
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {client.assigned_programs.map((prog: any) => (
-                                                                <Badge key={prog.id} variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 dark:border-indigo-900 dark:text-indigo-400 dark:bg-indigo-900/20">
-                                                                    <Dumbbell className="h-3 w-3 mr-1" /> {prog.title}
-                                                                </Badge>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-xs text-slate-400 border border-dashed border-slate-300 dark:border-zinc-700 rounded px-2 py-1">No Programs</span>
-                                                    )}
-                                                </TableCell>
+                                                    {/* Col 3: Programs */}
+                                                    <TableCell>
+                                                        {activePrograms.length > 0 ? (
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {activePrograms.map((prog: any) => (
+                                                                    <Badge key={prog.id} variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 dark:border-indigo-900 dark:text-indigo-400 dark:bg-indigo-900/20 truncate max-w-[150px]">
+                                                                        <Dumbbell className="h-3 w-3 mr-1 shrink-0" /> {prog.title}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-slate-400 border border-dashed border-slate-300 dark:border-zinc-700 rounded px-2 py-1">No Programs</span>
+                                                        )}
+                                                    </TableCell>
 
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                                                        <CalendarCheck className="h-3 w-3 mr-1" /> {attendedCount} Sessions
-                                                    </Badge>
-                                                </TableCell>
+                                                    {/* Col 4: Attendance */}
+                                                    <TableCell>
+                                                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                            <CalendarCheck className="h-3 w-3 mr-1" /> {attendedCount} Sessions
+                                                        </Badge>
+                                                    </TableCell>
 
-                                                <TableCell className="text-right pr-6">
-                                                    <Link
-                                                        href={`/coach/clients/${client.id}`}
-                                                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40 transition-colors"
-                                                    >
-                                                        <Eye className="h-4 w-4 mr-2"/> 360° Profile
-                                                    </Link>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                                    {/* Col 5: Action Button */}
+                                                    <TableCell className="text-right pr-6">
+                                                        <Link
+                                                            href={`/coach/clients/${client.id}`}
+                                                            className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40 transition-colors"
+                                                        >
+                                                            <Eye className="h-4 w-4 mr-2"/> 360° Profile
+                                                        </Link>
+                                                    </TableCell>
+
+                                                </TableRow>
+                                            );
+                                        })
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>

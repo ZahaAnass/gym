@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\User;
 use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -16,12 +17,10 @@ class ProgramController extends Controller
         $coach = $request->user();
         $query = $coach->programs();
 
-        // 1. Search Filtering
         if ($search = $request->input('search')) {
             $query->where('title', 'like', "%{$search}%");
         }
 
-        // 2. Redis Caching for Coach Stats (Improves dashboard load times)
         $stats = Cache::remember("coach:{$coach->id}:programs_stats", 300, function () use ($coach) {
             return [
                 'total' => $coach->programs()->count(),
@@ -37,6 +36,21 @@ class ProgramController extends Controller
         ]);
     }
 
+    // Added the create method so /coach/programs/create works!
+    public function create(Request $request)
+    {
+        $client = null;
+
+        if ($request->has('client_id')) {
+            $client = User::findOrFail($request->client_id);
+            if ($client->coach_id !== $request->user()->id) abort(403);
+        }
+
+        return Inertia::render('Coach/Programs/Create', [
+            'client' => $client,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -46,24 +60,27 @@ class ProgramController extends Controller
             'client_id' => 'nullable|exists:users,id',
         ]);
 
-        // 🔥 FIX: Explicitly merge the coach_id so it is never null!
-        $programData = array_merge($validated, [
-            'coach_id' => $request->user()->id,
-        ]);
+        // 🔥 FIX: We must set coach_id explicitly when making the new program
+        $programData = [
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'is_ai_generated' => $validated['is_ai_generated'] ?? false,
+            'coach_id' => $request->user()->id
+        ];
 
-        // 1. Create the program in the coach's library
+        // 1. Save to Coach's Library
         $program = Program::create($programData);
 
-        // 2. If it was generated for a specific client, assign it immediately
-        if (! empty($validated['client_id'])) {
-            $program->clients()->attach($validated['client_id']);
-            Cache::forget("coach:{$request->user()->id}:programs_stats");
-
-            return redirect()->route('coach.clients.show', $validated['client_id'])
-                ->with('success', 'AI Program generated and successfully assigned to the client!');
-        }
-
         Cache::forget("coach:{$request->user()->id}:programs_stats");
+
+        // 2. If generating for a specific client, assign it!
+        if (!empty($validated['client_id'])) {
+            $client = User::findOrFail($validated['client_id']);
+            $client->assignedPrograms()->attach($program->id);
+
+            return redirect()->route('coach.clients.show', $client->id)
+                ->with('success', 'AI Program successfully generated and assigned!');
+        }
 
         return redirect()->route('coach.programs.index')->with('success', 'Workout program successfully saved to library.');
     }
@@ -80,12 +97,8 @@ class ProgramController extends Controller
         return back()->with('success', 'Program deleted successfully.');
     }
 
-    /**
-     * 🔥 THE WOW FACTOR: Advanced Prompt Engineering with Gemini
-     */
     public function generateAI(Request $request, GeminiService $gemini)
     {
-        // Require specific fitness parameters for a better AI response
         $request->validate([
             'goal' => 'required|string|max:100',
             'level' => 'required|string|max:50',
@@ -94,7 +107,6 @@ class ProgramController extends Controller
             'notes' => 'nullable|string|max:500'
         ]);
 
-        // Construct a highly specific prompt to force Gemini into "Elite Coach" mode
         $prompt = sprintf(
             "Act as an elite sports scientist and personal trainer. Create a highly effective workout program based on the following client constraints:\n" .
             "- Primary Goal: %s\n" .
@@ -108,7 +120,6 @@ class ProgramController extends Controller
             $request->goal, $request->level, $request->days, $request->equipment, $request->notes ?? 'None'
         );
 
-        // Cache the AI response for 7 days based on the exact prompt hash
         $cacheKey = 'ai_prog_' . md5($prompt);
         $result = $gemini->analyze($prompt, $cacheKey);
 

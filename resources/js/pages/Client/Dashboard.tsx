@@ -1,25 +1,26 @@
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    Activity, Calendar, Target, CreditCard, ArrowRight, TrendingDown, Sparkles, History
+    Activity, Calendar, Target, CreditCard, ArrowRight, TrendingDown, Sparkles, History, Dumbbell
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BreadcrumbItem } from '@/types';
+import React from 'react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend
 } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
-const PIE_COLORS = ['#10b981', '#f43f5e']; // Emerald for Attended, Rose for Missed
+const PIE_COLORS = ['#10b981', '#f43f5e'];
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
 ];
 
-export default function ClientDashboard({ latestAssessment, nextSession, activeGoalsCount, chartData }: any) {
+// 1. Add `coach` to the destructured props
+export default function ClientDashboard({ latestAssessment, nextSession, activeGoalsCount, chartData, coach }: any) {
     const { auth } = usePage().props as any;
     const user = auth.user;
 
@@ -32,7 +33,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
 
             <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
 
-                {/* Welcome Header */}
+                {/* Welcome, Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-3xl text-white shadow-lg">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight">
@@ -41,6 +42,19 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                         <p className="text-blue-100 mt-2 max-w-xl font-medium">
                             Welcome back to your training portal. Keep pushing towards your goals today!
                         </p>
+
+                        {/* 2. 🔥 NEW: Display the Assigned Coach here */}
+                        {coach && (
+                            <div className="mt-5 flex items-center gap-3 bg-white/10 w-fit px-4 py-2.5 rounded-xl backdrop-blur-md border border-white/20 shadow-sm">
+                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-extrabold text-sm text-white">
+                                    {coach.name.charAt(0)}
+                                </div>
+                                <span className="font-medium text-blue-50 text-sm">
+                                    Your Coach: <strong className="text-white ml-1 tracking-wide">{coach.name}</strong>
+                                </span>
+                            </div>
+                        )}
+
                     </div>
                     <div className="hidden md:flex items-center gap-3 bg-white/20 px-5 py-2.5 rounded-xl backdrop-blur-sm shadow-sm border border-white/10">
                         <Sparkles className="h-5 w-5 text-blue-50" />

@@ -17,7 +17,7 @@ class ScheduleController extends Controller
         $sessions = $coach->sessionsAsCoach()->with('program')->get();
 
         // 🔥 NEW: Fetch programs for the Create Session Modal dropdown
-        $programs = $coach->programs()->select('programs.id', 'programs.title')->latest()->get();
+        $programs = $coach->programs()->select('id', 'title')->latest()->get();
 
         $events = $sessions->map(function ($session) {
             $start = Carbon::parse($session->scheduled_at);

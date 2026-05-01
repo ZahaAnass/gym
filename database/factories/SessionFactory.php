@@ -11,11 +11,19 @@ class SessionFactory extends Factory
 
     public function definition(): array
     {
+        $sessions = [
+            'Bilan Biomécanique & Pesée', 'Coaching Privé : Force Haut du Corps',
+            'Small Group : Circuit Cross-Training', 'Séance Jambes & Fessiers',
+            'Cardio & Core (Abdos)', 'Technique d\'haltérophilie (Snatch)',
+            'Réathlisation Genou/Dos', 'Bootcamp Extérieur'
+        ];
+
         return [
-            'title' => $this->faker->randomElement(['Séance Jambes', 'Cardio Intensif', 'Haut du corps', 'Mobilité']),
-            'scheduled_at' => $this->faker->dateTimeBetween('-1 week', '+2 weeks'),
+            'title' => $this->faker->randomElement($sessions),
+            // Génère des dates entre 1 mois dans le passé et 2 semaines dans le futur pour les graphiques
+            'scheduled_at' => $this->faker->dateTimeBetween('-1 month', '+2 weeks'),
             'duration_minutes' => $this->faker->randomElement([30, 45, 60, 90]),
-            'max_participants' => $this->faker->numberBetween(5, 15),
+            'max_participants' => $this->faker->numberBetween(1, 10), // 1 pour coaching privé, plus pour les groupes
             'created_at' => now(),
         ];
     }

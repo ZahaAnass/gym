@@ -7,9 +7,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { NavItem } from '@/types';
 
-export function NavMain({ items = [] }: { items: NavItem[] }) {
+export function NavMain({ items = [] }: { items: any[] }) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
@@ -18,16 +17,39 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
             <SidebarMenu>
                 {items.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={isCurrentUrl(item.href)}
-                            tooltip={{ children: item.title }}
-                        >
-                            <Link href={item.href} prefetch>
+                        {item.disabled ? (
+                            /* 🔒 DISABLED STATE: No Link, just a disabled button */
+                            <SidebarMenuButton
+                                disabled
+                                tooltip={{ children: item.title }}
+                                className="opacity-50 cursor-not-allowed"
+                            >
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
-                            </Link>
-                        </SidebarMenuButton>
+                                {item.badge && (
+                                    <span className="ml-auto bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </SidebarMenuButton>
+                        ) : (
+                            /* 🟢 ACTIVE STATE: Uses Inertia Link */
+                            <SidebarMenuButton
+                                asChild
+                                isActive={isCurrentUrl(item.href)}
+                                tooltip={{ children: item.title }}
+                            >
+                                <Link href={item.href} prefetch>
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                    {item.badge && (
+                                        <span className="ml-auto bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                            {item.badge}
+                                        </span>
+                                    )}
+                                </Link>
+                            </SidebarMenuButton>
+                        )}
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>
