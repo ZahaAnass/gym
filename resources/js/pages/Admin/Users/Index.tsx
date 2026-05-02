@@ -1,6 +1,4 @@
-import AppLayout from "@/layouts/app-layout";
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
 import {
     Search,
@@ -12,15 +10,15 @@ import {
     User as UserIcon,
     Users,
     Plus,
-    Filter,
-    Activity
+    Filter
 } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+import DeleteDialog from "@/components/delete-dialog";
+import InertiaPagination from "@/components/inertia-pagination";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,10 +27,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { BreadcrumbItem } from '@/types';
-import InertiaPagination from "@/components/inertia-pagination";
-import { toast } from "sonner";
-import DeleteDialog from "@/components/delete-dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from "@/layouts/app-layout";
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin Dashboard', href: '/admin/analytics' },
@@ -40,11 +40,22 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function UsersIndex({ users, filters, coaches, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: 'User Management | Admin', title: 'Directory Management', subtitle: 'Manage platform access, roles, and client-coach assignments.', create: 'Create Account', search: 'Search by name or email...' },
+        fr: { head: 'Gestion des utilisateurs | Admin', title: 'Gestion de l annuaire', subtitle: 'Gerez les acces, roles et affectations client-coach.', create: 'Creer un compte', search: 'Rechercher par nom ou email...' },
+        ar: { head: 'ادارة المستخدمين | الادمن', title: 'ادارة الدليل', subtitle: 'ادارة صلاحيات المنصة والادوار وربط العملاء بالمدربين.', create: 'انشاء حساب', search: 'ابحث بالاسم او البريد...' },
+    }[language];
     const { flash, auth } = usePage().props as any;
 
     useEffect(() => {
-        if (flash?.success) toast.success(flash.success);
-        if (flash?.error) toast.error(flash.error);
+        if (flash?.success) {
+toast.success(flash.success);
+}
+
+        if (flash?.error) {
+toast.error(flash.error);
+}
     }, [flash]);
 
     // Debounced Search
@@ -66,11 +77,20 @@ export default function UsersIndex({ users, filters, coaches, stats }: any) {
     }
 
     const getRoleBadge = (roles: any[]) => {
-        if (!roles || roles.length === 0) return <Badge variant="outline">None</Badge>;
+        if (!roles || roles.length === 0) {
+return <Badge variant="outline">None</Badge>;
+}
+
         const roleName = roles[0].name;
 
-        if (roleName === 'admin') return <Badge className="bg-red-100 text-red-800 border-none dark:bg-red-500/10 dark:text-red-400"><Shield className="h-3 w-3 mr-1" /> Admin</Badge>;
-        if (roleName === 'coach') return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purple-500/10 dark:text-purple-400"><Dumbbell className="h-3 w-3 mr-1" /> Coach</Badge>;
+        if (roleName === 'admin') {
+return <Badge className="bg-red-100 text-red-800 border-none dark:bg-red-500/10 dark:text-red-400"><Shield className="h-3 w-3 mr-1" /> Admin</Badge>;
+}
+
+        if (roleName === 'coach') {
+return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purple-500/10 dark:text-purple-400"><Dumbbell className="h-3 w-3 mr-1" /> Coach</Badge>;
+}
+
         return <Badge className="bg-blue-100 text-blue-800 border-none dark:bg-blue-500/10 dark:text-blue-400"><UserIcon className="h-3 w-3 mr-1" /> Client</Badge>;
     };
 
@@ -79,21 +99,21 @@ export default function UsersIndex({ users, filters, coaches, stats }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="User Management | Admin" />
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <Head title={t.head} />
+            <div className="admin-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="admin-page-header">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
                             <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Directory Management
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage platform access, roles, and client-coach assignments.</p>
+                        <p className="admin-page-subtitle">{t.subtitle}</p>
                     </div>
                     <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl">
                         <Link href="/admin/users/create">
-                            <Plus className="mr-2 h-4 w-4"/> Create Account
+                            <Plus className="mr-2 h-4 w-4"/> {t.create}
                         </Link>
                     </Button>
                 </div>
@@ -127,16 +147,16 @@ export default function UsersIndex({ users, filters, coaches, stats }: any) {
                 </div>
 
                 {/* Main Data Card */}
-                <Card className="shadow-sm border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-950">
+                <Card className="admin-surface overflow-hidden">
 
                     {/* Advanced Filter Toolbar */}
-                    <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div className="admin-toolbar flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div className="relative w-full md:w-96">
                             <Input
                                 defaultValue={filters?.search ?? ""}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 className="pl-10 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl shadow-sm h-11"
-                                placeholder="Search by name or email..."
+                                placeholder={t.search}
                             />
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                 <Search size={18} />

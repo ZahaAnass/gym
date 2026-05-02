@@ -16,15 +16,22 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { BreadcrumbItem } from '@/types';
+import { useAppLanguage } from '@/hooks/use-app-language';
 import { toast } from 'sonner';
 
 export default function CreateAssessment({ client }: any) {
+    const { language, isRTL } = useAppLanguage();
     const { flash } = usePage().props as any;
+    const t = {
+        en: { roster: 'My Roster', newAssessment: 'New AI Assessment', head: 'New Assessment', title: 'AI Health Assessment', subtitle: 'Enter the physical and sanitary data for', cancel: 'Cancel', physical: 'Physical Assessment', health: 'Health Assessment', height: 'Height (cm)', weight: 'Current Weight (kg)', pressure: 'Blood Pressure', allergies: 'Allergies or Conditions', obs: 'Coach Observations (Optional)', obsPlaceholder: 'Add any additional context for the AI to consider...', aiInfo: 'Gemini 2.5 will calculate the target weight and generate a medical strategy automatically.', analyzing: 'Analyzing Biometrics...', run: 'Run AI Analysis & Save', infoToast: 'Transmitting biometrics to Gemini AI for medical analysis...' },
+        fr: { roster: 'Mes clients', newAssessment: 'Nouvelle evaluation IA', head: 'Nouvelle evaluation', title: 'Evaluation sante IA', subtitle: 'Saisissez les donnees physiques et sanitaires de', cancel: 'Annuler', physical: 'Bilan physique', health: 'Bilan sanitaire', height: 'Taille (cm)', weight: 'Poids actuel (kg)', pressure: 'Tension arterielle', allergies: 'Allergies ou conditions', obs: 'Observations du coach (optionnel)', obsPlaceholder: 'Ajoutez du contexte supplementaire pour l IA...', aiInfo: 'Gemini 2.5 calcule le poids cible et genere une strategie medicale.', analyzing: 'Analyse des biometries...', run: 'Lancer analyse IA et enregistrer', infoToast: 'Transmission des biometries a Gemini IA...' },
+        ar: { roster: 'عملائي', newAssessment: 'تقييم ذكاء اصطناعي جديد', head: 'تقييم جديد', title: 'تقييم صحي بالذكاء الاصطناعي', subtitle: 'ادخل البيانات الجسدية والصحية للعميل', cancel: 'الغاء', physical: 'تقييم بدني', health: 'تقييم صحي', height: 'الطول (سم)', weight: 'الوزن الحالي (كغ)', pressure: 'ضغط الدم', allergies: 'الحساسية او الحالات المرضية', obs: 'ملاحظات المدرب (اختياري)', obsPlaceholder: 'اضف معلومات اضافية للذكاء الاصطناعي...', aiInfo: 'Gemini 2.5 سيحسب الوزن المستهدف ويولد استراتيجية طبية تلقائيا.', analyzing: 'جاري تحليل القياسات...', run: 'تشغيل التحليل وحفظ', infoToast: 'جاري ارسال القياسات الى Gemini AI للتحليل...' },
+    }[language];
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'My Roster', href: '/coach/clients' },
+        { title: t.roster, href: '/coach/clients' },
         { title: client.name, href: `/coach/clients/${client.id}` },
-        { title: 'New AI Assessment', href: '#' },
+        { title: t.newAssessment, href: '#' },
     ];
 
     const { data, setData, post, processing, errors } = useForm({
@@ -42,30 +49,30 @@ export default function CreateAssessment({ client }: any) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        toast.info("Transmitting biometrics to Gemini AI for medical analysis...");
+        toast.info(t.infoToast);
         post('/coach/assessments');
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`New Assessment: ${client.name}`} />
+            <Head title={`${t.head}: ${client.name}`} />
 
-            <div className="p-6 space-y-6 w-full max-w-4xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            AI Health Assessment
+                            {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Enter the physical and sanitary data for <span className="font-bold text-slate-700 dark:text-slate-300">{client.name}</span>.
+                            {t.subtitle} <span className="font-bold text-slate-700 dark:text-slate-300">{client.name}</span>.
                         </p>
                     </div>
                     <Button variant="outline" asChild className="bg-white dark:bg-zinc-900">
                         <Link href={`/coach/clients/${client.id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
+                            <ArrowLeft className="mr-2 h-4 w-4" /> {t.cancel}
                         </Link>
                     </Button>
                 </div>
@@ -77,13 +84,13 @@ export default function CreateAssessment({ client }: any) {
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Scale className="h-5 w-5 text-indigo-500" /> Bilan Physique
+                                    <Scale className="h-5 w-5 text-indigo-500" /> {t.physical}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-4">
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2">
-                                        <Ruler className="h-4 w-4 text-slate-400" /> Height (cm) <span className="text-red-500">*</span>
+                                        <Ruler className="h-4 w-4 text-slate-400" /> {t.height} <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         type="number"
@@ -98,7 +105,7 @@ export default function CreateAssessment({ client }: any) {
 
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2">
-                                        <Scale className="h-4 w-4 text-slate-400" /> Current Weight (kg) <span className="text-red-500">*</span>
+                                        <Scale className="h-4 w-4 text-slate-400" /> {t.weight} <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         type="number"
@@ -118,13 +125,13 @@ export default function CreateAssessment({ client }: any) {
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <HeartPulse className="h-5 w-5 text-rose-500" /> Bilan Sanitaire
+                                    <HeartPulse className="h-5 w-5 text-rose-500" /> {t.health}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-4">
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2">
-                                        <HeartPulse className="h-4 w-4 text-slate-400" /> Blood Pressure <span className="text-red-500">*</span>
+                                        <HeartPulse className="h-4 w-4 text-slate-400" /> {t.pressure} <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         type="text"
@@ -139,7 +146,7 @@ export default function CreateAssessment({ client }: any) {
 
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2">
-                                        <Stethoscope className="h-4 w-4 text-slate-400" /> Allergies or Conditions
+                                        <Stethoscope className="h-4 w-4 text-slate-400" /> {t.allergies}
                                     </Label>
                                     <Input
                                         type="text"
@@ -158,11 +165,11 @@ export default function CreateAssessment({ client }: any) {
                     <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950 overflow-hidden">
                         <CardContent className="p-6">
                             <div className="space-y-2">
-                                <Label>Coach Observations (Optional)</Label>
+                                <Label>{t.obs}</Label>
                                 <Textarea
                                     value={data.notes}
                                     onChange={e => setData('notes', e.target.value)}
-                                    placeholder="Add any additional context for the AI to consider (e.g. Client recently recovered from a shoulder injury)..."
+                                    placeholder={t.obsPlaceholder}
                                     rows={3}
                                     className="resize-none bg-slate-50 dark:bg-zinc-900 rounded-xl"
                                 />
@@ -177,7 +184,7 @@ export default function CreateAssessment({ client }: any) {
                                     <Bot className="h-5 w-5" />
                                 </div>
                                 <div className="text-sm font-medium">
-                                    Gemini 2.5 will calculate the target weight and generate a medical strategy automatically.
+                                    {t.aiInfo}
                                 </div>
                             </div>
 
@@ -192,11 +199,11 @@ export default function CreateAssessment({ client }: any) {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Analyzing Biometrics...
+                                        {t.analyzing}
                                     </span>
                                 ) : (
                                     <span className="flex items-center font-bold">
-                                        Run AI Analysis & Save
+                                        {t.run}
                                     </span>
                                 )}
                             </Button>

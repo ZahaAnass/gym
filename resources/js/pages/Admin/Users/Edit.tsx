@@ -1,5 +1,3 @@
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     Save,
@@ -11,15 +9,24 @@ import {
     Dumbbell,
     Info
 } from 'lucide-react';
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BreadcrumbItem } from '@/types';
-import { Badge } from '@/components/ui/badge';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 export default function EditUser({ user, roles, coaches }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: `Edit ${user.name} | Admin`, title: 'Edit Account', subtitlePrefix: 'Updating profile details for', back: 'Back to Directory', cancel: 'Cancel', save: 'Save Changes' },
+        fr: { head: `Modifier ${user.name} | Admin`, title: 'Modifier le compte', subtitlePrefix: 'Mise a jour du profil de', back: "Retour a l'annuaire", cancel: 'Annuler', save: 'Enregistrer' },
+        ar: { head: `تعديل ${user.name} | الادمن`, title: 'تعديل الحساب', subtitlePrefix: 'تحديث بيانات الملف الشخصي للمستخدم', back: 'العودة للدليل', cancel: 'الغاء', save: 'حفظ التعديلات' },
+    }[language];
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/admin/analytics' },
         { title: 'Users', href: '/admin/users' },
@@ -43,25 +50,25 @@ export default function EditUser({ user, roles, coaches }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit ${user.name} | Admin`} />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-6 w-full max-w-4xl mx-auto">
+            <div className="admin-page-container narrow" dir={isRTL ? 'rtl' : 'ltr'}>
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-                            Edit Account
+                            {t.title}
                             <Badge variant="outline" className="text-sm font-medium bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900">
                                 ID: #{user.id}
                             </Badge>
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Updating profile details for <span className="font-semibold text-slate-700 dark:text-slate-300">{user.name}</span>.
+                            {t.subtitlePrefix} <span className="font-semibold text-slate-700 dark:text-slate-300">{user.name}</span>.
                         </p>
                     </div>
                     <Button variant="outline" asChild className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                         <Link href="/admin/users">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Directory
+                            <ArrowLeft className="mr-2 h-4 w-4" /> {t.back}
                         </Link>
                     </Button>
                 </div>
@@ -168,7 +175,10 @@ export default function EditUser({ user, roles, coaches }: any) {
                                     </Label>
                                     <Select value={data.role} onValueChange={(val) => {
                                         setData('role', val);
-                                        if (val !== 'client') setData('coach_id', '');
+
+                                        if (val !== 'client') {
+setData('coach_id', '');
+}
                                     }}>
                                         <SelectTrigger className="h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl">
                                             <SelectValue placeholder="Select a role..." />
@@ -208,7 +218,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                     {/* Action Bar */}
                     <div className="flex items-center justify-end gap-4 pt-4">
                         <Button type="button" variant="ghost" asChild className="text-slate-500">
-                            <Link href="/admin/users">Cancel</Link>
+                            <Link href="/admin/users">{t.cancel}</Link>
                         </Button>
                         <Button
                             type="submit"
@@ -225,7 +235,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                                 </span>
                             ) : (
                                 <span className="flex items-center text-sm font-bold">
-                                    <Save className="mr-2 h-4 w-4" /> Save Changes
+                                    <Save className="mr-2 h-4 w-4" /> {t.save}
                                 </span>
                             )}
                         </Button>

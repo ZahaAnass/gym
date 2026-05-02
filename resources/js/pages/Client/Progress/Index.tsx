@@ -5,8 +5,15 @@ import { Target, TrendingUp, Activity, CheckCircle2, AlertCircle } from 'lucide-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+import { useAppLanguage } from '@/hooks/use-app-language';
 
 export default function ProgressIndex({ assessments, chartData, goals, attendance_rate }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { myProgress: 'My Progress', head: 'Progress Analytics', title: 'My Analytics Dashboard', currentWeight: 'Current Weight', attendanceRate: 'Attendance Rate', activeGoals: 'Active Goals', bioTrends: 'Biometric Trends', noAssessments: 'No assessment data available yet.', coachGoals: 'Coach-Assigned Goals', noCoachGoals: 'Your coach has not assigned any goals yet.', achieved: 'Achieved', targetDate: 'Target Date', qualitative: 'Qualitative Goal (Behavioral)', aiStrategy: 'AI Strategy:' },
+        fr: { myProgress: 'Ma progression', head: 'Analytique progression', title: 'Mon tableau analytique', currentWeight: 'Poids actuel', attendanceRate: 'Taux de presence', activeGoals: 'Objectifs actifs', bioTrends: 'Tendances biometrie', noAssessments: "Aucune donnee d'evaluation disponible.", coachGoals: 'Objectifs attribues par le coach', noCoachGoals: "Votre coach n'a assigne aucun objectif.", achieved: 'Atteint', targetDate: 'Date cible', qualitative: 'Objectif qualitatif (comportemental)', aiStrategy: 'Strategie IA :' },
+        ar: { myProgress: 'تقدمي', head: 'تحليلات التقدم', title: 'لوحة تحليلاتي', currentWeight: 'الوزن الحالي', attendanceRate: 'نسبة الحضور', activeGoals: 'اهداف نشطة', bioTrends: 'اتجاهات القياسات الحيوية', noAssessments: 'لا توجد بيانات تقييم بعد.', coachGoals: 'اهداف يحددها المدرب', noCoachGoals: 'لم يقم مدربك بتعيين اهداف بعد.', achieved: 'تم تحقيقه', targetDate: 'تاريخ الهدف', qualitative: 'هدف نوعي (سلوكي)', aiStrategy: 'استراتيجية الذكاء الاصطناعي:' },
+    }[language];
 
     // Safely calculate completion percentage for numeric goals
     const getProgressPercent = (goal: any) => {
@@ -25,31 +32,31 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'My Progress', href: '/client/progress' }]}>
-            <Head title="Progress Analytics" />
+        <AppLayout breadcrumbs={[{ title: t.myProgress, href: '/client/progress' }]}>
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
-                    <TrendingUp className="h-8 w-8 text-indigo-600 dark:text-indigo-400" /> My Analytics Dashboard
+                    <TrendingUp className="h-8 w-8 text-indigo-600 dark:text-indigo-400" /> {t.title}
                 </h2>
 
                 {/* Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card className="bg-indigo-50 dark:bg-indigo-500/10 border-none shadow-sm rounded-3xl">
                         <CardContent className="p-6 flex flex-col gap-2">
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Current Weight</span>
+                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t.currentWeight}</span>
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{assessments[0]?.weight || '--'} kg</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-emerald-50 dark:bg-emerald-500/10 border-none shadow-sm rounded-3xl">
                         <CardContent className="p-6 flex flex-col gap-2">
-                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Attendance Rate</span>
+                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t.attendanceRate}</span>
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{attendance_rate}%</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-purple-50 dark:bg-purple-500/10 border-none shadow-sm rounded-3xl">
                         <CardContent className="p-6 flex flex-col gap-2">
-                            <span className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Active Goals</span>
+                            <span className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">{t.activeGoals}</span>
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{goals.filter((g:any) => g.status === 'active').length}</span>
                         </CardContent>
                     </Card>
@@ -60,7 +67,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                     <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Activity className="h-5 w-5 text-indigo-500" /> Biometric Trends
+                                <Activity className="h-5 w-5 text-indigo-500" /> {t.bioTrends}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="h-[350px] p-6 pt-0">
@@ -81,7 +88,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                     </AreaChart>
                                 </ResponsiveContainer>
                             ) : (
-                                <div className="h-full flex items-center justify-center text-slate-400">No assessment data available yet.</div>
+                                <div className="h-full flex items-center justify-center text-slate-400">{t.noAssessments}</div>
                             )}
                         </CardContent>
                     </Card>
@@ -90,11 +97,11 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                     <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Target className="h-5 w-5 text-purple-500" /> Coach-Assigned Goals
+                                <Target className="h-5 w-5 text-purple-500" /> {t.coachGoals}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6 overflow-y-auto max-h-[350px] pr-2">
-                            {goals.length === 0 && <p className="text-slate-500 italic">Your coach has not assigned any goals yet.</p>}
+                            {goals.length === 0 && <p className="text-slate-500 italic">{t.noCoachGoals}</p>}
 
                             {goals.map((goal: any) => (
                                 <div key={goal.id} className="space-y-2 p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800">
@@ -102,9 +109,9 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                         <div>
                                             <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                 {goal.title}
-                                                {goal.status === 'reached' && <Badge className="bg-emerald-500 text-white border-none">Achieved</Badge>}
+                                                {goal.status === 'reached' && <Badge className="bg-emerald-500 text-white border-none">{t.achieved}</Badge>}
                                             </h4>
-                                            {goal.deadline && <p className="text-xs text-slate-500 mt-1">Target Date: {new Date(goal.deadline).toLocaleDateString()}</p>}
+                                            {goal.deadline && <p className="text-xs text-slate-500 mt-1">{t.targetDate}: {new Date(goal.deadline).toLocaleDateString()}</p>}
                                         </div>
                                         {goal.type === 'numeric' && (
                                             <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
@@ -122,13 +129,13 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2 rounded-xl">
-                                            <CheckCircle2 className="h-4 w-4" /> Qualitative Goal (Behavioral)
+                                            <CheckCircle2 className="h-4 w-4" /> {t.qualitative}
                                         </div>
                                     )}
 
                                     {goal.ai_strategy_advice && (
                                         <div className="mt-3 p-3 bg-indigo-50/50 dark:bg-indigo-500/5 rounded-xl border border-indigo-100 dark:border-indigo-500/10 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">AI Strategy:</strong>
+                                            <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">{t.aiStrategy}</strong>
                                             {goal.ai_strategy_advice}
                                         </div>
                                     )}

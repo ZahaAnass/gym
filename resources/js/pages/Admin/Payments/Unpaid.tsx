@@ -1,5 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage, Link } from '@inertiajs/react';
 import { debounce } from 'lodash';
 import {
@@ -17,12 +15,19 @@ import {
     History,
     Download
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import InertiaPagination from '@/components/inertia-pagination';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,25 +36,32 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { BreadcrumbItem } from '@/types';
-import InertiaPagination from '@/components/inertia-pagination';
-import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 export default function PaymentsUnpaid({ users, filters, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: 'Financials | Admin', title: 'Financials & Subscriptions', subtitle: 'Monitor member subscriptions, track revenue, and manage overdue accounts.', export: 'Export CSV', search: 'Search by client name or email...' },
+        fr: { head: 'Finances | Admin', title: 'Finances & Abonnements', subtitle: 'Suivez les abonnements, revenus et comptes en retard.', export: 'Exporter CSV', search: 'Rechercher par nom ou email client...' },
+        ar: { head: 'المالية | الادمن', title: 'المالية والاشتراكات', subtitle: 'مراقبة اشتراكات الاعضاء وتتبع الايرادات وادارة الحسابات المتاخرة.', export: 'تصدير CSV', search: 'ابحث باسم العميل او البريد...' },
+    }[language];
     const { flash } = usePage().props as any;
 
     const [historyUser, setHistoryUser] = useState<any>(null);
 
     useEffect(() => {
-        if (flash?.success) toast.success(flash.success);
-        if (flash?.error) toast.error(flash.error);
+        if (flash?.success) {
+toast.success(flash.success);
+}
+
+        if (flash?.error) {
+toast.error(flash.error);
+}
     }, [flash]);
 
     const handleSearch = useRef(debounce((q: string) => {
@@ -77,10 +89,15 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
     const getClientStatus = (client: any) => {
-        if (!client.payments || client.payments.length === 0) return 'locked';
+        if (!client.payments || client.payments.length === 0) {
+return 'locked';
+}
 
         const latestCompleted = client.payments.find((p: any) => p.status === 'completed');
-        if (!latestCompleted) return 'locked';
+
+        if (!latestCompleted) {
+return 'locked';
+}
 
         const paidDate = new Date(latestCompleted.paid_at);
         const months = latestCompleted.installment_number || 1;
@@ -93,8 +110,14 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
 
         const now = new Date();
 
-        if (now <= expirationDate) return 'active';
-        if (now <= graceEndDate) return 'grace';
+        if (now <= expirationDate) {
+return 'active';
+}
+
+        if (now <= graceEndDate) {
+return 'grace';
+}
+
         return 'locked';
     };
 
@@ -108,17 +131,17 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Financials | Admin" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="admin-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="admin-page-header">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <h2 className="admin-page-title">
                             <Banknote className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-                            Financials & Subscriptions
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Monitor member subscriptions, track revenue, and manage overdue accounts.
+                        <p className="admin-page-subtitle">
+                            {t.subtitle}
                         </p>
                     </div>
 
@@ -126,7 +149,7 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                     <div className="flex gap-3">
                         <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl">
                             <a href={exportUrl} target="_blank" rel="noreferrer">
-                                <Download className="mr-2 h-4 w-4" /> Export CSV
+                                <Download className="mr-2 h-4 w-4" /> {t.export}
                             </a>
                         </Button>
                     </div>
@@ -173,14 +196,14 @@ export default function PaymentsUnpaid({ users, filters, stats }: any) {
                     </Card>
                 </div>
 
-                <Card className="shadow-sm border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-950">
-                    <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <Card className="admin-surface overflow-hidden">
+                    <div className="admin-toolbar flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div className="relative w-full md:w-96">
                             <Input
                                 defaultValue={filters?.search ?? ""}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 className="pl-10 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm"
-                                placeholder="Search by client name or email..."
+                                placeholder={t.search}
                             />
                             <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                         </div>

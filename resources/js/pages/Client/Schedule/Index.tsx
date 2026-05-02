@@ -9,10 +9,17 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { useAppLanguage } from '@/hooks/use-app-language';
 
 export default function ClientSchedule({ events }: any) {
+    const { language, isRTL } = useAppLanguage();
     const [selectedEvent, setSelectedEvent] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const t = {
+        en: { dashboard: 'Dashboard', mySchedule: 'My Schedule', head: 'My Schedule | Client', title: 'My Class Schedule', subtitle: 'View your upcoming enrolled sessions.', completed: 'Completed', classDetails: 'Class Details', instructor: 'Instructor', coach: 'Coach' },
+        fr: { dashboard: 'Tableau', mySchedule: 'Mon planning', head: 'Mon planning | Client', title: 'Mon planning des cours', subtitle: 'Consultez vos prochaines sessions.', completed: 'Terminee', classDetails: 'Details de la session', instructor: 'Instructeur', coach: 'Coach' },
+        ar: { dashboard: 'لوحة التحكم', mySchedule: 'جدولي', head: 'جدولي | عميل', title: 'جدول حصصي', subtitle: 'عرض الجلسات القادمة المسجل فيها.', completed: 'مكتملة', classDetails: 'تفاصيل الحصة', instructor: 'المدرب', coach: 'المدرب' },
+    }[language];
 
     const handleEventClick = (clickInfo: any) => {
         setSelectedEvent({
@@ -25,15 +32,15 @@ export default function ClientSchedule({ events }: any) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'My Schedule', href: '/client/schedule' }]}>
-            <Head title="My Schedule | Client" />
+        <AppLayout breadcrumbs={[{ title: t.dashboard, href: '/dashboard' }, { title: t.mySchedule, href: '/client/schedule' }]}>
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-6 w-full max-w-6xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 <div className="flex items-center gap-3 mb-6">
                     <CalendarIcon className="h-8 w-8 text-emerald-500" />
                     <div>
-                        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">My Class Schedule</h2>
-                        <p className="text-sm text-slate-500">View your upcoming enrolled sessions.</p>
+                        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">{t.title}</h2>
+                        <p className="text-sm text-slate-500">{t.subtitle}</p>
                     </div>
                 </div>
 
@@ -59,9 +66,9 @@ export default function ClientSchedule({ events }: any) {
                         <DialogHeader>
                             <DialogTitle className="text-xl flex items-center gap-2">
                                 {selectedEvent?.title}
-                                {selectedEvent?.is_past && <Badge variant="secondary">Completed</Badge>}
+                                {selectedEvent?.is_past && <Badge variant="secondary">{t.completed}</Badge>}
                             </DialogTitle>
-                            <DialogDescription>Class Details</DialogDescription>
+                            <DialogDescription>{t.classDetails}</DialogDescription>
                         </DialogHeader>
                         {selectedEvent && (
                             <div className="space-y-4 py-4">
@@ -75,8 +82,8 @@ export default function ClientSchedule({ events }: any) {
                                 <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl flex items-center gap-3">
                                     <UserIcon className="h-5 w-5 text-indigo-500" />
                                     <div>
-                                        <p className="font-semibold text-slate-900 dark:text-white">Coach {selectedEvent.coach_name}</p>
-                                        <p className="text-sm text-slate-500">Instructor</p>
+                                        <p className="font-semibold text-slate-900 dark:text-white">{t.coach} {selectedEvent.coach_name}</p>
+                                        <p className="text-sm text-slate-500">{t.instructor}</p>
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +91,6 @@ export default function ClientSchedule({ events }: any) {
                     </DialogContent>
                 </Dialog>
             </div>
-            <style dangerouslySetInnerHTML={{__html: ` .fc-theme-tailwind { --fc-border-color: #e2e8f0; } .dark .fc-theme-tailwind { --fc-border-color: #27272a; --fc-neutral-bg-color: #18181b; color: #f8fafc; } `}} />
         </AppLayout>
     );
 }

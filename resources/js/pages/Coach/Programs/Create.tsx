@@ -14,12 +14,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { BreadcrumbItem } from '@/types';
 import { toast } from 'sonner';
+import { useAppLanguage } from '@/hooks/use-app-language';
 
 export default function CreateProgram({ client }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { dashboard: 'Dashboard', programs: 'Programs', aiGenerator: 'AI Generator', head: 'AI Program Generator', title: 'AI Program Generator', libraryFallback: 'Design a new program to save to your master library.', aiParameters: 'AI Parameters', generate: 'Generate with Gemini AI', generating: 'Generating Plan...', preview: 'Program Preview & Editor', previewSub: "You can manually edit the AI's output before saving it.", cancel: 'Cancel', saving: 'Saving...', saveLibrary: 'Save to Master Library', ready: 'Ready for Generation' },
+        fr: { dashboard: 'Tableau', programs: 'Programmes', aiGenerator: 'Generateur IA', head: 'Generateur IA', title: 'Generateur de programme IA', libraryFallback: 'Creez un nouveau programme pour votre bibliotheque.', aiParameters: 'Parametres IA', generate: 'Generer avec Gemini IA', generating: 'Generation en cours...', preview: 'Apercu & editeur', previewSub: 'Vous pouvez modifier le resultat IA avant enregistrement.', cancel: 'Annuler', saving: 'Enregistrement...', saveLibrary: 'Enregistrer en bibliotheque', ready: 'Pret pour la generation' },
+        ar: { dashboard: 'لوحة التحكم', programs: 'البرامج', aiGenerator: 'مولد الذكاء الاصطناعي', head: 'مولد البرامج بالذكاء الاصطناعي', title: 'مولد البرامج بالذكاء الاصطناعي', libraryFallback: 'صمم برنامجا جديدا لحفظه في مكتبتك.', aiParameters: 'اعدادات الذكاء الاصطناعي', generate: 'توليد عبر Gemini AI', generating: 'جاري التوليد...', preview: 'معاينة وتحرير البرنامج', previewSub: 'يمكنك تعديل نتيجة الذكاء الاصطناعي قبل الحفظ.', cancel: 'الغاء', saving: 'جاري الحفظ...', saveLibrary: 'حفظ في المكتبة', ready: 'جاهز للتوليد' },
+    }[language];
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/coach/dashboard' },
-        { title: 'Programs', href: '/coach/programs' },
-        { title: 'AI Generator', href: '/coach/programs/create' },
+        { title: t.dashboard, href: '/coach/dashboard' },
+        { title: t.programs, href: '/coach/programs' },
+        { title: t.aiGenerator, href: '/coach/programs/create' },
     ];
 
     // AI Generation State
@@ -73,9 +80,9 @@ export default function CreateProgram({ client }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="AI Program Generator" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-6 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -88,7 +95,7 @@ export default function CreateProgram({ client }: any) {
                         <div>
                             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                                 <Sparkles className="h-8 w-8 text-indigo-500" />
-                                AI Program Generator
+                                {t.title}
                             </h2>
                             <p className="text-sm text-slate-500 mt-1">
                                 {client ? (
@@ -96,7 +103,7 @@ export default function CreateProgram({ client }: any) {
                                         Generating custom plan for <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-none"><User className="h-3 w-3 mr-1"/>{client.name}</Badge>
                                     </span>
                                 ) : (
-                                    "Design a new program to save to your master library."
+                                    t.libraryFallback
                                 )}
                             </p>
                         </div>
@@ -110,7 +117,7 @@ export default function CreateProgram({ client }: any) {
                         <Card className="shadow-lg border-indigo-100 dark:border-indigo-900/30 rounded-2xl bg-gradient-to-b from-white to-indigo-50/50 dark:from-zinc-950 dark:to-indigo-950/20">
                             <CardHeader className="pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2 text-indigo-900 dark:text-indigo-300">
-                                    <Settings2 className="h-5 w-5" /> AI Parameters
+                                    <Settings2 className="h-5 w-5" /> {t.aiParameters}
                                 </CardTitle>
                                 <CardDescription>Define the constraints for Gemini to build the perfect workout.</CardDescription>
                             </CardHeader>
@@ -187,9 +194,9 @@ export default function CreateProgram({ client }: any) {
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 rounded-xl text-md font-bold shadow-md shadow-indigo-500/20 transition-all"
                                 >
                                     {isGenerating ? (
-                                        <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generating Plan...</>
+                                        <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t.generating}</>
                                     ) : (
-                                        <><Sparkles className="mr-2 h-5 w-5" /> Generate with Gemini AI</>
+                                        <><Sparkles className="mr-2 h-5 w-5" /> {t.generate}</>
                                     )}
                                 </Button>
                             </CardContent>
@@ -202,19 +209,19 @@ export default function CreateProgram({ client }: any) {
                             <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950 min-h-[600px] flex flex-col">
                                 <CardHeader className="border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 pb-4">
                                     <CardTitle className="text-lg flex justify-between items-center">
-                                        <span>Program Preview & Editor</span>
+                                        <span>{t.preview}</span>
                                         {data.is_ai_generated && data.title && (
                                             <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 border-none"><Sparkles className="h-3 w-3 mr-1"/> AI Draft</Badge>
                                         )}
                                     </CardTitle>
-                                    <CardDescription>You can manually edit the AI's output before saving it.</CardDescription>
+                                    <CardDescription>{t.previewSub}</CardDescription>
                                 </CardHeader>
 
                                 <CardContent className="p-6 flex-grow flex flex-col gap-6">
                                     {!data.title && !data.description && !isGenerating ? (
                                         <div className="flex-grow flex flex-col items-center justify-center text-slate-400 opacity-60">
                                             <Dumbbell className="h-16 w-16 mb-4" />
-                                            <p className="text-lg font-medium">Ready for Generation</p>
+                                            <p className="text-lg font-medium">{t.ready}</p>
                                             <p className="text-sm max-w-sm text-center mt-2">Adjust parameters on the left and click Generate to let Gemini write your program.</p>
                                         </div>
                                     ) : (
@@ -252,14 +259,14 @@ export default function CreateProgram({ client }: any) {
 
                                 <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 flex justify-end gap-3 rounded-b-2xl">
                                     <Button type="button" variant="ghost" asChild>
-                                        <Link href={client ? `/coach/clients/${client.id}` : "/coach/programs"}>Cancel</Link>
+                                        <Link href={client ? `/coach/clients/${client.id}` : "/coach/programs"}>{t.cancel}</Link>
                                     </Button>
                                     <Button
                                         type="submit"
                                         disabled={processing || (!data.title && !data.description)}
                                         className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white rounded-xl font-bold px-8 shadow-md"
                                     >
-                                        {processing ? 'Saving...' : (client ? `Save & Assign to ${client.name.split(' ')[0]}` : 'Save to Master Library')}
+                                        {processing ? t.saving : (client ? `Save & Assign to ${client.name.split(' ')[0]}` : t.saveLibrary)}
                                     </Button>
                                 </div>
                             </Card>

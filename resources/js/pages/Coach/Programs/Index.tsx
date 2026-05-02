@@ -18,9 +18,16 @@ import InertiaPagination from '@/components/inertia-pagination';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import axios from 'axios';
+import { useAppLanguage } from '@/hooks/use-app-language';
 
 export default function ProgramsIndex({ programs, filters, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
     const { flash } = usePage().props as any;
+    const t = {
+        en: { dashboard: 'Dashboard', programs: 'Workout Programs', head: 'Program Library | Coach', title: 'Program Library', subtitle: 'Manage your workout templates and generate new ones via Gemini AI.', createProgram: 'Create Program', saveToLibrary: 'Save to Library', total: 'Total Programs', aiGenerated: 'AI Generated', manual: 'Manually Written', search: 'Search library...', read: 'Read Full Program', close: 'Close Window' },
+        fr: { dashboard: 'Tableau', programs: 'Programmes', head: 'Bibliotheque programmes | Coach', title: 'Bibliotheque de programmes', subtitle: 'Gerez vos templates et generez via Gemini IA.', createProgram: 'Creer programme', saveToLibrary: 'Enregistrer en bibliotheque', total: 'Total programmes', aiGenerated: 'Genere par IA', manual: 'Redige manuellement', search: 'Rechercher...', read: 'Lire le programme', close: 'Fermer' },
+        ar: { dashboard: 'لوحة التحكم', programs: 'برامج التمرين', head: 'مكتبة البرامج | المدرب', title: 'مكتبة البرامج', subtitle: 'ادارة قوالب التدريب وتوليد برامج جديدة عبر Gemini AI.', createProgram: 'انشاء برنامج', saveToLibrary: 'حفظ في المكتبة', total: 'اجمالي البرامج', aiGenerated: 'مولد بالذكاء الاصطناعي', manual: 'مكتوب يدويا', search: 'ابحث في المكتبة...', read: 'قراءة البرنامج كاملا', close: 'اغلاق' },
+    }[language];
 
     // States for our two different modals
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -96,24 +103,24 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Workout Programs', href: '/coach/programs' }]}>
-            <Head title="Program Library | Coach" />
+        <AppLayout breadcrumbs={[{ title: t.dashboard, href: '/dashboard' }, { title: t.programs, href: '/coach/programs' }]}>
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 {/* Header & Create Modal Trigger */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Dumbbell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Program Library
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 mt-1">Manage your workout templates and generate new ones via Gemini AI.</p>
+                        <p className="text-sm text-slate-500 mt-1">{t.subtitle}</p>
                     </div>
 
                     <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                         <DialogTrigger asChild>
                             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 h-11 rounded-xl px-6">
-                                <Sparkles className="mr-2 h-4 w-4" /> Create Program
+                                <Sparkles className="mr-2 h-4 w-4" /> {t.createProgram}
                             </Button>
                         </DialogTrigger>
                         {/* 🔥 FIXED: Added max-h-[85vh] and overflow-y-auto here so the modal scrolls! */}
@@ -190,7 +197,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                                             <Textarea required value={form.description} onChange={e => setForm('description', e.target.value)} rows={12} className="font-mono text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl p-4" />
                                         </div>
                                         <Button type="submit" disabled={processing} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 mt-4 rounded-xl text-md shadow-md shadow-indigo-500/20 transition-all">
-                                            <Save className="mr-2 h-5 w-5" /> Save to Library
+                                            <Save className="mr-2 h-5 w-5" /> {t.saveToLibrary}
                                         </Button>
                                     </form>
                                 </TabsContent>
@@ -203,19 +210,19 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-slate-500">Total Programs</span>
+                            <span className="text-sm font-medium text-slate-500">{t.total}</span>
                             <span className="text-3xl font-extrabold mt-1">{stats.total}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-purple-50/50 border-purple-100 shadow-sm rounded-2xl dark:bg-purple-900/10 dark:border-purple-900/30">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-purple-600 dark:text-purple-400">AI Generated</span>
+                            <span className="text-sm font-medium text-purple-600 dark:text-purple-400">{t.aiGenerated}</span>
                             <span className="text-3xl font-extrabold text-purple-700 dark:text-purple-300 mt-1">{stats.ai_generated}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-slate-50/50 border-slate-100 shadow-sm rounded-2xl dark:bg-zinc-900 dark:border-zinc-800">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Manually Written</span>
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{t.manual}</span>
                             <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-300 mt-1">{stats.manual}</span>
                         </CardContent>
                     </Card>
@@ -223,7 +230,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
 
                 {/* Search */}
                 <div className="relative w-full md:w-96">
-                    <Input defaultValue={filters?.search ?? ""} onChange={(e) => handleSearch(e.target.value)} className="pl-10 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm" placeholder="Search library..." />
+                    <Input defaultValue={filters?.search ?? ""} onChange={(e) => handleSearch(e.target.value)} className="pl-10 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl h-11 shadow-sm" placeholder={t.search} />
                     <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                 </div>
 
@@ -249,7 +256,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                             {/* Card Footer Actions */}
                             <div className="p-4 border-t border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/30 dark:bg-zinc-900/10">
                                 <Button variant="outline" size="sm" onClick={() => setViewProgram(prog)} className="text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg shadow-sm">
-                                    <Eye className="h-4 w-4 mr-1.5" /> Read Full Program
+                                    <Eye className="h-4 w-4 mr-1.5" /> {t.read}
                                 </Button>
 
                                 <Button variant="ghost" size="sm" onClick={() => handleDelete(prog.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
@@ -289,7 +296,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
 
                     <div className="px-6 py-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end bg-slate-50/80 dark:bg-zinc-900/50">
                         <Button variant="outline" onClick={() => setViewProgram(null)} className="rounded-xl border-slate-200 dark:border-zinc-700">
-                            Close Window
+                            {t.close}
                         </Button>
                     </div>
 

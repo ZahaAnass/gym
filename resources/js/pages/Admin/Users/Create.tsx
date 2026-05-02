@@ -1,5 +1,3 @@
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     Save,
@@ -11,14 +9,23 @@ import {
     Dumbbell,
     Info
 } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BreadcrumbItem } from '@/types';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 export default function CreateUser({ roles, coaches }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: 'Create User | Admin', title: 'Create New Account', subtitle: 'Add a new administrator, coach, or client to the platform.', back: 'Back to Directory', cancel: 'Cancel', create: 'Create Account' },
+        fr: { head: 'Creer utilisateur | Admin', title: 'Creer un nouveau compte', subtitle: 'Ajoutez un nouvel administrateur, coach ou client.', back: "Retour a l'annuaire", cancel: 'Annuler', create: 'Creer le compte' },
+        ar: { head: 'انشاء مستخدم | الادمن', title: 'انشاء حساب جديد', subtitle: 'اضافة مدير او مدرب او عميل جديد للمنصة.', back: 'العودة للدليل', cancel: 'الغاء', create: 'انشاء الحساب' },
+    }[language];
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/admin/analytics' },
         { title: 'Users', href: '/admin/users' },
@@ -40,23 +47,23 @@ export default function CreateUser({ roles, coaches }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create User | Admin" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-6 w-full max-w-4xl mx-auto">
+            <div className="admin-page-container narrow" dir={isRTL ? 'rtl' : 'ltr'}>
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <User className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Create New Account
+                            {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Add a new administrator, coach, or client to the platform.
+                            {t.subtitle}
                         </p>
                     </div>
                     <Button variant="outline" asChild className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                         <Link href="/admin/users">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Directory
+                            <ArrowLeft className="mr-2 h-4 w-4" /> {t.back}
                         </Link>
                     </Button>
                 </div>
@@ -166,7 +173,10 @@ export default function CreateUser({ roles, coaches }: any) {
                                     </Label>
                                     <Select value={data.role} onValueChange={(val) => {
                                         setData('role', val);
-                                        if (val !== 'client') setData('coach_id', '');
+
+                                        if (val !== 'client') {
+setData('coach_id', '');
+}
                                     }}>
                                         <SelectTrigger className="h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl">
                                             <SelectValue placeholder="Select a role..." />
@@ -209,7 +219,7 @@ export default function CreateUser({ roles, coaches }: any) {
                     {/* Action Bar */}
                     <div className="flex items-center justify-end gap-4 pt-4">
                         <Button type="button" variant="ghost" asChild className="text-slate-500">
-                            <Link href="/admin/users">Cancel</Link>
+                            <Link href="/admin/users">{t.cancel}</Link>
                         </Button>
                         <Button
                             type="submit"
@@ -226,7 +236,7 @@ export default function CreateUser({ roles, coaches }: any) {
                                 </span>
                             ) : (
                                 <span className="flex items-center text-sm font-bold">
-                                    <Save className="mr-2 h-4 w-4" /> Create Account
+                                    <Save className="mr-2 h-4 w-4" /> {t.create}
                                 </span>
                             )}
                         </Button>

@@ -6,9 +6,13 @@ import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import { getDictionary } from '@/lang';
 
 export function AppSidebar() {
     const { auth } = usePage().props as any;
+    const { language, isRTL } = useAppLanguage();
+    const t = getDictionary(language).sidebar;
     const roles = auth.user?.roles || [];
 
     // 🔥 Grab the subscription status from the backend (defaults to true for admins/coaches)
@@ -21,43 +25,54 @@ export function AppSidebar() {
     const unreadCount = auth.user?.unreadNotificationsCount || 0;
 
     // 🔥 FIXED: Added disabled state to Dashboard and Notifications
-    const menuItems = [
-        { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid, disabled: !hasActiveSub },
-        { title: 'Inbox Alerts', href: '/notifications', icon: BellRing, badge: unreadCount > 0 ? unreadCount : undefined, disabled: !hasActiveSub },
+    const menuItems: Array<{
+        title: string;
+        href: string;
+        icon: any;
+        disabled?: boolean;
+        badge?: number;
+    }> = [
+        { title: t.dashboard, href: '/dashboard', icon: LayoutGrid, disabled: !hasActiveSub },
+        { title: t.inboxAlerts, href: '/notifications', icon: BellRing, badge: unreadCount > 0 ? unreadCount : undefined, disabled: !hasActiveSub },
     ];
 
     if (hasRole('admin')) {
         menuItems.push(
-            { title: 'User Directory', href: '/admin/users', icon: Users },
-            { title: 'Financials', href: '/admin/unpaid', icon: CreditCard },
-            { title: 'Broadcast Alerts', href: '/admin/notifications', icon: Send },
-            { title: 'Landing Page CMS', href: '/admin/content', icon: Megaphone },
-            { title: 'System Logs', href: '/admin/logs', icon: ShieldAlert }
+            { title: t.userDirectory, href: '/admin/users', icon: Users },
+            { title: t.financials, href: '/admin/unpaid', icon: CreditCard },
+            { title: t.broadcastAlerts, href: '/admin/notifications', icon: Send },
+            { title: t.landingCms, href: '/admin/content', icon: Megaphone },
+            { title: t.systemLogs, href: '/admin/logs', icon: ShieldAlert }
         );
     }
 
     if (hasRole('coach')) {
         menuItems.push(
-            { title: 'My Clients', href: '/coach/clients', icon: Users },
-            { title: 'AI Programs', href: '/coach/programs', icon: Dumbbell },
-            { title: 'My Calendar', href: '/coach/schedule', icon: Calendar },
-            { title: 'Session Notes', href: '/coach/sessions', icon: BookOpen }
+            { title: t.myClients, href: '/coach/clients', icon: Users },
+            { title: t.aiPrograms, href: '/coach/programs', icon: Dumbbell },
+            { title: t.myCalendar, href: '/coach/schedule', icon: Calendar },
+            { title: t.sessionNotes, href: '/coach/sessions', icon: BookOpen }
         );
     }
 
     if (hasRole('client')) {
         menuItems.push(
-            { title: 'Progress & AI', href: '/client/progress', icon: TrendingUp, disabled: !hasActiveSub },
-            { title: 'My Schedule', href: '/client/schedule', icon: Calendar, disabled: !hasActiveSub },
-            { title: "My Programs", href: "/client/programs", icon: Dumbbell, disabled: !hasActiveSub },
-            { title: 'My Goals', href: '/client/goals', icon: Target, disabled: !hasActiveSub },
+            { title: t.progressAi, href: '/client/progress', icon: TrendingUp, disabled: !hasActiveSub },
+            { title: t.mySchedule, href: '/client/schedule', icon: Calendar, disabled: !hasActiveSub },
+            { title: t.myPrograms, href: '/client/programs', icon: Dumbbell, disabled: !hasActiveSub },
+            { title: t.myGoals, href: '/client/goals', icon: Target, disabled: !hasActiveSub },
             // 🟢 The billing page is NEVER disabled so they can always pay!
-            { badge: undefined, disabled: false, title: 'Billing & Payments', href: '/client/payments', icon: CreditCard }
+            { badge: undefined, disabled: false, title: t.billingPayments, href: '/client/payments', icon: CreditCard }
         );
     }
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            side="left"
+            dir={isRTL ? 'rtl' : 'ltr'}
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -70,7 +85,7 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={menuItems} />
+                <NavMain items={menuItems} sectionTitle={t.section} />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />

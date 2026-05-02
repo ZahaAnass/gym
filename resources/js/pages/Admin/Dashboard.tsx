@@ -10,6 +10,8 @@ import {
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import { getDictionary } from '@/lang';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -20,6 +22,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function AdminDashboard({ stats, recent_logs }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = getDictionary(language).adminDashboard;
 
     // Format currency for the revenue stat
     const formatCurrency = (amount: number) => {
@@ -43,23 +47,21 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Admin Dashboard | Analytics" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="admin-page-container">
 
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            Command Center
-                        </h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{t.title}</h2>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Real-time overview of gym performance and system health.
+                            {t.subtitle}
                         </p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-lg border">
                         <Activity className="h-4 w-4 text-emerald-500 animate-pulse" />
-                        System Online
+                        {t.online}
                     </div>
                 </div>
 
@@ -70,7 +72,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                     <Card className="shadow-sm border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                Total Revenue
+                                {t.totalRevenue}
                             </CardTitle>
                             <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
                                 <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -81,7 +83,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                                 {formatCurrency(stats.total_revenue)}
                             </div>
                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
-                                Collected via Stripe & Cash
+                                {t.revenueSub}
                             </p>
                         </CardContent>
                     </Card>
@@ -90,7 +92,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                     <Card className="shadow-sm border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                Active Clients
+                                {t.activeClients}
                             </CardTitle>
                             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
                                 <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -101,7 +103,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                                 {stats.active_clients}
                             </div>
                             <Link href="/admin/users" className="text-xs text-blue-600 dark:text-blue-400 mt-1 hover:underline inline-flex items-center">
-                                Manage clients <ArrowRight className="ml-1 h-3 w-3" />
+                                {t.manageClients} <ArrowRight className="ml-1 h-3 w-3" />
                             </Link>
                         </CardContent>
                     </Card>
@@ -110,7 +112,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                     <Card className="shadow-sm border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                Certified Coaches
+                                {t.coaches}
                             </CardTitle>
                             <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
                                 <Dumbbell className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -121,7 +123,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                                 {stats.active_coaches}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                Managing fitness programs
+                                {t.coachesSub}
                             </p>
                         </CardContent>
                     </Card>
@@ -130,7 +132,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                     <Card className="shadow-sm border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                System Errors (7d)
+                                {t.errors}
                             </CardTitle>
                             <div className={`p-2 rounded-full ${stats.system_errors > 0 ? 'bg-red-100 dark:bg-red-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}>
                                 <AlertOctagon className={`h-4 w-4 ${stats.system_errors > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400'}`} />
@@ -142,11 +144,11 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                             </div>
                             {stats.system_errors > 0 ? (
                                 <Link href="/admin/logs?status=error" className="text-xs text-red-600 dark:text-red-400 mt-1 hover:underline inline-flex items-center">
-                                    Review logs immediately <ArrowRight className="ml-1 h-3 w-3" />
+                                    {t.reviewLogs} <ArrowRight className="ml-1 h-3 w-3" />
                                 </Link>
                             ) : (
                                 <p className="text-xs text-emerald-600 mt-1 font-medium">
-                                    System running perfectly
+                                    {t.perfect}
                                 </p>
                             )}
                         </CardContent>
@@ -157,9 +159,9 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                 {/* Recent Activity Snapshot */}
                 <div className="mt-8">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Live Security Feed</h3>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t.feed}</h3>
                         <Link href="/admin/logs" className="text-sm text-primary hover:underline flex items-center">
-                            View all logs <ArrowRight className="ml-1 h-4 w-4" />
+                            {t.viewAll} <ArrowRight className="ml-1 h-4 w-4" />
                         </Link>
                     </div>
 
@@ -168,17 +170,17 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-900/50 dark:text-gray-400 border-b dark:border-gray-800">
                                 <tr>
-                                    <th className="px-6 py-4 font-medium">Timestamp</th>
-                                    <th className="px-6 py-4 font-medium">User Actor</th>
-                                    <th className="px-6 py-4 font-medium">Action</th>
-                                    <th className="px-6 py-4 font-medium text-right">Status</th>
+                                    <th className="px-6 py-4 font-medium">{t.timestamp}</th>
+                                    <th className="px-6 py-4 font-medium">{t.actor}</th>
+                                    <th className="px-6 py-4 font-medium">{t.action}</th>
+                                    <th className="px-6 py-4 font-medium text-right">{t.status}</th>
                                 </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900/20">
                                 {recent_logs.length === 0 ? (
                                     <tr>
                                         <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
-                                            No recent activity recorded.
+                                            {t.noActivity}
                                         </td>
                                     </tr>
                                 ) : (
@@ -188,7 +190,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                                                 {new Date(log.created_at).toLocaleString()}
                                             </td>
                                             <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
-                                                {log.user ? log.user.name : 'System Auto'}
+                                                {log.user ? log.user.name : t.systemAuto}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">

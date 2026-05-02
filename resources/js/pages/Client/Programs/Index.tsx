@@ -7,18 +7,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { useAppLanguage } from '@/hooks/use-app-language';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/client/dashboard' },
-    { title: 'My Programs', href: '/client/programs' },
-];
-
 export default function ClientPrograms({ programs, upcomingSessions, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { dashboard: 'Dashboard', myPrograms: 'My Programs', head: 'My Programs', title: 'My Training Programs', subtitle: 'View the workout plans assigned to you by your coach.', completed: 'Completed', workouts: 'Workouts', noInstructions: 'No specific instructions provided.', noActive: 'No Active Programs', noActiveSub: "Your coach hasn't assigned a specific training program to you yet. Check back soon!", assignedToYou: 'Assigned to You', aiOptimized: 'AI Optimized', assignedBy: 'Assigned By', dateAssigned: 'Date Assigned', workoutPlan: 'Your Workout Plan', upcoming: 'Upcoming Sessions', noUpcoming: 'No upcoming sessions scheduled.', viewCalendar: 'View Calendar', workoutSession: 'Workout Session', openCalendar: 'Open Full Calendar' },
+        fr: { dashboard: 'Tableau', myPrograms: 'Mes programmes', head: 'Mes programmes', title: 'Mes programmes d entrainement', subtitle: 'Consultez les plans d entrainement assignes par votre coach.', completed: 'Completes', workouts: 'Entrainements', noInstructions: 'Aucune instruction specifique.', noActive: 'Aucun programme actif', noActiveSub: "Votre coach n'a pas encore assigne de programme.", assignedToYou: 'Assigne a vous', aiOptimized: 'Optimise IA', assignedBy: 'Assigne par', dateAssigned: 'Date d assignation', workoutPlan: 'Votre plan d entrainement', upcoming: 'Sessions a venir', noUpcoming: 'Aucune session a venir.', viewCalendar: 'Voir calendrier', workoutSession: 'Session entrainement', openCalendar: 'Ouvrir calendrier complet' },
+        ar: { dashboard: 'لوحة التحكم', myPrograms: 'برامجي', head: 'برامجي', title: 'برامج تدريبي', subtitle: 'عرض برامج التدريب المخصصة لك من طرف المدرب.', completed: 'مكتملة', workouts: 'تمارين', noInstructions: 'لا توجد تعليمات محددة.', noActive: 'لا توجد برامج نشطة', noActiveSub: 'لم يقم مدربك بتعيين برنامج تدريب بعد.', assignedToYou: 'مخصص لك', aiOptimized: 'محسن بالذكاء الاصطناعي', assignedBy: 'تم التعيين بواسطة', dateAssigned: 'تاريخ التعيين', workoutPlan: 'خطة التمرين الخاصة بك', upcoming: 'الجلسات القادمة', noUpcoming: 'لا توجد جلسات قادمة.', viewCalendar: 'عرض التقويم', workoutSession: 'جلسة تمرين', openCalendar: 'فتح التقويم الكامل' },
+    }[language];
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: t.dashboard, href: '/client/dashboard' },
+        { title: t.myPrograms, href: '/client/programs' },
+    ];
     // Helper to format the workout plan text properly
     const renderWorkoutContent = (content: any) => {
         if (!content) {
-return <p className="text-slate-500 italic">No specific instructions provided.</p>;
+return <p className="text-slate-500 italic">{t.noInstructions}</p>;
 }
 
         // Render the raw text with preserved line breaks
@@ -31,27 +37,27 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Programs" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Dumbbell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            My Training Programs
+                            {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            View the workout plans assigned to you by your coach.
+                            {t.subtitle}
                         </p>
                     </div>
                     <div className="flex gap-4">
                         <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
                             <Flame className="h-5 w-5 text-orange-500" />
                             <div>
-                                <p className="text-xs text-slate-500 font-medium">Completed</p>
-                                <p className="text-sm font-extrabold">{stats.completed_workouts} Workouts</p>
+                                <p className="text-xs text-slate-500 font-medium">{t.completed}</p>
+                                <p className="text-sm font-extrabold">{stats.completed_workouts} {t.workouts}</p>
                             </div>
                         </div>
                     </div>
@@ -65,9 +71,9 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                             <Card className="border-dashed border-2 border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/20">
                                 <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                                     <Target className="h-12 w-12 text-slate-300 dark:text-zinc-600 mb-4" />
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Active Programs</h3>
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t.noActive}</h3>
                                     <p className="text-slate-500 mt-2 max-w-sm">
-                                        Your coach hasn't assigned a specific training program to you yet. Check back soon!
+                                        {t.noActiveSub}
                                     </p>
                                 </CardContent>
                             </Card>
@@ -82,11 +88,11 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                                         <div className="relative z-10">
                                             <div className="flex justify-between items-start mb-4">
                                                 <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
-                                                    Assigned to You
+                                                    {t.assignedToYou}
                                                 </Badge>
                                                 {program.is_ai_generated && (
                                                     <Badge className="bg-indigo-900/50 text-indigo-100 border border-indigo-400/30 backdrop-blur-md flex items-center gap-1">
-                                                        <Sparkles className="h-3 w-3" /> AI Optimized
+                                                        <Sparkles className="h-3 w-3" /> {t.aiOptimized}
                                                     </Badge>
                                                 )}
                                             </div>
@@ -101,18 +107,18 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                                                     {program.coach?.name ? program.coach.name.charAt(0) : 'C'}
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-slate-500 font-medium">Assigned By</p>
+                                                    <p className="text-xs text-slate-500 font-medium">{t.assignedBy}</p>
                                                     <p className="text-sm font-bold text-slate-900 dark:text-white">Coach {program.coach?.name || 'System'}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-xs text-slate-500 font-medium">Date Assigned</p>
+                                                <p className="text-xs text-slate-500 font-medium">{t.dateAssigned}</p>
                                                 <p className="text-sm font-bold text-slate-900 dark:text-white">{new Date(program.created_at).toLocaleDateString()}</p>
                                             </div>
                                         </div>
 
                                         <div className="space-y-3">
-                                            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Your Workout Plan</h4>
+                                            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider mb-2">{t.workoutPlan}</h4>
                                             {/* READ ONLY TEXT */}
                                             {renderWorkoutContent(program.description)}
                                         </div>
@@ -127,15 +133,15 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/30 border-b border-slate-100 dark:border-zinc-800">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Calendar className="h-5 w-5 text-indigo-500" /> Upcoming Sessions
+                                    <Calendar className="h-5 w-5 text-indigo-500" /> {t.upcoming}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {upcomingSessions.length === 0 ? (
                                     <div className="p-6 text-center">
-                                        <p className="text-sm text-slate-500">No upcoming sessions scheduled.</p>
+                                        <p className="text-sm text-slate-500">{t.noUpcoming}</p>
                                         <Button variant="link" asChild className="mt-2 text-indigo-600">
-                                            <Link href="/client/schedule">View Calendar</Link>
+                                            <Link href="/client/schedule">{t.viewCalendar}</Link>
                                         </Button>
                                     </div>
                                 ) : (
@@ -143,7 +149,7 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                                         {upcomingSessions.map((session: any) => (
                                             <div key={session.id} className="p-4 hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{session.title || 'Workout Session'}</h4>
+                                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{session.title || t.workoutSession}</h4>
                                                     <Badge variant="secondary" className="text-[10px] bg-slate-100 dark:bg-zinc-800">
                                                         {session.duration_minutes || 60} min
                                                     </Badge>
@@ -158,7 +164,7 @@ return <p className="text-slate-500 italic">No specific instructions provided.</
                                 )}
                                 <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30">
                                     <Button variant="outline" className="w-full text-xs font-bold" asChild>
-                                        <Link href="/client/schedule">Open Full Calendar <ChevronRight className="ml-2 h-3 w-3"/></Link>
+                                        <Link href="/client/schedule">{t.openCalendar} <ChevronRight className="ml-2 h-3 w-3"/></Link>
                                     </Button>
                                 </div>
                             </CardContent>

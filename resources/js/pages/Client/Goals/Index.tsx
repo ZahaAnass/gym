@@ -11,8 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { BreadcrumbItem } from '@/types';
 import { toast } from 'sonner';
+import { useAppLanguage } from '@/hooks/use-app-language';
 
 export default function GoalsIndex({ goals, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
     const { flash } = usePage().props as any;
     const [generatingId, setGeneratingId] = useState<number | null>(null);
 
@@ -35,8 +37,14 @@ export default function GoalsIndex({ goals, stats }: any) {
     };
 
     // Handle quick progress update
+    const t = {
+        en: { dashboard: 'Dashboard', myGoals: 'My Goals', head: 'My Goals & AI Advice', title: 'Personal Objectives', subtitle: 'Set targets, track your progress, and get AI-powered coaching strategies.', totalGoals: 'Total Goals', inProgress: 'In Progress', achieved: 'Achieved', noGoals: 'No goals set yet', noGoalsSub: 'Create your first fitness objective to start tracking your progress and unlock AI coaching.', deadline: 'Deadline', current: 'Current', target: 'Target', strategyPlan: 'Gemini Strategy Plan', logProgress: 'Log Progress', analyzing: 'Analyzing...', refreshStrategy: 'Refresh Strategy', getStrategy: 'Get AI Strategy', createGoal: 'Create New Goal', createGoalSub: 'Define a measurable target.', goalDesc: 'Goal Description', numericTarget: 'Numeric Target Value', numericHint: "Must be a number. We'll track your progress against this.", targetDate: 'Target Date', saveObjective: 'Save Objective', progressPrompt: 'Enter your new current progress value:', deleteConfirm: 'Are you sure you want to delete this goal?' },
+        fr: { dashboard: 'Tableau', myGoals: 'Mes objectifs', head: 'Mes objectifs & conseils IA', title: 'Objectifs personnels', subtitle: 'Definissez vos cibles, suivez votre progression et obtenez des strategies IA.', totalGoals: 'Total objectifs', inProgress: 'En cours', achieved: 'Atteints', noGoals: 'Aucun objectif pour le moment', noGoalsSub: 'Creez votre premier objectif fitness pour suivre votre progression.', deadline: 'Echeance', current: 'Actuel', target: 'Cible', strategyPlan: 'Plan de strategie Gemini', logProgress: 'Enregistrer progression', analyzing: 'Analyse...', refreshStrategy: 'Actualiser strategie', getStrategy: 'Obtenir strategie IA', createGoal: 'Creer un objectif', createGoalSub: 'Definissez un objectif mesurable.', goalDesc: "Description de l'objectif", numericTarget: 'Valeur cible numerique', numericHint: 'Doit etre un nombre. Nous suivrons votre progression.', targetDate: 'Date cible', saveObjective: "Enregistrer l'objectif", progressPrompt: 'Entrez votre nouvelle valeur de progression:', deleteConfirm: 'Confirmer la suppression de cet objectif ?' },
+        ar: { dashboard: 'لوحة التحكم', myGoals: 'اهدافي', head: 'اهدافي ونصائح الذكاء الاصطناعي', title: 'اهدافي الشخصية', subtitle: 'حدد اهدافك وتابع تقدمك واحصل على استراتيجيات تدريب بالذكاء الاصطناعي.', totalGoals: 'اجمالي الاهداف', inProgress: 'قيد التقدم', achieved: 'تم تحقيقه', noGoals: 'لا توجد اهداف بعد', noGoalsSub: 'انشئ هدفك الاول لتتبع تقدمك والحصول على توجيه الذكاء الاصطناعي.', deadline: 'الموعد النهائي', current: 'الحالي', target: 'الهدف', strategyPlan: 'خطة Gemini الاستراتيجية', logProgress: 'تسجيل التقدم', analyzing: 'جاري التحليل...', refreshStrategy: 'تحديث الاستراتيجية', getStrategy: 'الحصول على استراتيجية AI', createGoal: 'انشاء هدف جديد', createGoalSub: 'حدد هدفا قابلا للقياس.', goalDesc: 'وصف الهدف', numericTarget: 'القيمة الرقمية المستهدفة', numericHint: 'يجب ان تكون رقما. سنقيس التقدم بناء عليها.', targetDate: 'تاريخ الهدف', saveObjective: 'حفظ الهدف', progressPrompt: 'ادخل قيمة تقدمك الحالية الجديدة:', deleteConfirm: 'هل تريد حذف هذا الهدف؟' },
+    }[language];
+
     const updateProgress = (id: number, current: number, target: number) => {
-        const newValue = prompt("Enter your new current progress value:", current.toString());
+        const newValue = prompt(t.progressPrompt, current.toString());
         if (newValue !== null && !isNaN(Number(newValue))) {
             const numValue = Number(newValue);
             router.put(`/client/goals/${id}`, {
@@ -48,7 +56,7 @@ export default function GoalsIndex({ goals, stats }: any) {
 
     // Handle Goal Deletion
     const deleteGoal = (id: number) => {
-        if (confirm("Are you sure you want to delete this goal?")) {
+        if (confirm(t.deleteConfirm)) {
             router.delete(`/client/goals/${id}`, { preserveScroll: true });
         }
     };
@@ -63,24 +71,24 @@ export default function GoalsIndex({ goals, stats }: any) {
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'My Goals', href: '/client/goals' }
+        { title: t.dashboard, href: '/dashboard' },
+        { title: t.myGoals, href: '/client/goals' }
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Goals & AI Advice" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <Target className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Personal Objectives
+                            {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Set targets, track your progress, and get AI-powered coaching strategies.
+                            {t.subtitle}
                         </p>
                     </div>
                 </div>
@@ -89,19 +97,19 @@ export default function GoalsIndex({ goals, stats }: any) {
                 <div className="grid grid-cols-3 gap-4">
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-slate-500">Total Goals</span>
+                            <span className="text-sm font-medium text-slate-500">{t.totalGoals}</span>
                             <span className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">{stats.total}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/10 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">In Progress</span>
+                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t.inProgress}</span>
                             <span className="text-3xl font-extrabold text-blue-700 dark:text-blue-300 mt-1">{stats.active}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/10 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Achieved</span>
+                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{t.achieved}</span>
                             <span className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 mt-1">{stats.reached}</span>
                         </CardContent>
                     </Card>
@@ -116,9 +124,9 @@ export default function GoalsIndex({ goals, stats }: any) {
                                 <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 rounded-full flex items-center justify-center mb-4">
                                     <Flag className="h-8 w-8" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No goals set yet</h3>
+                                <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">{t.noGoals}</h3>
                                 <p className="text-sm text-slate-500 mt-1 max-w-sm">
-                                    Create your first fitness objective to start tracking your progress and unlock AI coaching.
+                                    {t.noGoalsSub}
                                 </p>
                             </div>
                         ) : (
@@ -136,7 +144,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                                         {isComplete && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
                                                     </h3>
                                                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                                                        <Activity className="h-3.5 w-3.5" /> Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                                                        <Activity className="h-3.5 w-3.5" /> {t.deadline}: {new Date(goal.deadline).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                                 <Badge variant={isComplete ? 'default' : 'secondary'} className={isComplete ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-slate-300'}>
@@ -147,8 +155,8 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             {/* Progress Bar */}
                                             <div className="space-y-3 mb-6">
                                                 <div className="flex justify-between text-sm font-semibold">
-                                                    <span className="text-indigo-600 dark:text-indigo-400">Current: {goal.current_value}</span>
-                                                    <span className="text-slate-900 dark:text-white">Target: {goal.target_value}</span>
+                                                    <span className="text-indigo-600 dark:text-indigo-400">{t.current}: {goal.current_value}</span>
+                                                    <span className="text-slate-900 dark:text-white">{t.target}: {goal.target_value}</span>
                                                 </div>
                                                 <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-4 overflow-hidden shadow-inner">
                                                     <div
@@ -165,7 +173,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                                         <Bot className="h-16 w-16" />
                                                     </div>
                                                     <h4 className="text-sm font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center gap-2">
-                                                        <Sparkles className="h-4 w-4 text-purple-500" /> Gemini Strategy Plan
+                                                        <Sparkles className="h-4 w-4 text-purple-500" /> {t.strategyPlan}
                                                     </h4>
                                                     <p className="text-sm text-purple-800 dark:text-purple-200 leading-relaxed whitespace-pre-wrap relative z-10">
                                                         {goal.ai_strategy_advice}
@@ -176,7 +184,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             <div className="mt-6 flex flex-wrap gap-3">
                                                 {!isComplete && (
                                                     <Button variant="outline" onClick={() => updateProgress(goal.id, goal.current_value, goal.target_value)} className="bg-white dark:bg-zinc-900 rounded-xl">
-                                                        Log Progress
+                                                        {t.logProgress}
                                                     </Button>
                                                 )}
 
@@ -188,9 +196,9 @@ export default function GoalsIndex({ goals, stats }: any) {
                                                         className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md shadow-purple-500/20"
                                                     >
                                                         {generatingId === goal.id ? (
-                                                            <span className="flex items-center"><svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Analyzing...</span>
+                                                            <span className="flex items-center"><svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {t.analyzing}</span>
                                                         ) : (
-                                                            <span className="flex items-center"><Bot className="mr-2 h-4 w-4" /> {goal.ai_strategy_advice ? 'Refresh Strategy' : 'Get AI Strategy'}</span>
+                                                            <span className="flex items-center"><Bot className="mr-2 h-4 w-4" /> {goal.ai_strategy_advice ? t.refreshStrategy : t.getStrategy}</span>
                                                         )}
                                                     </Button>
                                                 )}
@@ -212,14 +220,14 @@ export default function GoalsIndex({ goals, stats }: any) {
                             <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-purple-500" />
                             <CardHeader className="bg-white dark:bg-zinc-950 pb-2">
                                 <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
-                                    <Plus className="h-5 w-5 text-indigo-500"/> Create New Goal
+                                    <Plus className="h-5 w-5 text-indigo-500"/> {t.createGoal}
                                 </CardTitle>
-                                <CardDescription>Define a measurable target.</CardDescription>
+                                <CardDescription>{t.createGoalSub}</CardDescription>
                             </CardHeader>
                             <CardContent className="pt-4 bg-white dark:bg-zinc-950">
                                 <form onSubmit={submit} className="space-y-5">
                                     <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300">Goal Description</Label>
+                                        <Label className="text-slate-700 dark:text-slate-300">{t.goalDesc}</Label>
                                         <Input
                                             value={data.title}
                                             onChange={e => setData('title', e.target.value)}
@@ -230,7 +238,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                         {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300">Numeric Target Value</Label>
+                                        <Label className="text-slate-700 dark:text-slate-300">{t.numericTarget}</Label>
                                         <Input
                                             type="number"
                                             step="0.1"
@@ -240,11 +248,11 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             required
                                             className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
                                         />
-                                        <p className="text-[11px] text-slate-400">Must be a number. We'll track your progress against this.</p>
+                                        <p className="text-[11px] text-slate-400">{t.numericHint}</p>
                                         {errors.target_value && <p className="text-xs text-red-500">{errors.target_value}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300">Target Date</Label>
+                                        <Label className="text-slate-700 dark:text-slate-300">{t.targetDate}</Label>
                                         <Input
                                             type="date"
                                             value={data.deadline}
@@ -255,7 +263,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                         {errors.deadline && <p className="text-xs text-red-500">{errors.deadline}</p>}
                                     </div>
                                     <Button type="submit" disabled={processing} className="w-full h-12 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:opacity-90 transition-opacity mt-2">
-                                        <Save className="mr-2 h-4 w-4" /> Save Objective
+                                        <Save className="mr-2 h-4 w-4" /> {t.saveObjective}
                                     </Button>
                                 </form>
                             </CardContent>

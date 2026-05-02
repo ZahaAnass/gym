@@ -1,21 +1,28 @@
-import React, { useRef } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { debounce } from 'lodash';
 import {
     Search, Download, DollarSign, CreditCard,
     Banknote, CheckCircle2, XCircle, Clock
 } from 'lucide-react';
+import React, { useRef } from 'react';
+import InertiaPagination from '@/components/inertia-pagination';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BreadcrumbItem } from '@/types';
-import InertiaPagination from '@/components/inertia-pagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 export default function PaymentIndex({ payments, filters, stats }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: 'Transaction History | Admin', title: 'Transaction History', subtitle: 'View all historical payments, filter by method, and export for accounting.', unpaid: 'View Unpaid Accounts', export: 'Export CSV', search: 'Search by client name or email...' },
+        fr: { head: 'Historique des transactions | Admin', title: 'Historique des transactions', subtitle: 'Consultez tous les paiements, filtrez par methode et exportez pour la comptabilite.', unpaid: 'Voir comptes impayes', export: 'Exporter CSV', search: 'Rechercher par nom ou email client...' },
+        ar: { head: 'سجل المعاملات | الادمن', title: 'سجل المعاملات', subtitle: 'عرض جميع المدفوعات السابقة مع التصفية والتصدير للمحاسبة.', unpaid: 'عرض الحسابات غير المدفوعة', export: 'تصدير CSV', search: 'ابحث باسم العميل او البريد...' },
+    }[language];
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Admin', href: '/admin/analytics' },
         { title: 'Financials', href: '/admin/unpaid' },
@@ -50,26 +57,26 @@ export default function PaymentIndex({ payments, filters, stats }: any) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Transaction History | Admin" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-6 w-full max-w-7xl mx-auto">
+            <div className="admin-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                             <DollarSign className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-                            Transaction History
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 mt-1">View all historical payments, filter by method, and export for accounting.</p>
+                        <p className="text-sm text-slate-500 mt-1">{t.subtitle}</p>
                     </div>
                     <div className="flex gap-3">
                         <Button variant="outline" asChild>
-                            <Link href="/admin/unpaid">View Unpaid Accounts</Link>
+                            <Link href="/admin/unpaid">{t.unpaid}</Link>
                         </Button>
                         <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl">
                             <a href={exportUrl} target="_blank" rel="noreferrer">
-                                <Download className="mr-2 h-4 w-4" /> Export CSV
+                                <Download className="mr-2 h-4 w-4" /> {t.export}
                             </a>
                         </Button>
                     </div>
@@ -131,7 +138,7 @@ export default function PaymentIndex({ payments, filters, stats }: any) {
                                 defaultValue={filters?.search ?? ""}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 className="pl-10 bg-white rounded-xl h-10"
-                                placeholder="Search by client name or email..."
+                                placeholder={t.search}
                             />
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                 <Search className="h-4 w-4 text-slate-400" />

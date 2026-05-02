@@ -1,5 +1,3 @@
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     Users,
@@ -8,18 +6,20 @@ import {
     Activity,
     ArrowRight,
     Sparkles,
-    BookOpen,
     TrendingUp,
     Target
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BreadcrumbItem } from '@/types';
+import React from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
     PieChart, Pie, Cell
 } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useDashboardLanguage } from '@/hooks/use-dashboard-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 const PIE_COLORS = ['#4f46e5', '#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b'];
 
@@ -28,17 +28,56 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CoachDashboard({ activeClientsCount, upcomingSession, totalPrograms, chartData }: any) {
+    const { language, isRTL } = useDashboardLanguage();
     const { auth } = usePage().props as any;
     const user = auth.user;
+    const t = {
+        en: {
+            head: 'Coach Dashboard', morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening',
+            welcome: 'Welcome to your coaching command center. Ready to inspire and lead your athletes today?',
+            ai: 'Gemini AI Online', roster: 'Active Roster', clientsAssigned: 'Clients assigned to you', manageRoster: 'Manage roster',
+            next: 'Teaching Next', noClasses: 'No upcoming classes scheduled.', customSession: 'Custom Session',
+            library: 'Workout Library', programsCount: 'Programs created in library', openBuilder: 'Open AI Builder',
+            attendance: '30-Day Attendance Trends', noSessionData: 'No session data recorded in the last 30 days.',
+            distribution: 'Program Distribution', noPrograms: 'No clients assigned to programs yet.',
+            toolkit: 'Coach Toolkit', myClients: 'My Clients', myClientsSub: 'Manage roster, set goals & track progress',
+            aiGenerator: 'AI Generator', aiGeneratorSub: 'Build advanced programs with Gemini AI',
+            calendar: 'Class Calendar', calendarSub: 'Schedule sessions and record attendance',
+        },
+        fr: {
+            head: 'Tableau Coach', morning: 'Bonjour', afternoon: 'Bon apres-midi', evening: 'Bonsoir',
+            welcome: 'Bienvenue dans votre centre de coaching. Pret a guider vos athletes ?',
+            ai: 'Gemini AI en ligne', roster: 'Roster Actif', clientsAssigned: 'Clients assignes', manageRoster: 'Gerer le roster',
+            next: 'Prochain Cours', noClasses: 'Aucun cours prevu.', customSession: 'Session personnalisée',
+            library: 'Bibliotheque Programmes', programsCount: 'Programmes dans la bibliotheque', openBuilder: 'Ouvrir AI Builder',
+            attendance: 'Tendance presence 30 jours', noSessionData: 'Aucune donnee de session sur 30 jours.',
+            distribution: 'Distribution des programmes', noPrograms: 'Aucun client assigne a un programme.',
+            toolkit: 'Outils Coach', myClients: 'Mes Clients', myClientsSub: 'Gerer roster, objectifs et progression',
+            aiGenerator: 'Generateur IA', aiGeneratorSub: 'Creer des programmes avances avec Gemini AI',
+            calendar: 'Calendrier', calendarSub: 'Planifier les sessions et presences',
+        },
+        ar: {
+            head: 'لوحة المدرب', morning: 'صباح الخير', afternoon: 'مساء الخير', evening: 'مساء الخير',
+            welcome: 'مرحبا بك في مركز التدريب. جاهز لقيادة الرياضيين اليوم؟',
+            ai: 'Gemini AI متصل', roster: 'القائمة النشطة', clientsAssigned: 'عملاء معينون لك', manageRoster: 'ادارة القائمة',
+            next: 'الحصة القادمة', noClasses: 'لا توجد حصص قادمة.', customSession: 'حصة مخصصة',
+            library: 'مكتبة البرامج', programsCount: 'برامج موجودة في المكتبة', openBuilder: 'فتح منشئ الذكاء الاصطناعي',
+            attendance: 'اتجاه الحضور 30 يوما', noSessionData: 'لا توجد بيانات جلسات خلال 30 يوما.',
+            distribution: 'توزيع البرامج', noPrograms: 'لا يوجد عملاء مرتبطون بالبرامج بعد.',
+            toolkit: 'عدة المدرب', myClients: 'عملائي', myClientsSub: 'ادارة القائمة والاهداف والتقدم',
+            aiGenerator: 'مولد AI', aiGeneratorSub: 'بناء برامج متقدمة عبر Gemini AI',
+            calendar: 'تقويم الحصص', calendarSub: 'جدولة الجلسات وتسجيل الحضور',
+        },
+    }[language];
 
     const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const greeting = hour < 12 ? t.morning : hour < 18 ? t.afternoon : t.evening;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Coach Dashboard" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container">
 
                 {/* Welcome Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-purple-600 to-indigo-600 p-8 rounded-3xl text-white shadow-lg">
@@ -46,13 +85,11 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         <h2 className="text-3xl font-extrabold tracking-tight">
                             {greeting}, Coach {user.name.split(' ')[0]}!
                         </h2>
-                        <p className="text-purple-100 mt-2 max-w-xl font-medium">
-                            Welcome to your coaching command center. Ready to inspire and lead your athletes today?
-                        </p>
+                        <p className="text-purple-100 mt-2 max-w-xl font-medium">{t.welcome}</p>
                     </div>
                     <div className="hidden md:flex items-center gap-3 bg-white/20 px-5 py-2.5 rounded-xl backdrop-blur-sm shadow-sm border border-white/10">
                         <Sparkles className="h-5 w-5 text-purple-50" />
-                        <span className="font-bold text-purple-50 tracking-wide">Gemini AI Online</span>
+                        <span className="font-bold text-purple-50 tracking-wide">{t.ai}</span>
                     </div>
                 </div>
 
@@ -61,15 +98,15 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                     <Card className="shadow-sm border-blue-100 dark:border-blue-900/50 rounded-3xl hover:shadow-md transition-all">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Users className="h-4 w-4 text-blue-500" /> Active Roster
+                                <Users className="h-4 w-4 text-blue-500" /> {t.roster}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-4xl font-black text-foreground mt-1">{activeClientsCount}</div>
-                            <p className="text-sm text-muted-foreground mt-1">Clients assigned to you</p>
+                            <p className="text-sm text-muted-foreground mt-1">{t.clientsAssigned}</p>
                             <Button variant="link" className="p-0 h-auto mt-3 text-blue-600 dark:text-blue-400 font-bold" asChild>
                                 <Link href="/coach/clients" className="flex items-center">
-                                    Manage roster <ArrowRight className="ml-1 h-4 w-4" />
+                                    {t.manageRoster} <ArrowRight className="ml-1 h-4 w-4" />
                                 </Link>
                             </Button>
                         </CardContent>
@@ -78,7 +115,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                     <Card className="shadow-sm border-purple-100 dark:border-purple-900/50 rounded-3xl hover:shadow-md transition-all">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Calendar className="h-4 w-4 text-purple-500" /> Teaching Next
+                                <Calendar className="h-4 w-4 text-purple-500" /> {t.next}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -90,14 +127,14 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                     </p>
                                     <div className="flex items-center gap-2 mt-3">
                                         <Badge variant="secondary" className="bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-none font-bold">
-                                            {upcomingSession.program?.title || 'Custom Session'}
+                                            {upcomingSession.program?.title || t.customSession}
                                         </Badge>
                                         <span className="text-xs font-bold text-muted-foreground">{upcomingSession.duration_minutes} min</span>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="py-4">
-                                    <p className="text-sm text-muted-foreground italic">No upcoming classes scheduled.</p>
+                                    <p className="text-sm text-muted-foreground italic">{t.noClasses}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -106,15 +143,15 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                     <Card className="shadow-sm border-emerald-100 dark:border-emerald-900/50 rounded-3xl hover:shadow-md transition-all">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Dumbbell className="h-4 w-4 text-emerald-500" /> Workout Library
+                                <Dumbbell className="h-4 w-4 text-emerald-500" /> {t.library}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-4xl font-black text-foreground mt-1">{totalPrograms}</div>
-                            <p className="text-sm text-muted-foreground mt-1">Programs created in library</p>
+                            <p className="text-sm text-muted-foreground mt-1">{t.programsCount}</p>
                             <Button variant="link" className="p-0 h-auto mt-3 text-emerald-600 dark:text-emerald-400 font-bold" asChild>
                                 <Link href="/coach/programs" className="flex items-center">
-                                    Open AI Builder <ArrowRight className="ml-1 h-4 w-4" />
+                                    {t.openBuilder} <ArrowRight className="ml-1 h-4 w-4" />
                                 </Link>
                             </Button>
                         </CardContent>
@@ -128,7 +165,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         <Card className="lg:col-span-2 rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <TrendingUp className="h-5 w-5 text-indigo-500" /> 30-Day Attendance Trends
+                                    <TrendingUp className="h-5 w-5 text-indigo-500" /> {t.attendance}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] p-6 pt-4">
@@ -149,7 +186,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="h-full flex items-center justify-center text-slate-400 italic font-medium">
-                                        No session data recorded in the last 30 days.
+                                        {t.noSessionData}
                                     </div>
                                 )}
                             </CardContent>
@@ -159,7 +196,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <Target className="h-5 w-5 text-purple-500" /> Program Distribution
+                                    <Target className="h-5 w-5 text-purple-500" /> {t.distribution}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] flex flex-col p-6 pt-4">
@@ -204,7 +241,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                 ) : (
                                     <div className="h-full flex flex-col items-center justify-center text-slate-400 italic text-center font-medium">
                                         <Activity className="h-8 w-8 mb-2 opacity-20" />
-                                        No clients assigned to programs yet.
+                                        {t.noPrograms}
                                     </div>
                                 )}
                             </CardContent>
@@ -214,7 +251,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
 
                 {/* Quick Actions Menu */}
                 <div className="pt-4">
-                    <h3 className="text-xl font-extrabold text-foreground mb-4">Coach Toolkit</h3>
+                    <h3 className="text-xl font-extrabold text-foreground mb-4">{t.toolkit}</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
                         <Link href="/coach/clients" className="group block">
@@ -223,8 +260,8 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                     <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">My Clients</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">Manage roster, set goals & track progress</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.myClients}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.myClientsSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -235,8 +272,8 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                     <div className="h-14 w-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">AI Generator</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">Build advanced programs with Gemini AI</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.aiGenerator}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.aiGeneratorSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -247,8 +284,8 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                     <div className="h-14 w-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <Calendar className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">Class Calendar</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">Schedule sessions and record attendance</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.calendar}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.calendarSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>

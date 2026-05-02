@@ -7,34 +7,49 @@ import {
     LineChart as LineChartIcon
 } from 'lucide-react';
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useAppLanguage } from '@/hooks/use-app-language';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 export default function AnalyticsIndex({ stats }: any) {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: {
+            breadcrumb: 'Admin Analytics', head: 'Enterprise Analytics | Admin', title: 'Enterprise Analytics', subtitle: 'High-level overview of gym performance, cached securely via Redis.',
+            totalRevenue: 'Total Lifetime Revenue', activeMemberships: 'Active Memberships', totalUsers: 'Total System Users', growth: '6-Month Revenue Growth', growthSub: 'Monthly income from completed client subscriptions.', revenue: 'Revenue',
+        },
+        fr: {
+            breadcrumb: 'Analytique Admin', head: "Analytique Entreprise | Admin", title: "Analytique d'entreprise", subtitle: "Vue d'ensemble des performances de la salle, mise en cache de maniere securisee via Redis.",
+            totalRevenue: 'Revenu total cumule', activeMemberships: 'Abonnements actifs', totalUsers: "Utilisateurs totaux du systeme", growth: 'Croissance du revenu sur 6 mois', growthSub: 'Revenu mensuel issu des abonnements clients completes.', revenue: 'Revenu',
+        },
+        ar: {
+            breadcrumb: 'تحليلات الادمن', head: 'تحليلات المؤسسة | الادمن', title: 'تحليلات المؤسسة', subtitle: 'نظرة شاملة على اداء النادي مع تخزين مؤقت امن عبر Redis.',
+            totalRevenue: 'اجمالي الايرادات الكلية', activeMemberships: 'الاشتراكات النشطة', totalUsers: 'اجمالي مستخدمي النظام', growth: 'نمو الايرادات خلال 6 اشهر', growthSub: 'الدخل الشهري من اشتراكات العملاء المكتملة.', revenue: 'الايرادات',
+        },
+    }[language];
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Admin Analytics', href: '/admin/analytics' },
+        { title: t.breadcrumb, href: '/admin/analytics' },
     ];
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD', minimumFractionDigits: 0 }).format(amount || 0);
     };
 
-    // @ts-ignore
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Enterprise Analytics | Admin" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="admin-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="admin-page-header">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <h2 className="admin-page-title">
                             <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Enterprise Analytics
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            High-level overview of gym performance, cached securely via Redis.
+                        <p className="admin-page-subtitle">
+                            {t.subtitle}
                         </p>
                     </div>
                 </div>
@@ -44,7 +59,7 @@ export default function AnalyticsIndex({ stats }: any) {
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Lifetime Revenue</span>
+                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.totalRevenue}</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{formatCurrency(stats.total_revenue)}</span>
                             </div>
                             <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-full flex items-center justify-center">
@@ -56,7 +71,7 @@ export default function AnalyticsIndex({ stats }: any) {
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Active Memberships</span>
+                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.activeMemberships}</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.active_clients}</span>
                             </div>
                             <div className="h-12 w-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center">
@@ -68,7 +83,7 @@ export default function AnalyticsIndex({ stats }: any) {
                     <Card className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 shadow-sm rounded-2xl">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total System Users</span>
+                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.totalUsers}</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.total_users}</span>
                             </div>
                             <div className="h-12 w-12 bg-blue-50 dark:bg-blue-500/10 rounded-full flex items-center justify-center">
@@ -79,12 +94,12 @@ export default function AnalyticsIndex({ stats }: any) {
                 </div>
 
                 {/* Revenue Chart */}
-                <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
+                <Card className="admin-surface">
                     <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-6">
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <LineChartIcon className="h-5 w-5 text-indigo-500" /> 6-Month Revenue Growth
+                            <LineChartIcon className="h-5 w-5 text-indigo-500" /> {t.growth}
                         </CardTitle>
-                        <CardDescription>Monthly income from completed client subscriptions.</CardDescription>
+                        <CardDescription>{t.growthSub}</CardDescription>
                     </CardHeader>
                     <CardContent className="p-6">
                         <div className="h-[400px] w-full">
@@ -101,7 +116,7 @@ export default function AnalyticsIndex({ stats }: any) {
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(val) => `${val} DH`} dx={-10} />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                        formatter={(value: number) => [`${value} MAD`, 'Revenue']}
+                                        formatter={(value: number) => [`${value} MAD`, t.revenue]}
                                     />
                                     <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                                 </AreaChart>

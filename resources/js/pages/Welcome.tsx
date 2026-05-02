@@ -391,6 +391,7 @@ export default function Welcome({ auth, canRegister, content }: any) {
     const [scrolled, setScrolled] = useState(false);
     const isRTL = language === 'ar';
     const copy = translations[language];
+    const cmsHeroTitle = content?.hero_title?.trim?.() || '';
 
     const { data, setData, processing, reset } = useForm({ name: '', email: '', message: '' });
 
@@ -1512,8 +1513,17 @@ export default function Welcome({ auth, canRegister, content }: any) {
                             <div className="hero-badge"><span className="badge-dot" /><Sparkles size={12} />{copy.hero.fallbackBadge}</div>
                         )}
                         <h1 className="hero-title">
-                            {copy.hero.title1}<br />{copy.hero.title2}
-                            <span className="hero-title-accent">{copy.hero.accent}</span>
+                            {cmsHeroTitle ? (
+                                <>
+                                    {cmsHeroTitle}
+                                    <span className="hero-title-accent">{copy.hero.accent}</span>
+                                </>
+                            ) : (
+                                <>
+                                    {copy.hero.title1}<br />{copy.hero.title2}
+                                    <span className="hero-title-accent">{copy.hero.accent}</span>
+                                </>
+                            )}
                         </h1>
                         <p className="hero-subtitle">{copy.hero.subtitle}</p>
                         <div className="hero-actions">

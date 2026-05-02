@@ -1,5 +1,3 @@
-import React, { useEffect } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import {
     Send,
@@ -10,14 +8,17 @@ import {
     Link as LinkIcon,
     Megaphone,
 } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BreadcrumbItem } from '@/types';
-import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
+import { useAppLanguage } from '@/hooks/use-app-language';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin Dashboard', href: '/admin/analytics' },
@@ -25,6 +26,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CreateBroadcast() {
+    const { language, isRTL } = useAppLanguage();
+    const t = {
+        en: { head: 'Broadcast Center | Admin', title: 'Broadcast Center', subtitle: 'Send mass notifications and alerts directly to user inboxes.', compose: 'Compose Message', composeSub: 'This message will appear in the notification bell for the selected audience.', audience: 'Target Audience', titleField: 'Notification Title', type: 'Message Type', message: 'Full Message', url: 'Action URL (Optional)', buttonText: 'Button Text (Optional)', send: 'Send Broadcast', sending: 'Broadcasting...' },
+        fr: { head: 'Centre de diffusion | Admin', title: 'Centre de diffusion', subtitle: 'Envoyez des notifications et alertes de masse directement aux boites de reception.', compose: 'Composer le message', composeSub: "Ce message apparaitra dans la cloche de notification pour l'audience choisie.", audience: 'Audience cible', titleField: 'Titre de notification', type: 'Type de message', message: 'Message complet', url: 'URL action (optionnel)', buttonText: 'Texte du bouton (optionnel)', send: 'Envoyer la diffusion', sending: 'Diffusion...' },
+        ar: { head: 'مركز البث | الادمن', title: 'مركز البث', subtitle: 'ارسال تنبيهات واشعارات جماعية مباشرة الى صناديق المستخدمين.', compose: 'كتابة الرسالة', composeSub: 'ستظهر هذه الرسالة في جرس الاشعارات للفئة المحددة.', audience: 'الفئة المستهدفة', titleField: 'عنوان الاشعار', type: 'نوع الرسالة', message: 'نص الرسالة', url: 'رابط اجراء (اختياري)', buttonText: 'نص الزر (اختياري)', send: 'ارسال البث', sending: 'جاري الارسال...' },
+    }[language];
     const { flash } = usePage().props as any;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -37,8 +44,13 @@ export default function CreateBroadcast() {
     });
 
     useEffect(() => {
-        if (flash?.success) toast.success(flash.success);
-        if (flash?.error) toast.error(flash.error);
+        if (flash?.success) {
+toast.success(flash.success);
+}
+
+        if (flash?.error) {
+toast.error(flash.error);
+}
     }, [flash]);
 
     const submit = (e: React.FormEvent) => {
@@ -51,17 +63,17 @@ export default function CreateBroadcast() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Broadcast Center | Admin" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-4xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="admin-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="admin-page-header">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <h2 className="admin-page-title">
                             <Send className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                            Broadcast Center
+                            {t.title}
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                            Send mass notifications and alerts directly to user inboxes.
+                        <p className="admin-page-subtitle">
+                            {t.subtitle}
                         </p>
                     </div>
                 </div>
@@ -71,10 +83,10 @@ export default function CreateBroadcast() {
                         <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
                             <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
                                 <Megaphone className="h-5 w-5 text-indigo-500" />
-                                Compose Message
+                                {t.compose}
                             </CardTitle>
                             <CardDescription>
-                                This message will appear in the notification bell for the selected audience.
+                                {t.composeSub}
                             </CardDescription>
                         </CardHeader>
 
@@ -83,7 +95,7 @@ export default function CreateBroadcast() {
                             {/* Target Audience */}
                             <div className="space-y-2 p-5 bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-xl">
                                 <Label className="flex items-center gap-2 text-sm font-bold text-indigo-900 dark:text-indigo-300">
-                                    <Users className="h-4 w-4" /> Target Audience <span className="text-red-500">*</span>
+                                    <Users className="h-4 w-4" /> {t.audience} <span className="text-red-500">*</span>
                                 </Label>
                                 <Select value={data.target_audience} onValueChange={(val) => setData('target_audience', val)}>
                                     <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-indigo-200 dark:border-indigo-500/30 rounded-xl mt-2">
@@ -102,7 +114,7 @@ export default function CreateBroadcast() {
                                 {/* Title */}
                                 <div className="space-y-2">
                                     <Label htmlFor="title" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        Notification Title <span className="text-red-500">*</span>
+                                        {t.titleField} <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="title"
@@ -118,7 +130,7 @@ export default function CreateBroadcast() {
                                 {/* Type */}
                                 <div className="space-y-2">
                                     <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        Message Type <span className="text-red-500">*</span>
+                                        {t.type} <span className="text-red-500">*</span>
                                     </Label>
                                     <Select value={data.type} onValueChange={(val) => setData('type', val)}>
                                         <SelectTrigger className="h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl">
@@ -136,7 +148,7 @@ export default function CreateBroadcast() {
                             {/* Message Body */}
                             <div className="space-y-2">
                                 <Label htmlFor="message" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                    Full Message <span className="text-red-500">*</span>
+                                    {t.message} <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea
                                     id="message"
@@ -154,7 +166,7 @@ export default function CreateBroadcast() {
                             <div className="pt-4 border-t border-slate-100 dark:border-zinc-800 grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        <LinkIcon className="h-4 w-4 text-slate-400" /> Action URL (Optional)
+                                        <LinkIcon className="h-4 w-4 text-slate-400" /> {t.url}
                                     </Label>
                                     <Input
                                         type="url"
@@ -167,7 +179,7 @@ export default function CreateBroadcast() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        Button Text (Optional)
+                                        {t.buttonText}
                                     </Label>
                                     <Input
                                         type="text"
@@ -194,11 +206,11 @@ export default function CreateBroadcast() {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Broadcasting...
+                                        {t.sending}
                                     </span>
                                 ) : (
                                     <span className="flex items-center font-bold">
-                                        <Send className="mr-2 h-4 w-4" /> Send Broadcast
+                                        <Send className="mr-2 h-4 w-4" /> {t.send}
                                     </span>
                                 )}
                             </Button>

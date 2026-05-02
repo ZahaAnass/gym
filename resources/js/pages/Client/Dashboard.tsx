@@ -1,37 +1,77 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    Activity, Calendar, Target, CreditCard, ArrowRight, TrendingDown, Sparkles, History, Dumbbell
+    Activity, Calendar, Target, CreditCard, ArrowRight, TrendingDown, Sparkles, History
 } from 'lucide-react';
 import React from 'react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend
+    PieChart, Pie, Cell
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useDashboardLanguage } from '@/hooks/use-dashboard-language';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 const PIE_COLORS = ['#10b981', '#f43f5e'];
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-];
-
 // 1. Add `coach` to the destructured props
 export default function ClientDashboard({ latestAssessment, nextSession, activeGoalsCount, chartData, coach }: any) {
+    const { language, isRTL } = useDashboardLanguage();
     const { auth } = usePage().props as any;
     const user = auth.user;
+    const t = {
+        en: {
+            head: 'Client Dashboard', morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening',
+            welcome: 'Welcome back to your training portal. Keep pushing towards your goals today!',
+            yourCoach: 'Your Coach', aiJourney: 'AI-Powered Journey',
+            upNext: 'Up Next', noClasses: 'No upcoming classes scheduled.', coach: 'Coach',
+            goals: 'Active Goals', goalsSub: 'Goals currently in progress', updateProgress: 'Update progress',
+            weight: 'Current Weight', noAssessment: 'No assessment data yet.', aiTarget: 'AI Target',
+            biometric: 'Biometric Progress', noBiometric: 'No biometric data logged yet.',
+            attendance: 'My Attendance', noAttendance: 'No past sessions recorded yet.',
+            quickActions: 'Quick Actions', viewProgress: 'View Full Progress', progressSub: 'Check AI reports & history',
+            manageGoals: 'Manage Goals', goalsManageSub: 'Set & update your targets', payments: 'Payments', paymentsSub: 'View bills & subscriptions',
+        },
+        fr: {
+            head: 'Tableau Client', morning: 'Bonjour', afternoon: 'Bon apres-midi', evening: 'Bonsoir',
+            welcome: 'Bienvenue sur votre portail training. Continuez vers vos objectifs !',
+            yourCoach: 'Votre Coach', aiJourney: 'Parcours IA',
+            upNext: 'Prochaine Seance', noClasses: 'Aucune seance a venir.', coach: 'Coach',
+            goals: 'Objectifs Actifs', goalsSub: 'Objectifs en cours', updateProgress: 'Mettre a jour',
+            weight: 'Poids Actuel', noAssessment: 'Aucune evaluation pour le moment.', aiTarget: 'Objectif IA',
+            biometric: 'Progression Biometrique', noBiometric: 'Aucune donnee biometrique.',
+            attendance: 'Ma Presence', noAttendance: 'Aucune session passee enregistree.',
+            quickActions: 'Actions Rapides', viewProgress: 'Voir progression', progressSub: 'Consulter rapports IA et historique',
+            manageGoals: 'Gerer Objectifs', goalsManageSub: 'Definir et mettre a jour vos objectifs', payments: 'Paiements', paymentsSub: 'Voir factures et abonnements',
+        },
+        ar: {
+            head: 'لوحة العميل', morning: 'صباح الخير', afternoon: 'مساء الخير', evening: 'مساء الخير',
+            welcome: 'مرحبا بعودتك الى بوابة التدريب. استمر نحو اهدافك اليوم!',
+            yourCoach: 'مدربك', aiJourney: 'رحلة مدعومة بالذكاء الاصطناعي',
+            upNext: 'القادم', noClasses: 'لا توجد حصص قادمة.', coach: 'المدرب',
+            goals: 'اهداف نشطة', goalsSub: 'اهداف قيد التنفيذ', updateProgress: 'تحديث التقدم',
+            weight: 'الوزن الحالي', noAssessment: 'لا توجد تقييمات بعد.', aiTarget: 'هدف الذكاء الاصطناعي',
+            biometric: 'تقدم القياسات', noBiometric: 'لا توجد بيانات قياسات حتى الان.',
+            attendance: 'حضوري', noAttendance: 'لا توجد جلسات سابقة مسجلة.',
+            quickActions: 'اجراءات سريعة', viewProgress: 'عرض التقدم الكامل', progressSub: 'الاطلاع على تقارير AI والسجل',
+            manageGoals: 'ادارة الاهداف', goalsManageSub: 'حدد اهدافك وقم بتحديثها', payments: 'المدفوعات', paymentsSub: 'عرض الفواتير والاشتراكات',
+        },
+    }[language];
 
     const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const greeting = hour < 12 ? t.morning : hour < 18 ? t.afternoon : t.evening;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: language === 'fr' ? 'Tableau' : language === 'ar' ? 'لوحة التحكم' : 'Dashboard', href: '/dashboard' },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Client Dashboard" />
+            <Head title={t.head} />
 
-            <div className="p-6 space-y-8 w-full max-w-7xl mx-auto">
+            <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
 
                 {/* Welcome, Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-3xl text-white shadow-lg">
@@ -39,9 +79,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                         <h2 className="text-3xl font-extrabold tracking-tight">
                             {greeting}, {user.name.split(' ')[0]}!
                         </h2>
-                        <p className="text-blue-100 mt-2 max-w-xl font-medium">
-                            Welcome back to your training portal. Keep pushing towards your goals today!
-                        </p>
+                        <p className="text-blue-100 mt-2 max-w-xl font-medium">{t.welcome}</p>
 
                         {/* 2. 🔥 NEW: Display the Assigned Coach here */}
                         {coach && (
@@ -50,7 +88,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     {coach.name.charAt(0)}
                                 </div>
                                 <span className="font-medium text-blue-50 text-sm">
-                                    Your Coach: <strong className="text-white ml-1 tracking-wide">{coach.name}</strong>
+                                    {t.yourCoach}: <strong className="text-white ml-1 tracking-wide">{coach.name}</strong>
                                 </span>
                             </div>
                         )}
@@ -58,7 +96,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                     </div>
                     <div className="hidden md:flex items-center gap-3 bg-white/20 px-5 py-2.5 rounded-xl backdrop-blur-sm shadow-sm border border-white/10">
                         <Sparkles className="h-5 w-5 text-blue-50" />
-                        <span className="font-bold text-blue-50 tracking-wide">AI-Powered Journey</span>
+                        <span className="font-bold text-blue-50 tracking-wide">{t.aiJourney}</span>
                     </div>
                 </div>
 
@@ -68,7 +106,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                     <Card className="shadow-sm border-blue-100 dark:border-blue-900/50 rounded-3xl hover:shadow-md transition-all bg-white dark:bg-zinc-950">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Calendar className="h-4 w-4 text-blue-500" /> Up Next
+                                <Calendar className="h-4 w-4 text-blue-500" /> {t.upNext}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -80,14 +118,14 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     </p>
                                     <div className="flex items-center gap-2 mt-3">
                                         <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-none font-bold">
-                                            Coach {nextSession.coach?.name.split(' ')[0]}
+                                            {t.coach} {nextSession.coach?.name.split(' ')[0]}
                                         </Badge>
                                         <span className="text-xs font-bold text-muted-foreground">{nextSession.duration_minutes} min</span>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="py-4">
-                                    <p className="text-sm text-muted-foreground italic">No upcoming classes scheduled.</p>
+                                    <p className="text-sm text-muted-foreground italic">{t.noClasses}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -96,15 +134,15 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                     <Card className="shadow-sm border-emerald-100 dark:border-emerald-900/50 rounded-3xl hover:shadow-md transition-all bg-white dark:bg-zinc-950">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Target className="h-4 w-4 text-emerald-500" /> Active Goals
+                                <Target className="h-4 w-4 text-emerald-500" /> {t.goals}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-4xl font-black text-foreground mt-1">{activeGoalsCount}</div>
-                            <p className="text-sm text-muted-foreground mt-1">Goals currently in progress</p>
+                            <p className="text-sm text-muted-foreground mt-1">{t.goalsSub}</p>
                             <Button variant="link" className="p-0 h-auto mt-3 text-emerald-600 dark:text-emerald-400 font-bold" asChild>
                                 <Link href="/client/goals" className="flex items-center">
-                                    Update progress <ArrowRight className="ml-1 h-4 w-4" />
+                                    {t.updateProgress} <ArrowRight className="ml-1 h-4 w-4" />
                                 </Link>
                             </Button>
                         </CardContent>
@@ -113,7 +151,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                     <Card className="shadow-sm border-purple-100 dark:border-purple-900/50 rounded-3xl hover:shadow-md transition-all bg-white dark:bg-zinc-950">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <TrendingDown className="h-4 w-4 text-purple-500" /> Current Weight
+                                <TrendingDown className="h-4 w-4 text-purple-500" /> {t.weight}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -125,13 +163,13 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     </div>
                                     {latestAssessment.ideal_weight_ai && (
                                         <p className="text-xs text-purple-600 dark:text-purple-400 mt-2 font-bold bg-purple-50 dark:bg-purple-900/20 py-1.5 px-2.5 rounded-lg inline-block">
-                                            AI Target: {latestAssessment.ideal_weight_ai} kg
+                                            {t.aiTarget}: {latestAssessment.ideal_weight_ai} kg
                                         </p>
                                     )}
                                 </div>
                             ) : (
                                 <div className="py-4">
-                                    <p className="text-sm text-muted-foreground italic">No assessment data yet.</p>
+                                    <p className="text-sm text-muted-foreground italic">{t.noAssessment}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -146,7 +184,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                         <Card className="lg:col-span-2 rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <Activity className="h-5 w-5 text-indigo-500" /> Biometric Progress
+                                    <Activity className="h-5 w-5 text-indigo-500" /> {t.biometric}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] p-6 pt-4">
@@ -170,7 +208,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="h-full flex items-center justify-center text-slate-400 italic font-medium">
-                                        No biometric data logged yet.
+                                        {t.noBiometric}
                                     </div>
                                 )}
                             </CardContent>
@@ -180,7 +218,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                         <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <History className="h-5 w-5 text-emerald-500" /> My Attendance
+                                    <History className="h-5 w-5 text-emerald-500" /> {t.attendance}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] flex flex-col p-6 pt-4">
@@ -225,7 +263,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                 ) : (
                                     <div className="h-full flex flex-col items-center justify-center text-slate-400 italic text-center font-medium">
                                         <Calendar className="h-8 w-8 mb-2 opacity-20" />
-                                        No past sessions recorded yet.
+                                        {t.noAttendance}
                                     </div>
                                 )}
                             </CardContent>
@@ -235,7 +273,7 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
 
                 {/* Quick Actions Menu */}
                 <div className="pt-4">
-                    <h3 className="text-xl font-extrabold text-foreground mb-4">Quick Actions</h3>
+                    <h3 className="text-xl font-extrabold text-foreground mb-4">{t.quickActions}</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
                         <Link href="/client/progress" className="group block">
@@ -244,8 +282,8 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">View Full Progress</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">Check AI reports & history</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.viewProgress}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.progressSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -256,8 +294,8 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     <div className="h-14 w-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <Target className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">Manage Goals</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">Set & update your targets</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.manageGoals}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.goalsManageSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -268,8 +306,8 @@ export default function ClientDashboard({ latestAssessment, nextSession, activeG
                                     <div className="h-14 w-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <CreditCard className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                                     </div>
-                                    <h4 className="font-extrabold text-lg text-foreground">Payments</h4>
-                                    <p className="text-sm text-muted-foreground mt-2">View bills & subscriptions</p>
+                                    <h4 className="font-extrabold text-lg text-foreground">{t.payments}</h4>
+                                    <p className="text-sm text-muted-foreground mt-2">{t.paymentsSub}</p>
                                 </CardContent>
                             </Card>
                         </Link>
