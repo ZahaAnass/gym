@@ -17,37 +17,13 @@ import { Badge } from '@/components/ui/badge';
 import { BreadcrumbItem } from '@/types';
 import InertiaPagination from '@/components/inertia-pagination';
 import { useAppLanguage } from '@/hooks/use-app-language';
+import { getPageTranslations } from '@/lang/pages';
 import { toast } from 'sonner';
 
 export default function NotificationsIndex({ notifications, unreadCount }: any) {
     const { language, isRTL } = useAppLanguage();
     const { flash } = usePage().props as any;
-    const t = {
-        en: {
-            dashboard: 'Dashboard', notifications: 'Notifications', head: 'Notifications',
-            subtitle: 'Stay updated on your gym activities, payments, and AI programs.',
-            markAll: 'Mark all as read', inbox: 'Inbox', new: 'New',
-            caughtUp: "You're all caught up!", noNew: 'No new notifications to show right now.',
-            systemNotification: 'System Notification', defaultMessage: 'You have a new update in your portal.',
-            viewDetails: 'View details', markRead: 'Mark as read', justNow: 'Just now',
-        },
-        fr: {
-            dashboard: 'Tableau', notifications: 'Notifications', head: 'Notifications',
-            subtitle: 'Restez informe de vos activites, paiements et programmes IA.',
-            markAll: 'Tout marquer comme lu', inbox: 'Boite de reception', new: 'Nouveau',
-            caughtUp: 'Vous etes a jour !', noNew: 'Aucune nouvelle notification pour le moment.',
-            systemNotification: 'Notification systeme', defaultMessage: 'Vous avez une nouvelle mise a jour sur votre portail.',
-            viewDetails: 'Voir les details', markRead: 'Marquer comme lu', justNow: 'A l instant',
-        },
-        ar: {
-            dashboard: 'لوحة التحكم', notifications: 'الاشعارات', head: 'الاشعارات',
-            subtitle: 'ابق على اطلاع بانشطتك، مدفوعاتك، وبرامج الذكاء الاصطناعي.',
-            markAll: 'تحديد الكل كمقروء', inbox: 'صندوق الاشعارات', new: 'جديد',
-            caughtUp: 'لا توجد اشعارات جديدة!', noNew: 'لا توجد اشعارات جديدة حاليا.',
-            systemNotification: 'اشعار النظام', defaultMessage: 'لديك تحديث جديد في حسابك.',
-            viewDetails: 'عرض التفاصيل', markRead: 'تحديد كمقروء', justNow: 'الان',
-        },
-    }[language];
+    const t = getPageTranslations(language).notifications;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.dashboard, href: '/dashboard' },
@@ -78,9 +54,9 @@ export default function NotificationsIndex({ notifications, unreadCount }: any) 
                 return <div className="p-2 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full"><AlertTriangle className="h-5 w-5" /></div>;
             case 'ai_assessment':
             case 'program':
-                return <div className="p-2 bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-full"><Activity className="h-5 w-5" /></div>;
+                return <div className="p-2 bg-lime-100 dark:bg-lime-500/20 text-lime-600 dark:text-lime-400 rounded-full"><Activity className="h-5 w-5" /></div>;
             default:
-                return <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full"><Info className="h-5 w-5" /></div>;
+                return <div className="p-2 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full"><Info className="h-5 w-5" /></div>;
         }
     };
 
@@ -105,7 +81,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: any) 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Bell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Bell className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.notifications}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -131,7 +107,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: any) 
                             {t.inbox}
                         </CardTitle>
                         {unreadCount > 0 && (
-                            <Badge className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-3">
+                            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-3">
                                 {unreadCount} {t.new}
                             </Badge>
                         )}
@@ -153,11 +129,11 @@ export default function NotificationsIndex({ notifications, unreadCount }: any) 
                                     return (
                                         <div
                                             key={notification.id}
-                                            className={`p-5 flex gap-4 transition-colors hover:bg-slate-50 dark:hover:bg-zinc-900/50 relative ${isUnread ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}
+                                            className={`p-5 flex gap-4 transition-colors hover:bg-slate-50 dark:hover:bg-zinc-900/50 relative ${isUnread ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : ''}`}
                                         >
                                             {/* Unread Indicator Dot */}
                                             {isUnread && (
-                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-600 dark:bg-emerald-500 rounded-r-full" />
                                             )}
 
                                             <div className="shrink-0 mt-1">
@@ -182,7 +158,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: any) 
                                                 {/* Action Links & Mark as Read */}
                                                 <div className="pt-3 flex items-center gap-4">
                                                     {data.action_url && (
-                                                        <Button variant="link" asChild className="p-0 h-auto text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
+                                                        <Button variant="link" asChild className="p-0 h-auto text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
                                                             <Link href={data.action_url}>
                                                                 {data.action_text || t.viewDetails}
                                                             </Link>

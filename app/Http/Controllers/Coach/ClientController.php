@@ -81,21 +81,23 @@ class ClientController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|in:text,numeric',
-            'target_value' => 'nullable|required_if:type,numeric|numeric',
-            'current_value' => 'nullable|required_if:type,numeric|numeric',
+            'target_value' => 'nullable|required_if:type,numeric|numeric|min:0.1',
+            'current_value' => 'nullable|numeric|min:0',
             'unit' => 'nullable|required_if:type,numeric|string|max:10',
             'direction' => 'nullable|required_if:type,numeric|in:asc,desc',
             'deadline' => 'required|date|after:today',
         ]);
 
+        $isNumeric = $validated['type'] === 'numeric';
+
         $client->goals()->create([
             'coach_id' => $request->user()->id,
             'title' => $validated['title'],
             'type' => $validated['type'],
-            'target_value' => $validated['target_value'],
-            'current_value' => $validated['current_value'] ?? 0,
-            'unit' => $validated['unit'],
-            'direction' => $validated['direction'],
+            'target_value' => $isNumeric ? $validated['target_value'] : null,
+            'current_value' => $isNumeric ? ($validated['current_value'] ?? 0) : null,
+            'unit' => $isNumeric ? ($validated['unit'] ?? null) : null,
+            'direction' => $isNumeric ? ($validated['direction'] ?? 'asc') : null,
             'deadline' => $validated['deadline'],
             'status' => 'active',
         ]);

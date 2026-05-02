@@ -63,7 +63,7 @@ export default function CreateAssessment({ client }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Activity className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -84,7 +84,7 @@ export default function CreateAssessment({ client }: any) {
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Scale className="h-5 w-5 text-indigo-500" /> {t.physical}
+                                    <Scale className="h-5 w-5 text-emerald-500" /> {t.physical}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-4">
@@ -178,9 +178,9 @@ export default function CreateAssessment({ client }: any) {
                         </CardContent>
 
                         {/* The Submit Button Area */}
-                        <CardFooter className="bg-indigo-50/50 dark:bg-indigo-900/10 border-t border-indigo-100 dark:border-indigo-900/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-3 text-indigo-800 dark:text-indigo-300">
-                                <div className="p-2 bg-indigo-200 dark:bg-indigo-500/30 rounded-full animate-pulse">
+                        <CardFooter className="bg-emerald-50/50 dark:bg-emerald-900/10 border-t border-emerald-100 dark:border-emerald-900/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 text-emerald-800 dark:text-emerald-300">
+                                <div className="p-2 bg-emerald-200 dark:bg-emerald-500/30 rounded-full animate-pulse">
                                     <Bot className="h-5 w-5" />
                                 </div>
                                 <div className="text-sm font-medium">
@@ -191,7 +191,7 @@ export default function CreateAssessment({ client }: any) {
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white h-12 px-8 rounded-xl shadow-md shadow-indigo-500/20 text-base"
+                                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-8 rounded-xl shadow-md shadow-emerald-500/20 text-base"
                             >
                                 {processing ? (
                                     <span className="flex items-center">

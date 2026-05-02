@@ -68,7 +68,7 @@ export default function PaymentsIndex({ payments, subscription }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <CreditCard className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <CreditCard className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.billing}
                         </h2>
                     </div>
@@ -85,11 +85,11 @@ export default function PaymentsIndex({ payments, subscription }: any) {
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Checkout Card - The 3 Tiers */}
-                    <Card className="lg:col-span-1 shadow-lg border-indigo-100 dark:border-zinc-800 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
-                        <div className="h-2 w-full bg-[#635BFF]" />
+                    <Card className="lg:col-span-1 shadow-lg border-emerald-100 dark:border-emerald-900/30 rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
+                        <div className="h-2 w-full bg-emerald-500" />
                         <CardHeader className="pb-4">
                             <CardTitle className="text-xl flex items-center gap-2">
-                                <ShieldCheck className="h-6 w-6 text-[#635BFF]" /> {t.selectPlan}
+                                <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" /> {t.selectPlan}
                             </CardTitle>
                             <CardDescription>
                                 {t.nextBilling}: <strong className="text-slate-900 dark:text-white">{subscription.expires_at}</strong>
@@ -98,7 +98,7 @@ export default function PaymentsIndex({ payments, subscription }: any) {
                         <CardContent className="p-5 space-y-4">
 
                             {/* Tier 1: Monthly */}
-                            <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 transition-all hover:border-[#635BFF]">
+                            <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 transition-all hover:border-emerald-300 dark:hover:border-emerald-700">
                                 <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t.monthly}</h4>
                                 <p className="text-sm text-slate-500 mb-3">{t.monthlyDesc}</p>
                                 <Button onClick={() => handleStripePayment(300, 1)} disabled={isSimulatingStripe} variant="outline" className="w-full">
@@ -107,17 +107,17 @@ export default function PaymentsIndex({ payments, subscription }: any) {
                             </div>
 
                             {/* Tier 2: Quarterly */}
-                            <div className="p-4 rounded-xl border-2 border-[#635BFF] bg-indigo-50/30 dark:bg-indigo-500/5 relative">
-                                <Badge className="absolute -top-3 right-4 bg-[#635BFF]">{t.save100}</Badge>
+                            <div className="p-4 rounded-xl border-2 border-emerald-400 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-500/10 relative">
+                                <Badge className="absolute -top-3 right-4 bg-emerald-600">{t.save100}</Badge>
                                 <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t.quarterly}</h4>
                                 <p className="text-sm text-slate-500 mb-3">{t.quarterlyDesc}</p>
-                                <Button onClick={() => handleStripePayment(800, 3)} disabled={isSimulatingStripe} className="w-full bg-[#635BFF] hover:bg-[#4b45cf] text-white font-bold">
+                                <Button onClick={() => handleStripePayment(800, 3)} disabled={isSimulatingStripe} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
                                     Pay 800 MAD
                                 </Button>
                             </div>
 
                             {/* Tier 3: Annual */}
-                            <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 transition-all hover:border-[#635BFF] relative">
+                            <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 relative">
                                 <Badge className="absolute -top-3 right-4 bg-emerald-500">{t.save600}</Badge>
                                 <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t.annual}</h4>
                                 <p className="text-sm text-slate-500 mb-3">{t.annualDesc}</p>
@@ -169,7 +169,7 @@ export default function PaymentsIndex({ payments, subscription }: any) {
                                                 </TableCell>
                                                 <TableCell className="text-right pr-6">
                                                     {payment.status === 'completed' && (
-                                                        <a href={`/client/payments/${payment.id}/invoice`} target="_blank" className="text-indigo-600 hover:text-indigo-800 text-sm font-bold bg-indigo-50 px-3 py-1.5 rounded-lg">
+                                                        <a href={`/client/payments/${payment.id}/invoice`} target="_blank" className="text-emerald-600 hover:text-emerald-800 text-sm font-bold bg-emerald-50 px-3 py-1.5 rounded-lg">
                                                             <Download className="h-4 w-4 inline mr-1" /> PDF
                                                         </a>
                                                     )}

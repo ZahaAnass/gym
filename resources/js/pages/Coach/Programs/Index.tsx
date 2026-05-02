@@ -111,7 +111,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Dumbbell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Dumbbell className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 mt-1">{t.subtitle}</p>
@@ -119,7 +119,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
 
                     <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 h-11 rounded-xl px-6">
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 h-11 rounded-xl px-6">
                                 <Sparkles className="mr-2 h-4 w-4" /> {t.createProgram}
                             </Button>
                         </DialogTrigger>
@@ -127,13 +127,13 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                         <DialogContent className="sm:max-w-2xl bg-white dark:bg-zinc-950 rounded-3xl max-h-[85vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                                    <LayoutList className="h-5 w-5 text-indigo-500"/> Program Builder
+                                    <LayoutList className="h-5 w-5 text-emerald-500"/> Program Builder
                                 </DialogTitle>
                             </DialogHeader>
 
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
                                 <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 dark:bg-zinc-900 p-1 rounded-xl">
-                                    <TabsTrigger value="ai" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 shadow-sm transition-all">
+                                    <TabsTrigger value="ai" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-lime-600 dark:data-[state=active]:text-lime-400 shadow-sm transition-all">
                                         <Bot className="mr-2 h-4 w-4" /> Gemini AI Generator
                                     </TabsTrigger>
                                     <TabsTrigger value="manual" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 shadow-sm transition-all">
@@ -177,7 +177,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                                         <Label>Medical Notes / Injuries (Optional)</Label>
                                         <Input placeholder="e.g. Bad lower back, avoid heavy deadlifts" value={aiParams.notes} onChange={e => setAiParams({...aiParams, notes: e.target.value})} className="bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800" />
                                     </div>
-                                    <Button onClick={handleGenerateAI} disabled={isGenerating} className="w-full bg-purple-600 hover:bg-purple-700 text-white mt-4 h-12 rounded-xl text-md shadow-md shadow-purple-500/20 transition-all">
+                                    <Button onClick={handleGenerateAI} disabled={isGenerating} className="w-full bg-lime-600 hover:bg-lime-700 text-white mt-4 h-12 rounded-xl text-md shadow-md shadow-lime-500/20 transition-all">
                                         {isGenerating ? 'Analyzing Biomechanics & Generating...' : <><Sparkles className="mr-2 h-5 w-5"/> Generate Program with AI</>}
                                     </Button>
                                 </TabsContent>
@@ -192,11 +192,11 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                                         <div className="space-y-2">
                                             <Label className="flex justify-between items-center">
                                                 <span>Program Details</span>
-                                                {form.is_ai_generated && <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 border-none px-2 py-0.5"><Bot className="h-3 w-3 mr-1"/> AI Drafted</Badge>}
+                                                {form.is_ai_generated && <Badge className="bg-lime-100 text-lime-700 dark:bg-lime-900/30 border-none px-2 py-0.5"><Bot className="h-3 w-3 mr-1"/> AI Drafted</Badge>}
                                             </Label>
                                             <Textarea required value={form.description} onChange={e => setForm('description', e.target.value)} rows={12} className="font-mono text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl p-4" />
                                         </div>
-                                        <Button type="submit" disabled={processing} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 mt-4 rounded-xl text-md shadow-md shadow-indigo-500/20 transition-all">
+                                        <Button type="submit" disabled={processing} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-12 mt-4 rounded-xl text-md shadow-md shadow-emerald-500/20 transition-all">
                                             <Save className="mr-2 h-5 w-5" /> {t.saveToLibrary}
                                         </Button>
                                     </form>
@@ -214,10 +214,10 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                             <span className="text-3xl font-extrabold mt-1">{stats.total}</span>
                         </CardContent>
                     </Card>
-                    <Card className="bg-purple-50/50 border-purple-100 shadow-sm rounded-2xl dark:bg-purple-900/10 dark:border-purple-900/30">
+                    <Card className="bg-lime-50/50 border-lime-100 shadow-sm rounded-2xl dark:bg-lime-900/10 dark:border-lime-900/30">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-purple-600 dark:text-purple-400">{t.aiGenerated}</span>
-                            <span className="text-3xl font-extrabold text-purple-700 dark:text-purple-300 mt-1">{stats.ai_generated}</span>
+                            <span className="text-sm font-medium text-lime-600 dark:text-lime-400">{t.aiGenerated}</span>
+                            <span className="text-3xl font-extrabold text-lime-700 dark:text-lime-300 mt-1">{stats.ai_generated}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-slate-50/50 border-slate-100 shadow-sm rounded-2xl dark:bg-zinc-900 dark:border-zinc-800">
@@ -237,11 +237,11 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                 {/* Grid of Programs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {programs.data.map((prog: any) => (
-                        <Card key={prog.id} className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl flex flex-col h-full bg-white dark:bg-zinc-950 transition-all hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900/50">
+                        <Card key={prog.id} className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl flex flex-col h-full bg-white dark:bg-zinc-950 transition-all hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900/50">
                             <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30">
                                 <div className="flex justify-between items-start">
                                     <CardTitle className="text-lg leading-tight font-bold">{prog.title}</CardTitle>
-                                    {prog.is_ai_generated && <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-none shrink-0 ml-2 px-2 py-0.5"><Bot className="h-3 w-3 mr-1"/> AI</Badge>}
+                                    {prog.is_ai_generated && <Badge className="bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400 border-none shrink-0 ml-2 px-2 py-0.5"><Bot className="h-3 w-3 mr-1"/> AI</Badge>}
                                 </div>
                                 <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                                     <Activity className="h-3 w-3" /> Created {new Date(prog.created_at).toLocaleDateString()}
@@ -255,7 +255,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
 
                             {/* Card Footer Actions */}
                             <div className="p-4 border-t border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/30 dark:bg-zinc-900/10">
-                                <Button variant="outline" size="sm" onClick={() => setViewProgram(prog)} className="text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg shadow-sm">
+                                <Button variant="outline" size="sm" onClick={() => setViewProgram(prog)} className="text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg shadow-sm">
                                     <Eye className="h-4 w-4 mr-1.5" /> {t.read}
                                 </Button>
 
@@ -278,7 +278,7 @@ export default function ProgramsIndex({ programs, filters, stats }: any) {
                         <DialogTitle className="text-2xl font-extrabold flex flex-col md:flex-row md:items-center gap-3 text-slate-900 dark:text-white">
                             {viewProgram?.title}
                             {viewProgram?.is_ai_generated && (
-                                <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-none w-fit">
+                                <Badge className="bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400 border-none w-fit">
                                     <Sparkles className="h-3 w-3 mr-1"/> AI Generated Plan
                                 </Badge>
                             )}

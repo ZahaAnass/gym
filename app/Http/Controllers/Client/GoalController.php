@@ -10,6 +10,19 @@ use Inertia\Inertia;
 
 class GoalController extends Controller
 {
+    private function resolveStatus(Goal $goal, float $currentValue): string
+    {
+        if ($goal->type !== 'numeric' || $goal->target_value === null) {
+            return 'active';
+        }
+
+        if ($goal->direction === 'desc') {
+            return $currentValue <= (float) $goal->target_value ? 'reached' : 'active';
+        }
+
+        return $currentValue >= (float) $goal->target_value ? 'reached' : 'active';
+    }
+
     /**
      * Display a listing of the client's goals and overall statistics.
      */
@@ -39,6 +52,8 @@ class GoalController extends Controller
         ]);
 
         $request->user()->goals()->create(array_merge($validated, [
+            'type' => 'numeric',
+            'direction' => 'asc',
             'current_value' => 0,
             'status' => 'active',
         ]));
@@ -56,12 +71,19 @@ class GoalController extends Controller
 
         $validated = $request->validate([
             'current_value' => 'required|numeric|min:0',
-            'status' => 'required|in:active,reached,failed',
         ]);
 
-        $goal->update($validated);
+        $currentValue = (float) $validated['current_value'];
+        $status = $this->resolveStatus($goal, $currentValue);
 
-        if ($validated['status'] === 'reached') {
+        $goal->update([
+            'current_value' => $currentValue,
+            'status' => $status,
+            // force fresh AI advice after a progress change
+            'ai_strategy_advice' => null,
+        ]);
+
+        if ($status === 'reached') {
             return back()->with('success', 'Congratulations on reaching your goal! 🏆');
         }
 

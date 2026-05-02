@@ -100,9 +100,9 @@ export default function PaymentIndex({ payments, filters, stats }: any) {
                             <div className="flex justify-between items-start">
                                 <div className="space-y-1">
                                     <span className="text-sm font-medium text-slate-500">Stripe Revenue</span>
-                                    <p className="text-2xl font-bold text-indigo-700">{formatCurrency(stats.stripe_volume)}</p>
+                                    <p className="text-2xl font-bold text-emerald-700">{formatCurrency(stats.stripe_volume)}</p>
                                 </div>
-                                <div className="p-2 bg-indigo-50 rounded-lg"><CreditCard className="h-5 w-5 text-indigo-600"/></div>
+                                <div className="p-2 bg-emerald-50 rounded-lg"><CreditCard className="h-5 w-5 text-emerald-600"/></div>
                             </div>
                         </CardContent>
                     </Card>
@@ -208,7 +208,7 @@ export default function PaymentIndex({ payments, filters, stats }: any) {
                                                     <div className="flex flex-col gap-1 items-start">
                                                         <span className="font-bold text-slate-900">{formatCurrency(payment.amount)}</span>
                                                         <div className="flex items-center text-xs text-slate-500 capitalize">
-                                                            {payment.method === 'stripe' ? <CreditCard className="w-3 h-3 mr-1 text-indigo-500"/> : <Banknote className="w-3 h-3 mr-1 text-amber-500"/>}
+                                                            {payment.method === 'stripe' ? <CreditCard className="w-3 h-3 mr-1 text-emerald-500"/> : <Banknote className="w-3 h-3 mr-1 text-amber-500"/>}
                                                             {payment.method}
                                                         </div>
                                                     </div>

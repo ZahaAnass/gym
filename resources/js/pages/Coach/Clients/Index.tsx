@@ -34,7 +34,7 @@ export default function ClientsIndex({ clients, filters }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
-                            <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Users className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.roster}
                         </h2>
                         <p className="text-slate-500 mt-1">{t.subtitle}</p>
@@ -87,7 +87,7 @@ export default function ClientsIndex({ clients, filters }: any) {
                                                     {/* Col 1: Combined Initials + Name + Email */}
                                                     <TableCell className="pl-6 py-4">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm border border-indigo-200 shrink-0">
+                                                            <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm border border-emerald-200 shrink-0">
                                                                 {getInitials(client.name)}
                                                             </div>
                                                             <div className="flex flex-col">
@@ -100,7 +100,7 @@ export default function ClientsIndex({ clients, filters }: any) {
                                                     {/* Col 2: Biometrics */}
                                                     <TableCell>
                                                         {latestAssessment ? (
-                                                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                                                            <Badge variant="secondary" className="bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-400">
                                                                 <Activity className="h-3 w-3 mr-1" /> {latestAssessment.weight} kg
                                                             </Badge>
                                                         ) : (
@@ -113,7 +113,7 @@ export default function ClientsIndex({ clients, filters }: any) {
                                                         {activePrograms.length > 0 ? (
                                                             <div className="flex flex-wrap gap-1">
                                                                 {activePrograms.map((prog: any) => (
-                                                                    <Badge key={prog.id} variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 dark:border-indigo-900 dark:text-indigo-400 dark:bg-indigo-900/20 truncate max-w-[150px]">
+                                                                    <Badge key={prog.id} variant="outline" className="border-emerald-200 text-emerald-700 bg-emerald-50/50 dark:border-emerald-900 dark:text-emerald-400 dark:bg-emerald-900/20 truncate max-w-[150px]">
                                                                         <Dumbbell className="h-3 w-3 mr-1 shrink-0" /> {prog.title}
                                                                     </Badge>
                                                                 ))}
@@ -134,7 +134,7 @@ export default function ClientsIndex({ clients, filters }: any) {
                                                     <TableCell className="text-right pr-6">
                                                         <Link
                                                             href={`/coach/clients/${client.id}`}
-                                                            className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40 transition-colors"
+                                                            className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/40 transition-colors"
                                                         >
                                                             <Eye className="h-4 w-4 mr-2"/> {t.profile360}
                                                         </Link>

@@ -80,7 +80,7 @@ export default function ClientSchedule({ events }: any) {
                                     </div>
                                 </div>
                                 <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl flex items-center gap-3">
-                                    <UserIcon className="h-5 w-5 text-indigo-500" />
+                                    <UserIcon className="h-5 w-5 text-emerald-500" />
                                     <div>
                                         <p className="font-semibold text-slate-900 dark:text-white">{t.coach} {selectedEvent.coach_name}</p>
                                         <p className="text-sm text-slate-500">{t.instructor}</p>

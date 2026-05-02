@@ -94,13 +94,13 @@ export default function CreateProgram({ client }: any) {
                         </Button>
                         <div>
                             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-                                <Sparkles className="h-8 w-8 text-indigo-500" />
+                                <Sparkles className="h-8 w-8 text-emerald-500" />
                                 {t.title}
                             </h2>
                             <p className="text-sm text-slate-500 mt-1">
                                 {client ? (
                                     <span className="flex items-center gap-2">
-                                        Generating custom plan for <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-none"><User className="h-3 w-3 mr-1"/>{client.name}</Badge>
+                                        Generating custom plan for <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-none"><User className="h-3 w-3 mr-1"/>{client.name}</Badge>
                                     </span>
                                 ) : (
                                     t.libraryFallback
@@ -114,9 +114,9 @@ export default function CreateProgram({ client }: any) {
 
                     {/* LEFT COLUMN: AI Parameter Builder */}
                     <div className="lg:col-span-4 space-y-6">
-                        <Card className="shadow-lg border-indigo-100 dark:border-indigo-900/30 rounded-2xl bg-gradient-to-b from-white to-indigo-50/50 dark:from-zinc-950 dark:to-indigo-950/20">
+                        <Card className="shadow-lg border-emerald-100 dark:border-emerald-900/30 rounded-2xl bg-gradient-to-b from-white to-emerald-50/50 dark:from-zinc-950 dark:to-emerald-950/20">
                             <CardHeader className="pb-4">
-                                <CardTitle className="text-lg flex items-center gap-2 text-indigo-900 dark:text-indigo-300">
+                                <CardTitle className="text-lg flex items-center gap-2 text-emerald-900 dark:text-emerald-300">
                                     <Settings2 className="h-5 w-5" /> {t.aiParameters}
                                 </CardTitle>
                                 <CardDescription>Define the constraints for Gemini to build the perfect workout.</CardDescription>
@@ -191,7 +191,7 @@ export default function CreateProgram({ client }: any) {
                                     type="button"
                                     onClick={handleGenerateAI}
                                     disabled={isGenerating}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 rounded-xl text-md font-bold shadow-md shadow-indigo-500/20 transition-all"
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-12 rounded-xl text-md font-bold shadow-md shadow-emerald-500/20 transition-all"
                                 >
                                     {isGenerating ? (
                                         <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t.generating}</>
@@ -211,7 +211,7 @@ export default function CreateProgram({ client }: any) {
                                     <CardTitle className="text-lg flex justify-between items-center">
                                         <span>{t.preview}</span>
                                         {data.is_ai_generated && data.title && (
-                                            <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 border-none"><Sparkles className="h-3 w-3 mr-1"/> AI Draft</Badge>
+                                            <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border-none"><Sparkles className="h-3 w-3 mr-1"/> AI Draft</Badge>
                                         )}
                                     </CardTitle>
                                     <CardDescription>{t.previewSub}</CardDescription>

@@ -90,7 +90,7 @@ toast.error(flash.error);
                 <div className="admin-page-header">
                     <div>
                         <h2 className="admin-page-title">
-                            <Megaphone className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Megaphone className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="admin-page-subtitle">
@@ -104,7 +104,7 @@ toast.error(flash.error);
                     <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-950">
                         <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
                             <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                <LayoutTemplate className="h-5 w-5 text-indigo-500" />
+                                <LayoutTemplate className="h-5 w-5 text-emerald-500" />
                                 {t.settings}
                             </CardTitle>
                             <CardDescription>
@@ -129,7 +129,7 @@ toast.error(flash.error);
                                         value={data.hero_title}
                                         onChange={(e) => setData('hero_title', e.target.value)}
                                         placeholder="e.g., Welcome to AI Gym"
-                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500 ${errors.hero_title ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500 ${errors.hero_title ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                     />
                                 </div>
                                 {errors.hero_title && <p className="text-sm text-red-500 font-medium">{errors.hero_title}</p>}
@@ -151,7 +151,7 @@ toast.error(flash.error);
                                         value={data.announcement}
                                         onChange={(e) => setData('announcement', e.target.value)}
                                         placeholder="e.g., New Yoga classes starting next week!"
-                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500 ${errors.announcement ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500 ${errors.announcement ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                     />
                                 </div>
                                 {errors.announcement && <p className="text-sm text-red-500 font-medium">{errors.announcement}</p>}
@@ -165,7 +165,7 @@ toast.error(flash.error);
                                 </Label>
                                 <div className="relative max-w-xl">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Mail className="h-4 w-4 text-blue-500" />
+                                        <Mail className="h-4 w-4 text-teal-500" />
                                     </div>
                                     <Input
                                         id="contact_email"
@@ -173,7 +173,7 @@ toast.error(flash.error);
                                         value={data.contact_email}
                                         onChange={(e) => setData('contact_email', e.target.value)}
                                         placeholder="contact@gym.com"
-                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500 ${errors.contact_email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                        className={`pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500 ${errors.contact_email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                     />
                                 </div>
                                 {errors.contact_email && <p className="text-sm text-red-500 font-medium">{errors.contact_email}</p>}
@@ -183,7 +183,7 @@ toast.error(flash.error);
                             {/* Live Preview */}
                             <div className="pt-3">
                                 <div className="mb-4 flex items-center gap-2 border-t border-slate-100 pt-6 text-sm font-semibold text-slate-700 dark:border-zinc-800 dark:text-slate-300">
-                                    <Sparkles className="h-4 w-4 text-indigo-500" />
+                                    <Sparkles className="h-4 w-4 text-emerald-500" />
                                     {t.preview}
                                 </div>
 
@@ -195,7 +195,7 @@ toast.error(flash.error);
                                         </div>
                                         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-950">
                                             {previewAnnouncement && (
-                                                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+                                                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
                                                     <BellRing className="h-3.5 w-3.5" />
                                                     {previewAnnouncement}
                                                 </div>
@@ -206,7 +206,7 @@ toast.error(flash.error);
                                             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                                                 Train smarter. Manage better. Scale your gym operations with AI.
                                             </p>
-                                            <p className="mt-5 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                                            <p className="mt-5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                                                 Contact: {previewContactEmail}
                                             </p>
                                         </div>
@@ -219,7 +219,7 @@ toast.error(flash.error);
                                         </div>
                                         <div className="mx-auto max-w-[280px] rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-950">
                                             {previewAnnouncement && (
-                                                <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[10px] font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+                                                <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
                                                     <BellRing className="h-3 w-3" />
                                                     {previewAnnouncement}
                                                 </div>
@@ -230,7 +230,7 @@ toast.error(flash.error);
                                             <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                                                 Smarter workflows for coaches and admins.
                                             </p>
-                                            <p className="mt-4 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                                            <p className="mt-4 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                                                 {previewContactEmail}
                                             </p>
                                         </div>
@@ -265,7 +265,7 @@ toast.error(flash.error);
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl h-11 px-8 min-w-[140px]"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 rounded-xl h-11 px-8 min-w-[140px]"
                             >
                                 {processing ? (
                                     <span className="flex items-center">

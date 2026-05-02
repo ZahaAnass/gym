@@ -1255,7 +1255,7 @@ export default function Welcome({ auth, canRegister, content }: any) {
                 }
                 .light-mode .testimonial-card:hover { box-shadow: 0 10px 34px rgba(0,0,0,0.09); }
                 .stars { display: flex; gap: 4px; }
-                .star { width: 14px; height: 14px; fill: #f59e0b; flex-shrink: 0; }
+                .star { width: 14px; height: 14px; fill: #22c55e; flex-shrink: 0; }
                 .testimonial-quote { font-size: 14.5px; color: var(--text-secondary); line-height: 1.78; flex: 1; font-style: italic; }
                 .testimonial-author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
                 .author-avatar {

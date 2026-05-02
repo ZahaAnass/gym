@@ -45,7 +45,7 @@ export default function AnalyticsIndex({ stats }: any) {
                 <div className="admin-page-header">
                     <div>
                         <h2 className="admin-page-title">
-                            <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Activity className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="admin-page-subtitle">
@@ -62,8 +62,8 @@ export default function AnalyticsIndex({ stats }: any) {
                                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.totalRevenue}</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{formatCurrency(stats.total_revenue)}</span>
                             </div>
-                            <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-full flex items-center justify-center">
-                                <TrendingUp className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                            <div className="h-12 w-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                             </div>
                         </CardContent>
                     </Card>
@@ -86,8 +86,8 @@ export default function AnalyticsIndex({ stats }: any) {
                                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.totalUsers}</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.total_users}</span>
                             </div>
-                            <div className="h-12 w-12 bg-blue-50 dark:bg-blue-500/10 rounded-full flex items-center justify-center">
-                                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            <div className="h-12 w-12 bg-teal-50 dark:bg-teal-500/10 rounded-full flex items-center justify-center">
+                                <Users className="h-6 w-6 text-teal-600 dark:text-teal-400" />
                             </div>
                         </CardContent>
                     </Card>
@@ -97,7 +97,7 @@ export default function AnalyticsIndex({ stats }: any) {
                 <Card className="admin-surface">
                     <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-6">
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <LineChartIcon className="h-5 w-5 text-indigo-500" /> {t.growth}
+                            <LineChartIcon className="h-5 w-5 text-emerald-500" /> {t.growth}
                         </CardTitle>
                         <CardDescription>{t.growthSub}</CardDescription>
                     </CardHeader>
@@ -107,8 +107,8 @@ export default function AnalyticsIndex({ stats }: any) {
                                 <AreaChart data={Array.isArray(stats.chart_data) ? stats.chart_data : Object.values(stats.chart_data || {})} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -116,9 +116,9 @@ export default function AnalyticsIndex({ stats }: any) {
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(val) => `${val} DH`} dx={-10} />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                        formatter={(value: number) => [`${value} MAD`, t.revenue]}
+                                        formatter={(value) => [`${Number(value ?? 0)} MAD`, t.revenue]}
                                     />
-                                    <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                                    <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>

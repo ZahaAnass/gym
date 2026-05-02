@@ -88,10 +88,10 @@ return <Badge className="bg-red-100 text-red-800 border-none dark:bg-red-500/10 
 }
 
         if (roleName === 'coach') {
-return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purple-500/10 dark:text-purple-400"><Dumbbell className="h-3 w-3 mr-1" /> Coach</Badge>;
+return <Badge className="bg-lime-100 text-lime-800 border-none dark:bg-lime-500/10 dark:text-lime-400"><Dumbbell className="h-3 w-3 mr-1" /> Coach</Badge>;
 }
 
-        return <Badge className="bg-blue-100 text-blue-800 border-none dark:bg-blue-500/10 dark:text-blue-400"><UserIcon className="h-3 w-3 mr-1" /> Client</Badge>;
+        return <Badge className="bg-teal-100 text-teal-800 border-none dark:bg-teal-500/10 dark:text-teal-400"><UserIcon className="h-3 w-3 mr-1" /> Client</Badge>;
     };
 
     // Extract initials for avatars
@@ -106,12 +106,12 @@ return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purpl
                 <div className="admin-page-header">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-                            <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Users className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="admin-page-subtitle">{t.subtitle}</p>
                     </div>
-                    <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl">
+                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 rounded-xl">
                         <Link href="/admin/users/create">
                             <Plus className="mr-2 h-4 w-4"/> {t.create}
                         </Link>
@@ -126,16 +126,16 @@ return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purpl
                             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.total}</span>
                         </CardContent>
                     </Card>
-                    <Card className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 shadow-sm rounded-2xl">
+                    <Card className="bg-teal-50/50 dark:bg-teal-500/5 border border-teal-100 dark:border-teal-500/10 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col gap-1">
-                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Clients</span>
-                            <span className="text-3xl font-extrabold text-blue-700 dark:text-blue-300">{stats.clients}</span>
+                            <span className="text-sm font-medium text-teal-600 dark:text-teal-400">Active Clients</span>
+                            <span className="text-3xl font-extrabold text-teal-700 dark:text-teal-300">{stats.clients}</span>
                         </CardContent>
                     </Card>
-                    <Card className="bg-purple-50/50 dark:bg-purple-500/5 border border-purple-100 dark:border-purple-500/10 shadow-sm rounded-2xl">
+                    <Card className="bg-lime-50/50 dark:bg-lime-500/5 border border-lime-100 dark:border-lime-500/10 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col gap-1">
-                            <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Certified Coaches</span>
-                            <span className="text-3xl font-extrabold text-purple-700 dark:text-purple-300">{stats.coaches}</span>
+                            <span className="text-sm font-medium text-lime-600 dark:text-lime-400">Certified Coaches</span>
+                            <span className="text-3xl font-extrabold text-lime-700 dark:text-lime-300">{stats.coaches}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-red-50/50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 shadow-sm rounded-2xl">
@@ -222,7 +222,7 @@ return <Badge className="bg-purple-100 text-purple-800 border-none dark:bg-purpl
 
                                                 <TableCell className="pl-6 py-4">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-sm shrink-0">
+                                                        <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-sm shrink-0">
                                                             {getInitials(user.name)}
                                                         </div>
                                                         <div className="flex flex-col">

@@ -99,7 +99,7 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <CalendarIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <CalendarIcon className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.classSchedule}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -107,10 +107,10 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <Badge variant="outline" className="px-4 py-2 text-sm bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:border-indigo-500/20 dark:text-indigo-400">
+                        <Badge variant="outline" className="px-4 py-2 text-sm bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400">
                             <Clock className="h-4 w-4 mr-2" /> {stats.upcoming_this_week} {t.classesThisWeek}
                         </Badge>
-                        <Button onClick={() => setIsCreateModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl">
+                        <Button onClick={() => setIsCreateModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 rounded-xl">
                             <Plus className="mr-2 h-4 w-4" /> {t.createSession}
                         </Button>
                     </div>
@@ -156,7 +156,7 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
                         {selectedEvent && (
                             <div className="space-y-4 py-4">
                                 <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800">
-                                    <Clock className="h-6 w-6 text-indigo-500" />
+                                    <Clock className="h-6 w-6 text-emerald-500" />
                                     <div>
                                         <p className="text-sm font-semibold text-slate-900 dark:text-white">
                                             {selectedEvent.start.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -185,7 +185,7 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
                                 {t.close}
                             </Button>
                             {selectedEvent?.id && (
-                                <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                                <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                                     <Link href={`/coach/sessions/${selectedEvent.id}`}>
                                         <BookOpen className="mr-2 h-4 w-4" /> {t.goAttendance}
                                     </Link>
@@ -200,7 +200,7 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
                     <DialogContent className="sm:max-w-md rounded-3xl">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-extrabold flex items-center gap-2">
-                                <CalendarIcon className="h-5 w-5 text-indigo-500"/> {t.scheduleSession}
+                                <CalendarIcon className="h-5 w-5 text-emerald-500"/> {t.scheduleSession}
                             </DialogTitle>
                             <DialogDescription>{t.assignProgramSlot}</DialogDescription>
                         </DialogHeader>
@@ -248,7 +248,7 @@ export default function ScheduleIndex({ events, stats, programs }: any) {
 
                             <DialogFooter className="pt-4 border-t border-slate-100 dark:border-zinc-800">
                                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)} className="rounded-xl">{t.cancel}</Button>
-                                <Button type="submit" disabled={processing} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-500/20">
+                                <Button type="submit" disabled={processing} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md shadow-emerald-500/20">
                                     <Save className="h-4 w-4 mr-2" /> {t.save}
                                 </Button>
                             </DialogFooter>

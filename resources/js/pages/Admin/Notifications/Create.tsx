@@ -69,7 +69,7 @@ toast.error(flash.error);
                 <div className="admin-page-header">
                     <div>
                         <h2 className="admin-page-title">
-                            <Send className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Send className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="admin-page-subtitle">
@@ -82,7 +82,7 @@ toast.error(flash.error);
                     <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-950">
                         <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-5">
                             <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                <Megaphone className="h-5 w-5 text-indigo-500" />
+                                <Megaphone className="h-5 w-5 text-emerald-500" />
                                 {t.compose}
                             </CardTitle>
                             <CardDescription>
@@ -93,12 +93,12 @@ toast.error(flash.error);
                         <CardContent className="space-y-6 pt-8">
 
                             {/* Target Audience */}
-                            <div className="space-y-2 p-5 bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-xl">
-                                <Label className="flex items-center gap-2 text-sm font-bold text-indigo-900 dark:text-indigo-300">
+                            <div className="space-y-2 p-5 bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl">
+                                <Label className="flex items-center gap-2 text-sm font-bold text-emerald-900 dark:text-emerald-300">
                                     <Users className="h-4 w-4" /> {t.audience} <span className="text-red-500">*</span>
                                 </Label>
                                 <Select value={data.target_audience} onValueChange={(val) => setData('target_audience', val)}>
-                                    <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-indigo-200 dark:border-indigo-500/30 rounded-xl mt-2">
+                                    <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-emerald-200 dark:border-emerald-500/30 rounded-xl mt-2">
                                         <SelectValue placeholder="Select who will receive this" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -122,7 +122,7 @@ toast.error(flash.error);
                                         onChange={(e) => setData('title', e.target.value)}
                                         placeholder="e.g. Gym Holiday Closure"
                                         required
-                                        className="h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500"
+                                        className="h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500"
                                     />
                                     {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
                                 </div>
@@ -137,7 +137,7 @@ toast.error(flash.error);
                                             <SelectValue placeholder="Select urgency" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="info"><span className="flex items-center"><Info className="h-4 w-4 mr-2 text-blue-500"/> General Info</span></SelectItem>
+                                            <SelectItem value="info"><span className="flex items-center"><Info className="h-4 w-4 mr-2 text-teal-500"/> General Info</span></SelectItem>
                                             <SelectItem value="alert"><span className="flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500"/> Urgent Alert</span></SelectItem>
                                             <SelectItem value="success"><span className="flex items-center"><CheckCircle2 className="h-4 w-4 mr-2 text-emerald-500"/> Success / Good News</span></SelectItem>
                                         </SelectContent>
@@ -157,7 +157,7 @@ toast.error(flash.error);
                                     placeholder="Type the full announcement here..."
                                     rows={5}
                                     required
-                                    className="bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500 resize-none"
+                                    className="bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500 resize-none"
                                 />
                                 {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
                             </div>
@@ -198,7 +198,7 @@ toast.error(flash.error);
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl h-11 px-8 min-w-[160px]"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 rounded-xl h-11 px-8 min-w-[160px]"
                             >
                                 {processing ? (
                                     <span className="flex items-center">

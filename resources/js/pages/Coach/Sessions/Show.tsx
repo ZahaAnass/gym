@@ -62,7 +62,7 @@ export default function SessionShow({ session }: any) {
                     <div>
                         <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
                             {session.title}
-                            <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 border-none">
+                            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-none">
                                 {session.program ? session.program.title : t.customSession}
                             </Badge>
                         </h2>
@@ -77,7 +77,7 @@ export default function SessionShow({ session }: any) {
                     <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-950">
                         <CardHeader className="bg-slate-50/80 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800">
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Users className="h-5 w-5 text-indigo-500" /> {t.clientRoster}
+                                <Users className="h-5 w-5 text-emerald-500" /> {t.clientRoster}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
@@ -129,7 +129,7 @@ export default function SessionShow({ session }: any) {
 
                             {session.clients.length > 0 && (
                                 <div className="p-5 border-t border-slate-100 dark:border-zinc-800 flex justify-end bg-slate-50/30 dark:bg-zinc-900/10">
-                                    <Button type="submit" disabled={processing} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11 px-8 shadow-md shadow-indigo-500/20">
+                                    <Button type="submit" disabled={processing} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 px-8 shadow-md shadow-emerald-500/20">
                                         <Save className="h-4 w-4 mr-2" /> {t.save}
                                     </Button>
                                 </div>

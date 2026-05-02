@@ -27,7 +27,7 @@ export function NavMain({ items = [], sectionTitle = 'Platform' }: { items: any[
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                                 {item.badge && (
-                                    <span className="ml-auto bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    <span className="ml-auto bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                                         {item.badge}
                                     </span>
                                 )}
@@ -43,7 +43,7 @@ export function NavMain({ items = [], sectionTitle = 'Platform' }: { items: any[
                                     {item.icon && <item.icon />}
                                     <span>{item.title}</span>
                                     {item.badge && (
-                                        <span className="ml-auto bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        <span className="ml-auto bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                                             {item.badge}
                                         </span>
                                     )}

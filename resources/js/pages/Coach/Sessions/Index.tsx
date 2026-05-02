@@ -60,18 +60,18 @@ export default function SessionsIndex({ upcomingSessions, pastSessions, programs
                     <h3 className={`text-lg font-bold ${isPast ? 'text-slate-600 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
                         {session.title}
                     </h3>
-                    <Badge variant={isPast ? 'secondary' : 'default'} className={!isPast ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 hover:bg-indigo-100' : ''}>
+                    <Badge variant={isPast ? 'secondary' : 'default'} className={!isPast ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100' : ''}>
                         {new Date(session.scheduled_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                     </Badge>
                 </div>
 
                 <div className="space-y-2 mt-4">
                     <p className="text-sm text-slate-500 flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-indigo-500" />
+                        <Clock className="h-4 w-4 text-emerald-500" />
                         {new Date(session.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.duration_minutes} {t.mins}
                     </p>
                     <p className="text-sm text-slate-500 flex items-center gap-2">
-                        <Dumbbell className="h-4 w-4 text-purple-500" />
+                        <Dumbbell className="h-4 w-4 text-lime-500" />
                         {session.program?.title || t.customWorkout}
                     </p>
                     <p className="text-sm text-slate-500 flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function SessionsIndex({ upcomingSessions, pastSessions, programs
                 </div>
             </CardContent>
             <div className="p-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end">
-                <Button asChild variant={isPast ? 'outline' : 'default'} className={!isPast ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}>
+                <Button asChild variant={isPast ? 'outline' : 'default'} className={!isPast ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}>
                     <Link href={`/coach/sessions/${session.id}`}>
                         {isPast ? t.viewLog : t.manageRoster}
                     </Link>
@@ -98,7 +98,7 @@ export default function SessionsIndex({ upcomingSessions, pastSessions, programs
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <BookOpen className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <BookOpen className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 mt-1">{t.subtitle}</p>
@@ -106,7 +106,7 @@ export default function SessionsIndex({ upcomingSessions, pastSessions, programs
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md rounded-xl h-11 px-6">
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl h-11 px-6">
                                 <CalendarPlus className="mr-2 h-4 w-4" /> {t.scheduleClass}
                             </Button>
                         </DialogTrigger>
@@ -143,7 +143,7 @@ export default function SessionsIndex({ upcomingSessions, pastSessions, programs
                                         <Input type="number" value={data.max_participants} onChange={e => setData('max_participants', e.target.value)} min="1" required />
                                     </div>
                                 </div>
-                                <Button type="submit" disabled={processing} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-4 h-11">
+                                <Button type="submit" disabled={processing} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4 h-11">
                                     {t.createSession}
                                 </Button>
                             </form>

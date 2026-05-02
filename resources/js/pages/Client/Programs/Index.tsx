@@ -45,7 +45,7 @@ return <p className="text-slate-500 italic">{t.noInstructions}</p>;
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Dumbbell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Dumbbell className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -79,9 +79,9 @@ return <p className="text-slate-500 italic">{t.noInstructions}</p>;
                             </Card>
                         ) : (
                             programs.map((program: any, index: number) => (
-                                <Card key={program.id} className={`shadow-md border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden ${index === 0 ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-zinc-950' : ''}`}>
+                                <Card key={program.id} className={`shadow-md border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden ${index === 0 ? 'ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-zinc-950' : ''}`}>
                                     {/* Program Header Banner */}
-                                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative overflow-hidden">
+                                    <div className="bg-gradient-to-r from-emerald-600 to-lime-600 p-6 text-white relative overflow-hidden">
                                         <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                                             <Dumbbell className="h-48 w-48" />
                                         </div>
@@ -91,7 +91,7 @@ return <p className="text-slate-500 italic">{t.noInstructions}</p>;
                                                     {t.assignedToYou}
                                                 </Badge>
                                                 {program.is_ai_generated && (
-                                                    <Badge className="bg-indigo-900/50 text-indigo-100 border border-indigo-400/30 backdrop-blur-md flex items-center gap-1">
+                                                    <Badge className="bg-emerald-900/50 text-emerald-100 border border-emerald-400/30 backdrop-blur-md flex items-center gap-1">
                                                         <Sparkles className="h-3 w-3" /> {t.aiOptimized}
                                                     </Badge>
                                                 )}
@@ -133,14 +133,14 @@ return <p className="text-slate-500 italic">{t.noInstructions}</p>;
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/30 border-b border-slate-100 dark:border-zinc-800">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Calendar className="h-5 w-5 text-indigo-500" /> {t.upcoming}
+                                    <Calendar className="h-5 w-5 text-emerald-500" /> {t.upcoming}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {upcomingSessions.length === 0 ? (
                                     <div className="p-6 text-center">
                                         <p className="text-sm text-slate-500">{t.noUpcoming}</p>
-                                        <Button variant="link" asChild className="mt-2 text-indigo-600">
+                                        <Button variant="link" asChild className="mt-2 text-emerald-600">
                                             <Link href="/client/schedule">{t.viewCalendar}</Link>
                                         </Button>
                                     </div>
@@ -155,7 +155,7 @@ return <p className="text-slate-500 italic">{t.noInstructions}</p>;
                                                     </Badge>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mb-3">
-                                                    <Clock className="h-3.5 w-3.5 text-indigo-400" />
+                                                    <Clock className="h-3.5 w-3.5 text-emerald-400" />
                                                     {new Date(session.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </div>
                                             </div>

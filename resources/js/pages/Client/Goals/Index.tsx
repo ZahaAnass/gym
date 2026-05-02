@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { BreadcrumbItem } from '@/types';
 import { toast } from 'sonner';
 import { useAppLanguage } from '@/hooks/use-app-language';
+import { getPageTranslations } from '@/lang/pages';
 
 export default function GoalsIndex({ goals, stats }: any) {
     const { language, isRTL } = useAppLanguage();
@@ -37,11 +38,7 @@ export default function GoalsIndex({ goals, stats }: any) {
     };
 
     // Handle quick progress update
-    const t = {
-        en: { dashboard: 'Dashboard', myGoals: 'My Goals', head: 'My Goals & AI Advice', title: 'Personal Objectives', subtitle: 'Set targets, track your progress, and get AI-powered coaching strategies.', totalGoals: 'Total Goals', inProgress: 'In Progress', achieved: 'Achieved', noGoals: 'No goals set yet', noGoalsSub: 'Create your first fitness objective to start tracking your progress and unlock AI coaching.', deadline: 'Deadline', current: 'Current', target: 'Target', strategyPlan: 'Gemini Strategy Plan', logProgress: 'Log Progress', analyzing: 'Analyzing...', refreshStrategy: 'Refresh Strategy', getStrategy: 'Get AI Strategy', createGoal: 'Create New Goal', createGoalSub: 'Define a measurable target.', goalDesc: 'Goal Description', numericTarget: 'Numeric Target Value', numericHint: "Must be a number. We'll track your progress against this.", targetDate: 'Target Date', saveObjective: 'Save Objective', progressPrompt: 'Enter your new current progress value:', deleteConfirm: 'Are you sure you want to delete this goal?' },
-        fr: { dashboard: 'Tableau', myGoals: 'Mes objectifs', head: 'Mes objectifs & conseils IA', title: 'Objectifs personnels', subtitle: 'Definissez vos cibles, suivez votre progression et obtenez des strategies IA.', totalGoals: 'Total objectifs', inProgress: 'En cours', achieved: 'Atteints', noGoals: 'Aucun objectif pour le moment', noGoalsSub: 'Creez votre premier objectif fitness pour suivre votre progression.', deadline: 'Echeance', current: 'Actuel', target: 'Cible', strategyPlan: 'Plan de strategie Gemini', logProgress: 'Enregistrer progression', analyzing: 'Analyse...', refreshStrategy: 'Actualiser strategie', getStrategy: 'Obtenir strategie IA', createGoal: 'Creer un objectif', createGoalSub: 'Definissez un objectif mesurable.', goalDesc: "Description de l'objectif", numericTarget: 'Valeur cible numerique', numericHint: 'Doit etre un nombre. Nous suivrons votre progression.', targetDate: 'Date cible', saveObjective: "Enregistrer l'objectif", progressPrompt: 'Entrez votre nouvelle valeur de progression:', deleteConfirm: 'Confirmer la suppression de cet objectif ?' },
-        ar: { dashboard: 'لوحة التحكم', myGoals: 'اهدافي', head: 'اهدافي ونصائح الذكاء الاصطناعي', title: 'اهدافي الشخصية', subtitle: 'حدد اهدافك وتابع تقدمك واحصل على استراتيجيات تدريب بالذكاء الاصطناعي.', totalGoals: 'اجمالي الاهداف', inProgress: 'قيد التقدم', achieved: 'تم تحقيقه', noGoals: 'لا توجد اهداف بعد', noGoalsSub: 'انشئ هدفك الاول لتتبع تقدمك والحصول على توجيه الذكاء الاصطناعي.', deadline: 'الموعد النهائي', current: 'الحالي', target: 'الهدف', strategyPlan: 'خطة Gemini الاستراتيجية', logProgress: 'تسجيل التقدم', analyzing: 'جاري التحليل...', refreshStrategy: 'تحديث الاستراتيجية', getStrategy: 'الحصول على استراتيجية AI', createGoal: 'انشاء هدف جديد', createGoalSub: 'حدد هدفا قابلا للقياس.', goalDesc: 'وصف الهدف', numericTarget: 'القيمة الرقمية المستهدفة', numericHint: 'يجب ان تكون رقما. سنقيس التقدم بناء عليها.', targetDate: 'تاريخ الهدف', saveObjective: 'حفظ الهدف', progressPrompt: 'ادخل قيمة تقدمك الحالية الجديدة:', deleteConfirm: 'هل تريد حذف هذا الهدف؟' },
-    }[language];
+    const t = getPageTranslations(language).clientGoals;
 
     const updateProgress = (id: number, current: number, target: number) => {
         const newValue = prompt(t.progressPrompt, current.toString());
@@ -49,7 +46,6 @@ export default function GoalsIndex({ goals, stats }: any) {
             const numValue = Number(newValue);
             router.put(`/client/goals/${id}`, {
                 current_value: numValue,
-                status: numValue >= target ? 'reached' : 'active'
             }, { preserveScroll: true });
         }
     };
@@ -84,7 +80,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                            <Target className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <Target className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -101,10 +97,10 @@ export default function GoalsIndex({ goals, stats }: any) {
                             <span className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">{stats.total}</span>
                         </CardContent>
                     </Card>
-                    <Card className="bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/10 shadow-sm rounded-2xl">
+                    <Card className="bg-teal-50/50 dark:bg-teal-500/5 border-teal-100 dark:border-teal-500/10 shadow-sm rounded-2xl">
                         <CardContent className="p-5 flex flex-col items-center justify-center">
-                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t.inProgress}</span>
-                            <span className="text-3xl font-extrabold text-blue-700 dark:text-blue-300 mt-1">{stats.active}</span>
+                            <span className="text-sm font-medium text-teal-600 dark:text-teal-400">{t.inProgress}</span>
+                            <span className="text-3xl font-extrabold text-teal-700 dark:text-teal-300 mt-1">{stats.active}</span>
                         </CardContent>
                     </Card>
                     <Card className="bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/10 shadow-sm rounded-2xl">
@@ -121,7 +117,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                     <div className="md:col-span-8 space-y-6">
                         {goals.length === 0 ? (
                             <div className="text-center p-16 bg-slate-50 dark:bg-zinc-900/50 rounded-3xl border border-dashed border-slate-300 dark:border-zinc-700 flex flex-col items-center">
-                                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 rounded-full flex items-center justify-center mb-4">
+                                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mb-4">
                                     <Flag className="h-8 w-8" />
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">{t.noGoals}</h3>
@@ -155,12 +151,12 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             {/* Progress Bar */}
                                             <div className="space-y-3 mb-6">
                                                 <div className="flex justify-between text-sm font-semibold">
-                                                    <span className="text-indigo-600 dark:text-indigo-400">{t.current}: {goal.current_value}</span>
+                                                    <span className="text-emerald-600 dark:text-emerald-400">{t.current}: {goal.current_value}</span>
                                                     <span className="text-slate-900 dark:text-white">{t.target}: {goal.target_value}</span>
                                                 </div>
                                                 <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-4 overflow-hidden shadow-inner">
                                                     <div
-                                                        className={`h-full transition-all duration-700 ease-out ${isComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'}`}
+                                                        className={`h-full transition-all duration-700 ease-out ${isComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-emerald-500 to-lime-500'}`}
                                                         style={{ width: `${progressPercentage}%` }}
                                                     />
                                                 </div>
@@ -168,14 +164,14 @@ export default function GoalsIndex({ goals, stats }: any) {
 
                                             {/* AI Strategy Advice Block */}
                                             {goal.ai_strategy_advice && (
-                                                <div className="mt-4 p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 relative">
+                                                <div className="mt-4 p-5 rounded-2xl bg-lime-50/50 dark:bg-lime-900/10 border border-lime-100 dark:border-lime-900/30 relative">
                                                     <div className="absolute top-0 right-0 p-3 opacity-10">
                                                         <Bot className="h-16 w-16" />
                                                     </div>
-                                                    <h4 className="text-sm font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center gap-2">
-                                                        <Sparkles className="h-4 w-4 text-purple-500" /> {t.strategyPlan}
+                                                    <h4 className="text-sm font-bold text-lime-900 dark:text-lime-300 mb-2 flex items-center gap-2">
+                                                        <Sparkles className="h-4 w-4 text-lime-500" /> {t.strategyPlan}
                                                     </h4>
-                                                    <p className="text-sm text-purple-800 dark:text-purple-200 leading-relaxed whitespace-pre-wrap relative z-10">
+                                                    <p className="text-sm text-lime-800 dark:text-lime-200 leading-relaxed whitespace-pre-wrap relative z-10">
                                                         {goal.ai_strategy_advice}
                                                     </p>
                                                 </div>
@@ -193,7 +189,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                                     <Button
                                                         onClick={() => generateAIAdvice(goal.id)}
                                                         disabled={generatingId === goal.id}
-                                                        className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md shadow-purple-500/20"
+                                                        className="bg-lime-600 hover:bg-lime-700 text-white rounded-xl shadow-md shadow-lime-500/20"
                                                     >
                                                         {generatingId === goal.id ? (
                                                             <span className="flex items-center"><svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {t.analyzing}</span>
@@ -216,11 +212,11 @@ export default function GoalsIndex({ goals, stats }: any) {
 
                     {/* Right Column: Create Goal Form */}
                     <div className="md:col-span-4">
-                        <Card className="shadow-lg shadow-indigo-500/5 border-indigo-100 dark:border-indigo-900/30 rounded-3xl sticky top-24 overflow-hidden">
-                            <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+                        <Card className="shadow-lg shadow-emerald-500/5 border-emerald-100 dark:border-emerald-900/30 rounded-3xl sticky top-24 overflow-hidden">
+                            <div className="h-2 w-full bg-gradient-to-r from-emerald-500 to-lime-500" />
                             <CardHeader className="bg-white dark:bg-zinc-950 pb-2">
                                 <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
-                                    <Plus className="h-5 w-5 text-indigo-500"/> {t.createGoal}
+                                    <Plus className="h-5 w-5 text-emerald-500"/> {t.createGoal}
                                 </CardTitle>
                                 <CardDescription>{t.createGoalSub}</CardDescription>
                             </CardHeader>
@@ -233,7 +229,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             onChange={e => setData('title', e.target.value)}
                                             placeholder="e.g. Lose 5kg of fat"
                                             required
-                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-emerald-500"
                                         />
                                         {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                                     </div>
@@ -246,7 +242,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             onChange={e => setData('target_value', e.target.value)}
                                             placeholder="e.g. 5"
                                             required
-                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-emerald-500"
                                         />
                                         <p className="text-[11px] text-slate-400">{t.numericHint}</p>
                                         {errors.target_value && <p className="text-xs text-red-500">{errors.target_value}</p>}
@@ -258,7 +254,7 @@ export default function GoalsIndex({ goals, stats }: any) {
                                             value={data.deadline}
                                             onChange={e => setData('deadline', e.target.value)}
                                             required
-                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-indigo-500"
+                                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 focus:ring-emerald-500"
                                         />
                                         {errors.deadline && <p className="text-xs text-red-500">{errors.deadline}</p>}
                                     </div>

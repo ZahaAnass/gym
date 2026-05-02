@@ -58,7 +58,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                             {t.title}
-                            <Badge variant="outline" className="text-sm font-medium bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900">
+                            <Badge variant="outline" className="text-sm font-medium bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900">
                                 ID: #{user.id}
                             </Badge>
                         </h2>
@@ -78,7 +78,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                     <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
                         <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                             <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                <User className="h-5 w-5 text-indigo-500" /> Account Details
+                                <User className="h-5 w-5 text-emerald-500" /> Account Details
                             </CardTitle>
                             <CardDescription>Modify the primary identifying information.</CardDescription>
                         </CardHeader>
@@ -96,7 +96,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                                         value={data.name}
                                         onChange={e => setData('name', e.target.value)}
                                         required
-                                        className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500"
+                                        className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500"
                                     />
                                 </div>
                                 {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name}</p>}
@@ -116,7 +116,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
                                         required
-                                        className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500"
+                                        className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500"
                                     />
                                 </div>
                                 {errors.email && <p className="text-sm text-red-500 font-medium">{errors.email}</p>}
@@ -131,7 +131,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden h-fit">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                    <Lock className="h-5 w-5 text-indigo-500" /> Security
+                                    <Lock className="h-5 w-5 text-emerald-500" /> Security
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6">
@@ -148,7 +148,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                                             type="password"
                                             value={data.password}
                                             onChange={e => setData('password', e.target.value)}
-                                            className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-indigo-500 placeholder:text-slate-400"
+                                            className="pl-10 h-11 bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-xl focus:ring-emerald-500 placeholder:text-slate-400"
                                             placeholder="Leave blank to keep current"
                                         />
                                     </div>
@@ -165,7 +165,7 @@ export default function EditUser({ user, roles, coaches }: any) {
                         <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden h-fit">
                             <CardHeader className="bg-slate-50/50 dark:bg-zinc-900/50 border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                    <Shield className="h-5 w-5 text-indigo-500" /> Platform Access
+                                    <Shield className="h-5 w-5 text-emerald-500" /> Platform Access
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6">
@@ -193,12 +193,12 @@ setData('coach_id', '');
                                 </div>
 
                                 {data.role === 'client' && (
-                                    <div className="space-y-3 p-4 bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-xl animate-in fade-in slide-in-from-top-2">
-                                        <Label htmlFor="coach_id" className="flex items-center gap-2 text-sm font-semibold text-indigo-900 dark:text-indigo-300">
+                                    <div className="space-y-3 p-4 bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl animate-in fade-in slide-in-from-top-2">
+                                        <Label htmlFor="coach_id" className="flex items-center gap-2 text-sm font-semibold text-emerald-900 dark:text-emerald-300">
                                             <Dumbbell className="h-4 w-4" /> Coach Assignment
                                         </Label>
                                         <Select value={data.coach_id} onValueChange={val => setData('coach_id', val === 'unassigned' ? '' : val)}>
-                                            <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-indigo-200 dark:border-indigo-500/30 rounded-xl">
+                                            <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-emerald-200 dark:border-emerald-500/30 rounded-xl">
                                                 <SelectValue placeholder="Assign a coach (Optional)" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -223,7 +223,7 @@ setData('coach_id', '');
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl h-11 px-8"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20 rounded-xl h-11 px-8"
                         >
                             {processing ? (
                                 <span className="flex items-center">

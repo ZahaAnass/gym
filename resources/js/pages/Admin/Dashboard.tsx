@@ -37,7 +37,7 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
     // Helper for log method colors
     const getMethodColor = (method: string) => {
         switch (method) {
-            case 'GET': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+            case 'GET': return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400';
             case 'POST': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
             case 'PUT': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
             case 'DELETE': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
@@ -94,15 +94,15 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                 {t.activeClients}
                             </CardTitle>
-                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                                <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-full">
+                                <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                             </div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-gray-900 dark:text-white">
                                 {stats.active_clients}
                             </div>
-                            <Link href="/admin/users" className="text-xs text-blue-600 dark:text-blue-400 mt-1 hover:underline inline-flex items-center">
+                            <Link href="/admin/users" className="text-xs text-teal-600 dark:text-teal-400 mt-1 hover:underline inline-flex items-center">
                                 {t.manageClients} <ArrowRight className="ml-1 h-3 w-3" />
                             </Link>
                         </CardContent>
@@ -114,8 +114,8 @@ export default function AdminDashboard({ stats, recent_logs }: any) {
                             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                 {t.coaches}
                             </CardTitle>
-                            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-                                <Dumbbell className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            <div className="p-2 bg-lime-100 dark:bg-lime-900/30 rounded-full">
+                                <Dumbbell className="h-4 w-4 text-lime-600 dark:text-lime-400" />
                             </div>
                         </CardHeader>
                         <CardContent>

@@ -21,7 +21,7 @@ import { useDashboardLanguage } from '@/hooks/use-dashboard-language';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
-const PIE_COLORS = ['#4f46e5', '#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b'];
+const PIE_COLORS = ['#10b981', '#34d399', '#84cc16', '#14b8a6', '#22c55e'];
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -80,31 +80,31 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
             <div className="app-page-container">
 
                 {/* Welcome Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-purple-600 to-indigo-600 p-8 rounded-3xl text-white shadow-lg">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-lime-600 to-emerald-600 p-8 rounded-3xl text-white shadow-lg">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight">
                             {greeting}, Coach {user.name.split(' ')[0]}!
                         </h2>
-                        <p className="text-purple-100 mt-2 max-w-xl font-medium">{t.welcome}</p>
+                        <p className="text-lime-100 mt-2 max-w-xl font-medium">{t.welcome}</p>
                     </div>
                     <div className="hidden md:flex items-center gap-3 bg-white/20 px-5 py-2.5 rounded-xl backdrop-blur-sm shadow-sm border border-white/10">
-                        <Sparkles className="h-5 w-5 text-purple-50" />
-                        <span className="font-bold text-purple-50 tracking-wide">{t.ai}</span>
+                        <Sparkles className="h-5 w-5 text-lime-50" />
+                        <span className="font-bold text-lime-50 tracking-wide">{t.ai}</span>
                     </div>
                 </div>
 
                 {/* Quick Stats Grid */}
                 <div className="grid gap-6 md:grid-cols-3">
-                    <Card className="shadow-sm border-blue-100 dark:border-blue-900/50 rounded-3xl hover:shadow-md transition-all">
+                    <Card className="shadow-sm border-teal-100 dark:border-teal-900/50 rounded-3xl hover:shadow-md transition-all">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Users className="h-4 w-4 text-blue-500" /> {t.roster}
+                                <Users className="h-4 w-4 text-teal-500" /> {t.roster}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-4xl font-black text-foreground mt-1">{activeClientsCount}</div>
                             <p className="text-sm text-muted-foreground mt-1">{t.clientsAssigned}</p>
-                            <Button variant="link" className="p-0 h-auto mt-3 text-blue-600 dark:text-blue-400 font-bold" asChild>
+                            <Button variant="link" className="p-0 h-auto mt-3 text-teal-600 dark:text-teal-400 font-bold" asChild>
                                 <Link href="/coach/clients" className="flex items-center">
                                     {t.manageRoster} <ArrowRight className="ml-1 h-4 w-4" />
                                 </Link>
@@ -112,10 +112,10 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-sm border-purple-100 dark:border-purple-900/50 rounded-3xl hover:shadow-md transition-all">
+                    <Card className="shadow-sm border-lime-100 dark:border-lime-900/50 rounded-3xl hover:shadow-md transition-all">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                <Calendar className="h-4 w-4 text-purple-500" /> {t.next}
+                                <Calendar className="h-4 w-4 text-lime-500" /> {t.next}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -126,7 +126,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                                         {new Date(upcomingSession.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                     <div className="flex items-center gap-2 mt-3">
-                                        <Badge variant="secondary" className="bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-none font-bold">
+                                        <Badge variant="secondary" className="bg-lime-50 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400 border-none font-bold">
                                             {upcomingSession.program?.title || t.customSession}
                                         </Badge>
                                         <span className="text-xs font-bold text-muted-foreground">{upcomingSession.duration_minutes} min</span>
@@ -165,7 +165,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         <Card className="lg:col-span-2 rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <TrendingUp className="h-5 w-5 text-indigo-500" /> {t.attendance}
+                                    <TrendingUp className="h-5 w-5 text-emerald-500" /> {t.attendance}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] p-6 pt-4">
@@ -196,7 +196,7 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         <Card className="rounded-3xl shadow-sm border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                    <Target className="h-5 w-5 text-purple-500" /> {t.distribution}
+                                    <Target className="h-5 w-5 text-lime-500" /> {t.distribution}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] flex flex-col p-6 pt-4">
@@ -255,10 +255,10 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
                         <Link href="/coach/clients" className="group block">
-                            <Card className="bg-slate-50/50 dark:bg-zinc-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 border border-slate-200 dark:border-zinc-800 transition-all rounded-3xl h-full shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900/50">
+                            <Card className="bg-slate-50/50 dark:bg-zinc-900/30 hover:bg-teal-50 dark:hover:bg-teal-900/10 border border-slate-200 dark:border-zinc-800 transition-all rounded-3xl h-full shadow-sm hover:shadow-md hover:border-teal-200 dark:hover:border-teal-900/50">
                                 <CardContent className="flex flex-col items-center justify-center p-8 text-center h-full">
-                                    <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                                        <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                    <div className="h-14 w-14 rounded-2xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                                        <Users className="h-6 w-6 text-teal-600 dark:text-teal-400" />
                                     </div>
                                     <h4 className="font-extrabold text-lg text-foreground">{t.myClients}</h4>
                                     <p className="text-sm text-muted-foreground mt-2">{t.myClientsSub}</p>
@@ -267,10 +267,10 @@ export default function CoachDashboard({ activeClientsCount, upcomingSession, to
                         </Link>
 
                         <Link href="/coach/programs" className="group block">
-                            <Card className="bg-slate-50/50 dark:bg-zinc-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/10 border border-slate-200 dark:border-zinc-800 transition-all rounded-3xl h-full shadow-sm hover:shadow-md hover:border-purple-200 dark:hover:border-purple-900/50">
+                            <Card className="bg-slate-50/50 dark:bg-zinc-900/30 hover:bg-lime-50 dark:hover:bg-lime-900/10 border border-slate-200 dark:border-zinc-800 transition-all rounded-3xl h-full shadow-sm hover:shadow-md hover:border-lime-200 dark:hover:border-lime-900/50">
                                 <CardContent className="flex flex-col items-center justify-center p-8 text-center h-full">
-                                    <div className="h-14 w-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                                        <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                    <div className="h-14 w-14 rounded-2xl bg-lime-100 dark:bg-lime-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                                        <Sparkles className="h-6 w-6 text-lime-600 dark:text-lime-400" />
                                     </div>
                                     <h4 className="font-extrabold text-lg text-foreground">{t.aiGenerator}</h4>
                                     <p className="text-sm text-muted-foreground mt-2">{t.aiGeneratorSub}</p>

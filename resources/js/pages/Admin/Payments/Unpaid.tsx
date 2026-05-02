@@ -292,7 +292,7 @@ return 'grace';
                                                                         {latestPayment.method}
                                                                     </Badge>
                                                                     {latestPayment.status === 'completed' && (
-                                                                        <span className="text-[10px] font-bold text-indigo-500">
+                                                                        <span className="text-[10px] font-bold text-emerald-500">
                                                                             ({latestPayment.installment_number} M)
                                                                         </span>
                                                                     )}
@@ -328,7 +328,7 @@ return 'grace';
                                                                 </DropdownMenuItem>
 
                                                                 <DropdownMenuItem onClick={() => setHistoryUser(user)} className="cursor-pointer py-2.5">
-                                                                    <History className="mr-2 h-4 w-4 text-blue-500" /> View Payment History
+                                                                    <History className="mr-2 h-4 w-4 text-teal-500" /> View Payment History
                                                                 </DropdownMenuItem>
 
                                                                 <DropdownMenuItem onClick={() => handleSendReminder(user.id)} className="cursor-pointer py-2.5">
@@ -341,10 +341,10 @@ return 'grace';
                                                                 <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 1)} className="cursor-pointer py-2.5 text-emerald-600 dark:text-emerald-400">
                                                                     <Banknote className="mr-2 h-4 w-4" /> Log 1-Month Cash (300 MAD)
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 3)} className="cursor-pointer py-2.5 text-indigo-600 dark:text-indigo-400">
+                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 3)} className="cursor-pointer py-2.5 text-emerald-600 dark:text-emerald-400">
                                                                     <Banknote className="mr-2 h-4 w-4" /> Log 3-Month Cash (800 MAD)
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 12)} className="cursor-pointer py-2.5 text-purple-600 dark:text-purple-400">
+                                                                <DropdownMenuItem onClick={() => handleMarkPaid(user.id, 12)} className="cursor-pointer py-2.5 text-lime-600 dark:text-lime-400">
                                                                     <Banknote className="mr-2 h-4 w-4" /> Log 1-Year Cash (3000 MAD)
                                                                 </DropdownMenuItem>
 

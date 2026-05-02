@@ -49,7 +49,7 @@ toast.error(flash.error);
 
     const getMethodColor = (method: string) => {
         switch (method) {
-            case 'GET': return 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400';
+            case 'GET': return 'bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-400';
             case 'POST': return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400';
             case 'PUT': return 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400';
             case 'DELETE': return 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400';
@@ -73,7 +73,7 @@ toast.error(flash.error);
                 <div className="admin-page-header">
                     <div>
                         <h2 className="admin-page-title">
-                            <TerminalSquare className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <TerminalSquare className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             {t.title}
                         </h2>
                         <p className="admin-page-subtitle">
@@ -91,7 +91,7 @@ toast.error(flash.error);
                     {/* Toolbar */}
                     <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            <ShieldAlert className="h-4 w-4 text-indigo-500" /> Security & Request History
+                            <ShieldAlert className="h-4 w-4 text-emerald-500" /> Security & Request History
                         </div>
 
                         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -178,7 +178,7 @@ toast.error(flash.error);
 
                                                 <TableCell className="text-right pr-6">
                                                     <details className="cursor-pointer group relative inline-block text-left">
-                                                        <summary className="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 list-none bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md transition-colors">
+                                                        <summary className="inline-flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 list-none bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md transition-colors">
                                                             <Code className="h-3.5 w-3.5 mr-1" /> {t.viewJson}
                                                         </summary>
 

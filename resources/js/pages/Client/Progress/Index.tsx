@@ -6,27 +6,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { useAppLanguage } from '@/hooks/use-app-language';
+import { getPageTranslations } from '@/lang/pages';
 
 export default function ProgressIndex({ assessments, chartData, goals, attendance_rate }: any) {
     const { language, isRTL } = useAppLanguage();
-    const t = {
-        en: { myProgress: 'My Progress', head: 'Progress Analytics', title: 'My Analytics Dashboard', currentWeight: 'Current Weight', attendanceRate: 'Attendance Rate', activeGoals: 'Active Goals', bioTrends: 'Biometric Trends', noAssessments: 'No assessment data available yet.', coachGoals: 'Coach-Assigned Goals', noCoachGoals: 'Your coach has not assigned any goals yet.', achieved: 'Achieved', targetDate: 'Target Date', qualitative: 'Qualitative Goal (Behavioral)', aiStrategy: 'AI Strategy:' },
-        fr: { myProgress: 'Ma progression', head: 'Analytique progression', title: 'Mon tableau analytique', currentWeight: 'Poids actuel', attendanceRate: 'Taux de presence', activeGoals: 'Objectifs actifs', bioTrends: 'Tendances biometrie', noAssessments: "Aucune donnee d'evaluation disponible.", coachGoals: 'Objectifs attribues par le coach', noCoachGoals: "Votre coach n'a assigne aucun objectif.", achieved: 'Atteint', targetDate: 'Date cible', qualitative: 'Objectif qualitatif (comportemental)', aiStrategy: 'Strategie IA :' },
-        ar: { myProgress: 'تقدمي', head: 'تحليلات التقدم', title: 'لوحة تحليلاتي', currentWeight: 'الوزن الحالي', attendanceRate: 'نسبة الحضور', activeGoals: 'اهداف نشطة', bioTrends: 'اتجاهات القياسات الحيوية', noAssessments: 'لا توجد بيانات تقييم بعد.', coachGoals: 'اهداف يحددها المدرب', noCoachGoals: 'لم يقم مدربك بتعيين اهداف بعد.', achieved: 'تم تحقيقه', targetDate: 'تاريخ الهدف', qualitative: 'هدف نوعي (سلوكي)', aiStrategy: 'استراتيجية الذكاء الاصطناعي:' },
-    }[language];
+    const t = getPageTranslations(language).clientProgress;
 
     // Safely calculate completion percentage for numeric goals
     const getProgressPercent = (goal: any) => {
-        if (goal.type !== 'numeric' || !goal.target_value || !goal.current_value) return 0;
+        if (goal.type !== 'numeric' || goal.target_value === null || goal.target_value === undefined) return 0;
+
+        const current = Number(goal.current_value ?? 0);
+        const target = Number(goal.target_value);
+
+        if (!Number.isFinite(target) || target <= 0) return 0;
 
         let percent = 0;
         if (goal.direction === 'asc') {
-            // E.g., Bench press from 50kg to 100kg
-            percent = (goal.current_value / goal.target_value) * 100;
+            percent = (current / target) * 100;
         } else {
-            // E.g., Weight loss from 100kg to 80kg
-            const start = goal.current_value + (goal.current_value - goal.target_value); // Rough starting estimate for the bar
-            percent = ((start - goal.current_value) / (start - goal.target_value)) * 100;
+            // For descending goals (e.g. weight loss): reached when current <= target.
+            if (current <= target) {
+                percent = 100;
+            } else {
+                percent = (target / current) * 100;
+            }
         }
         return Math.min(Math.max(percent, 0), 100).toFixed(0);
     };
@@ -37,14 +41,14 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
 
             <div className="app-page-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
-                    <TrendingUp className="h-8 w-8 text-indigo-600 dark:text-indigo-400" /> {t.title}
+                    <TrendingUp className="h-8 w-8 text-emerald-600 dark:text-emerald-400" /> {t.title}
                 </h2>
 
                 {/* Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="bg-indigo-50 dark:bg-indigo-500/10 border-none shadow-sm rounded-3xl">
+                    <Card className="bg-emerald-50 dark:bg-emerald-500/10 border-none shadow-sm rounded-3xl">
                         <CardContent className="p-6 flex flex-col gap-2">
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t.currentWeight}</span>
+                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t.currentWeight}</span>
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{assessments[0]?.weight || '--'} kg</span>
                         </CardContent>
                     </Card>
@@ -54,9 +58,9 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{attendance_rate}%</span>
                         </CardContent>
                     </Card>
-                    <Card className="bg-purple-50 dark:bg-purple-500/10 border-none shadow-sm rounded-3xl">
+                    <Card className="bg-lime-50 dark:bg-lime-500/10 border-none shadow-sm rounded-3xl">
                         <CardContent className="p-6 flex flex-col gap-2">
-                            <span className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">{t.activeGoals}</span>
+                            <span className="text-sm font-bold text-lime-600 dark:text-lime-400 uppercase tracking-wider">{t.activeGoals}</span>
                             <span className="text-4xl font-black text-slate-900 dark:text-white">{goals.filter((g:any) => g.status === 'active').length}</span>
                         </CardContent>
                     </Card>
@@ -67,7 +71,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                     <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Activity className="h-5 w-5 text-indigo-500" /> {t.bioTrends}
+                                <Activity className="h-5 w-5 text-emerald-500" /> {t.bioTrends}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="h-[350px] p-6 pt-0">
@@ -76,15 +80,15 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                     <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                         <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
                                         <YAxis domain={['dataMin - 5', 'dataMax + 5']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                                         <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#4f46e5" strokeWidth={3} fill="url(#colorWeight)" />
+                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#10b981" strokeWidth={3} fill="url(#colorWeight)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             ) : (
@@ -97,7 +101,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                     <Card className="shadow-sm rounded-3xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Target className="h-5 w-5 text-purple-500" /> {t.coachGoals}
+                                <Target className="h-5 w-5 text-lime-500" /> {t.coachGoals}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6 overflow-y-auto max-h-[350px] pr-2">
@@ -114,7 +118,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                             {goal.deadline && <p className="text-xs text-slate-500 mt-1">{t.targetDate}: {new Date(goal.deadline).toLocaleDateString()}</p>}
                                         </div>
                                         {goal.type === 'numeric' && (
-                                            <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                                            <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
                                                 {goal.current_value} / {goal.target_value} {goal.unit}
                                             </span>
                                         )}
@@ -123,7 +127,7 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                     {goal.type === 'numeric' ? (
                                         <div className="w-full bg-slate-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden">
                                             <div
-                                                className={`h-2.5 rounded-full transition-all duration-1000 ${goal.status === 'reached' ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                                                className={`h-2.5 rounded-full transition-all duration-1000 ${goal.status === 'reached' ? 'bg-emerald-500' : 'bg-emerald-500'}`}
                                                 style={{ width: `${getProgressPercent(goal)}%` }}
                                             />
                                         </div>
@@ -134,8 +138,8 @@ export default function ProgressIndex({ assessments, chartData, goals, attendanc
                                     )}
 
                                     {goal.ai_strategy_advice && (
-                                        <div className="mt-3 p-3 bg-indigo-50/50 dark:bg-indigo-500/5 rounded-xl border border-indigo-100 dark:border-indigo-500/10 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">{t.aiStrategy}</strong>
+                                        <div className="mt-3 p-3 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-xl border border-emerald-100 dark:border-emerald-500/10 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            <strong className="text-emerald-600 dark:text-emerald-400 block mb-1">{t.aiStrategy}</strong>
                                             {goal.ai_strategy_advice}
                                         </div>
                                     )}

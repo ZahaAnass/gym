@@ -62,86 +62,83 @@
 }
 
 :root {
-    --background: oklch(0.99 0 0);
-    --foreground: oklch(0.15 0.02 240); /* Texte sombre avec pointe de bleu */
+    --background: oklch(0.985 0.008 120);
+    --foreground: oklch(0.24 0.03 155);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.15 0.02 240);
+    --card-foreground: oklch(0.24 0.03 155);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.15 0.02 240);
+    --popover-foreground: oklch(0.24 0.03 155);
 
-    /* 🔥 Fitness Lime Neon pour le mode clair */
-    --primary: oklch(0.82 0.18 135);
-    --primary-foreground: oklch(0.15 0.02 240);
+    /* Brand system aligned to landing brand */
+    --primary: oklch(0.56 0.15 138);
+    --primary-foreground: oklch(0.985 0.008 120);
 
-    --secondary: oklch(0.965 0.02 230);
-    --secondary-foreground: oklch(0.22 0.03 240);
-    --muted: oklch(0.968 0.015 232);
-    --muted-foreground: oklch(0.5 0.03 240);
-    --accent: oklch(0.962 0.02 228);
-    --accent-foreground: oklch(0.20 0.02 240);
+    --secondary: oklch(0.95 0.024 141);
+    --secondary-foreground: oklch(0.28 0.04 156);
+    --muted: oklch(0.962 0.016 130);
+    --muted-foreground: oklch(0.45 0.035 154);
+    --accent: oklch(0.94 0.03 139);
+    --accent-foreground: oklch(0.25 0.04 156);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.98 0 0);
-    --border: oklch(0.9 0.02 236);
-    --input: oklch(0.9 0.02 236);
-    --ring: oklch(0.82 0.18 135); /* Les contours de focus sont vert néon */
+    --border: oklch(0.9 0.016 145);
+    --input: oklch(0.9 0.016 145);
+    --ring: oklch(0.56 0.15 138);
 
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.75rem; /* Un peu plus arrondi pour un look App moderne */
+    --radius: 0.75rem;
 
-    --sidebar: oklch(0.98 0.01 240);
-    --sidebar-foreground: oklch(0.15 0.02 240);
-    --sidebar-primary: oklch(0.82 0.18 135);
-    --sidebar-primary-foreground: oklch(0.15 0.02 240);
-    --sidebar-accent: oklch(0.94 0.02 240);
-    --sidebar-accent-foreground: oklch(0.15 0.02 240);
-    --sidebar-border: oklch(0.92 0.01 240);
-    --sidebar-ring: oklch(0.82 0.18 135);
+    --sidebar: oklch(0.972 0.012 130);
+    --sidebar-foreground: oklch(0.24 0.03 155);
+    --sidebar-primary: oklch(0.56 0.15 138);
+    --sidebar-primary-foreground: oklch(0.985 0.008 120);
+    --sidebar-accent: oklch(0.93 0.024 140);
+    --sidebar-accent-foreground: oklch(0.24 0.03 155);
+    --sidebar-border: oklch(0.9 0.016 145);
+    --sidebar-ring: oklch(0.56 0.15 138);
 }
 
 .dark {
-    /* 🌑 Fond sombre type Cyber-Fitness (Charbon profond au lieu de noir pur) */
-    --background: oklch(0.15 0.02 250);
-    --foreground: oklch(0.98 0 0);
-    --card: oklch(0.18 0.02 250);
+    --background: oklch(0.17 0.02 154);
+    --foreground: oklch(0.96 0.01 130);
+    --card: oklch(0.21 0.022 154);
     --card-foreground: oklch(0.98 0 0);
-    --popover: oklch(0.18 0.02 250);
+    --popover: oklch(0.21 0.022 154);
     --popover-foreground: oklch(0.98 0 0);
 
-    /* 🔥 Fitness Lime Neon pour le mode sombre */
-    --primary: oklch(0.82 0.18 135);
-    --primary-foreground: oklch(0.12 0.02 250); /* Texte noir sur bouton vert */
+    --primary: oklch(0.74 0.18 138);
+    --primary-foreground: oklch(0.16 0.02 154);
 
-    --secondary: oklch(0.27 0.045 250);
+    --secondary: oklch(0.29 0.034 152);
     --secondary-foreground: oklch(0.98 0 0);
-    --muted: oklch(0.24 0.04 248);
-    --muted-foreground: oklch(0.74 0.03 248);
-    --accent: oklch(0.27 0.05 246);
+    --muted: oklch(0.25 0.028 154);
+    --muted-foreground: oklch(0.76 0.022 145);
+    --accent: oklch(0.3 0.038 152);
     --accent-foreground: oklch(0.98 0 0);
     --destructive: oklch(0.45 0.15 25.723);
     --destructive-foreground: oklch(0.98 0 0);
-    --border: oklch(0.31 0.035 248);
-    --input: oklch(0.31 0.035 248);
-    --ring: oklch(0.82 0.18 135);
+    --border: oklch(0.34 0.026 152);
+    --input: oklch(0.34 0.026 152);
+    --ring: oklch(0.74 0.18 138);
 
-    --chart-1: oklch(0.82 0.18 135); /* Les graphiques Recharts utiliseront le vert néon */
+    --chart-1: oklch(0.74 0.18 138);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
 
-    /* 🌑 Sidebar sombre avec sélection Verte */
-    --sidebar: oklch(0.13 0.02 250);
-    --sidebar-foreground: oklch(0.98 0 0);
-    --sidebar-primary: oklch(0.82 0.18 135);
-    --sidebar-primary-foreground: oklch(0.12 0.02 250);
-    --sidebar-accent: oklch(0.22 0.03 250);
+    --sidebar: oklch(0.14 0.016 154);
+    --sidebar-foreground: oklch(0.96 0.01 130);
+    --sidebar-primary: oklch(0.74 0.18 138);
+    --sidebar-primary-foreground: oklch(0.16 0.02 154);
+    --sidebar-accent: oklch(0.23 0.022 154);
     --sidebar-accent-foreground: oklch(0.98 0 0);
-    --sidebar-border: oklch(0.20 0.03 250);
-    --sidebar-ring: oklch(0.82 0.18 135);
+    --sidebar-border: oklch(0.28 0.02 154);
+    --sidebar-ring: oklch(0.74 0.18 138);
 }
 
 @layer base {
@@ -151,6 +148,7 @@
 
     body {
         @apply bg-background text-foreground;
+        background-image: radial-gradient(circle at 0% 0%, color-mix(in oklab, var(--primary) 10%, transparent) 0%, transparent 38%);
     }
 }
 
@@ -198,17 +196,17 @@
     .fc-theme-tailwind {
         --fc-border-color: rgb(226 232 240);
         --fc-page-bg-color: transparent;
-        --fc-today-bg-color: rgb(99 102 241 / 0.08);
+        --fc-today-bg-color: rgb(16 185 129 / 0.08);
         --fc-neutral-bg-color: rgb(248 250 252);
-        --fc-button-bg-color: rgb(99 102 241);
-        --fc-button-border-color: rgb(79 70 229);
-        --fc-button-hover-bg-color: rgb(79 70 229);
-        --fc-button-hover-border-color: rgb(67 56 202);
-        --fc-button-active-bg-color: rgb(67 56 202);
-        --fc-button-active-border-color: rgb(67 56 202);
-        --fc-event-bg-color: rgb(99 102 241 / 0.16);
-        --fc-event-border-color: rgb(99 102 241 / 0.35);
-        --fc-event-text-color: rgb(49 46 129);
+        --fc-button-bg-color: rgb(5 150 105);
+        --fc-button-border-color: rgb(4 120 87);
+        --fc-button-hover-bg-color: rgb(4 120 87);
+        --fc-button-hover-border-color: rgb(6 95 70);
+        --fc-button-active-bg-color: rgb(6 95 70);
+        --fc-button-active-border-color: rgb(6 95 70);
+        --fc-event-bg-color: rgb(16 185 129 / 0.16);
+        --fc-event-border-color: rgb(16 185 129 / 0.35);
+        --fc-event-text-color: rgb(6 78 59);
     }
 
     .dark .fc-theme-tailwind {
@@ -216,16 +214,16 @@
         --fc-page-bg-color: transparent;
         --fc-neutral-bg-color: rgb(24 24 27);
         --fc-list-event-hover-bg-color: rgb(39 39 42);
-        --fc-today-bg-color: rgb(99 102 241 / 0.14);
-        --fc-button-bg-color: rgb(79 70 229);
-        --fc-button-border-color: rgb(67 56 202);
-        --fc-button-hover-bg-color: rgb(67 56 202);
-        --fc-button-hover-border-color: rgb(55 48 163);
-        --fc-button-active-bg-color: rgb(55 48 163);
-        --fc-button-active-border-color: rgb(55 48 163);
-        --fc-event-bg-color: rgb(99 102 241 / 0.22);
-        --fc-event-border-color: rgb(99 102 241 / 0.45);
-        --fc-event-text-color: rgb(224 231 255);
+        --fc-today-bg-color: rgb(16 185 129 / 0.14);
+        --fc-button-bg-color: rgb(5 150 105);
+        --fc-button-border-color: rgb(4 120 87);
+        --fc-button-hover-bg-color: rgb(4 120 87);
+        --fc-button-hover-border-color: rgb(6 95 70);
+        --fc-button-active-bg-color: rgb(6 95 70);
+        --fc-button-active-border-color: rgb(6 95 70);
+        --fc-event-bg-color: rgb(16 185 129 / 0.22);
+        --fc-event-border-color: rgb(16 185 129 / 0.45);
+        --fc-event-text-color: rgb(209 250 229);
         color: rgb(248 250 252);
     }
 

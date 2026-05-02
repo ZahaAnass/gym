@@ -88,7 +88,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3">
-                        <Button onClick={() => setIsAssignModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md rounded-xl">
+                        <Button onClick={() => setIsAssignModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl">
                             <Dumbbell className="mr-2 h-4 w-4" /> {t.assignProgram}
                         </Button>
                     </div>
@@ -98,7 +98,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
                         <CardContent className="p-6">
-                            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2"><TrendingDown className="h-4 w-4 text-indigo-500"/> {t.currentWeight}</p>
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2"><TrendingDown className="h-4 w-4 text-emerald-500"/> {t.currentWeight}</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-slate-900 dark:text-white">{latestAssessment?.weight || '--'}</span>
                                 <span className="text-sm font-bold text-slate-500">kg</span>
@@ -115,11 +115,11 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                     </Card>
 
                     {/* 🔥 FIXED: Removed max-h-[160px] so the programs actually show up! */}
-                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-indigo-50 dark:bg-indigo-500/5 flex flex-col">
+                    <Card className="shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl bg-emerald-50 dark:bg-emerald-500/5 flex flex-col">
                         <CardContent className="p-6 flex-grow flex flex-col">
                             <div className="flex justify-between items-center mb-4">
-                                <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t.assignedPrograms}</p>
-                                <Badge className="bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-none">
+                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t.assignedPrograms}</p>
+                                <Badge className="bg-emerald-200 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-none">
                                     {client.assigned_programs?.length || 0}
                                 </Badge>
                             </div>
@@ -127,7 +127,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                             <div className="space-y-3">
                                 {client.assigned_programs && client.assigned_programs.length > 0 ? (
                                     client.assigned_programs.map((program: any) => (
-                                        <div key={program.id} className="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                                        <div key={program.id} className="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate">{program.title}</h4>
                                                 <p className="text-xs text-slate-500 mt-0.5">{t.assignedPlan}</p>
@@ -157,7 +157,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                 <div className="grid lg:grid-cols-3 gap-6">
                     <Card className="lg:col-span-2 shadow-sm border-slate-200 dark:border-zinc-800 rounded-2xl">
                         <CardHeader className="border-b border-slate-100 dark:border-zinc-800 pb-4">
-                            <CardTitle className="text-lg flex items-center gap-2"><Activity className="h-5 w-5 text-indigo-500"/> {t.weightProgression}</CardTitle>
+                            <CardTitle className="text-lg flex items-center gap-2"><Activity className="h-5 w-5 text-emerald-500"/> {t.weightProgression}</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[300px] p-6 pt-4">
                             {chartData.biometrics.length > 0 ? (
@@ -165,15 +165,15 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                                     <AreaChart data={chartData.biometrics} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                         <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 500}} dy={10} />
                                         <YAxis domain={['dataMin - 2', 'dataMax + 2']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 500}} />
                                         <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
-                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#4f46e5" strokeWidth={4} fill="url(#colorWeight)" />
+                                        <Area type="monotone" dataKey="weight" name="Weight (kg)" stroke="#10b981" strokeWidth={4} fill="url(#colorWeight)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             ) : (
@@ -197,7 +197,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
                                             <div key={session.id} className="p-4 hover:bg-slate-50 dark:hover:bg-zinc-900/50">
                                                 <h4 className="font-bold text-sm text-slate-900 dark:text-white">{session.title}</h4>
                                                 <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-1">
-                                                    <Clock className="h-3 w-3 text-indigo-400" />
+                                                    <Clock className="h-3 w-3 text-emerald-400" />
                                                     {new Date(session.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </div>
                                             </div>
@@ -272,7 +272,7 @@ export default function ClientShow({ client, recentSessions, upcomingSessions, a
 
                         <DialogFooter>
                             <Button type="button" variant="ghost" onClick={() => setIsAssignModalOpen(false)}>{t.cancel}</Button>
-                            <Button type="submit" disabled={processing || !data.program_id} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                            <Button type="submit" disabled={processing || !data.program_id} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                                 {processing ? t.assigning : t.assign}
                             </Button>
                         </DialogFooter>
