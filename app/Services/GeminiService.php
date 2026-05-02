@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 class GeminiService
 {
     protected string $apiKey;
-    protected string $model = 'models/gemini-2.5-flash';
 
     public function __construct()
     {
@@ -30,36 +29,61 @@ class GeminiService
         }
 
         try {
-            $url = "https://generativelanguage.googleapis.com/v1beta/{$this->model}:generateContent?key={$this->apiKey}";
-
-            // Increased timeout to 30 seconds for long workout generation
-            $response = Http::timeout(30)->post($url, [
-                'contents' => [['parts' => [['text' => $prompt."\n\nReturn ONLY valid JSON. No explanation, no markdown formatting."]]]],
+            $models = config('services.gemini.models', [
+                'models/gemini-2.5-flash',
+                'models/gemini-2.0-flash',
             ]);
+            $maxAttempts = (int) config('services.gemini.max_attempts', 3);
+            $timeout = (int) config('services.gemini.timeout', 30);
 
-            if ($response->failed()) {
-                Log::error('Gemini API Request Failed: ' . $response->body());
-                return null;
-            }
+            foreach ($models as $model) {
+                for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                    $url = "https://generativelanguage.googleapis.com/v1beta/{$model}:generateContent?key={$this->apiKey}";
 
-            $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    $response = Http::timeout($timeout)->post($url, [
+                        'contents' => [[
+                            'parts' => [[
+                                'text' => $prompt . "\n\nReturn ONLY valid JSON. No explanation, no markdown formatting.",
+                            ]],
+                        ]],
+                    ]);
 
-            if (!$text) {
-                return null;
-            }
+                    if ($response->ok()) {
+                        $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
-            // Clean the response from markdown block ticks if the AI accidentally includes them
-            $clean = preg_replace('/```json|```/i', '', trim($text));
-            $parsed = json_decode($clean, true);
+                        if (! $text) {
+                            break;
+                        }
 
-            // 3. ONLY cache if the JSON was successfully parsed
-            if ($parsed && isset($parsed['title']) && isset($parsed['description'])) {
-                Cache::put($cacheKey, $parsed, now()->addDays(7));
-                return $parsed;
+                        // Clean markdown wrappers if model accidentally returns fenced JSON.
+                        $clean = preg_replace('/```json|```/i', '', trim($text));
+                        $parsed = json_decode($clean, true);
+
+                        // Cache any valid JSON object/array. Controllers validate required keys.
+                        if (is_array($parsed) && ! empty($parsed)) {
+                            Cache::put($cacheKey, $parsed, now()->addDays(7));
+                            return $parsed;
+                        }
+
+                        break;
+                    }
+
+                    $status = $response->status();
+                    $body = $response->body();
+
+                    // Retry transient overload/server failures with exponential backoff.
+                    if (in_array($status, [429, 500, 502, 503, 504], true) && $attempt < $maxAttempts) {
+                        Log::warning("Gemini transient failure ({$status}) on {$model}, attempt {$attempt}. Retrying...");
+                        usleep((int) (250000 * (2 ** ($attempt - 1))));
+                        continue;
+                    }
+
+                    Log::error("Gemini API Request Failed ({$status}) [{$model}]: {$body}");
+                    break;
+                }
             }
 
             return null;
-
         } catch (\Exception $e) {
             Log::error('Gemini API Exception: ' . $e->getMessage());
             return null;

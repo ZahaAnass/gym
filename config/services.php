@@ -16,6 +16,9 @@ return [
 
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
+        'models' => array_filter(array_map('trim', explode(',', env('GEMINI_MODELS', 'models/gemini-2.5-flash,models/gemini-2.0-flash')))),
+        'max_attempts' => (int) env('GEMINI_MAX_ATTEMPTS', 3),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 30),
     ],
 
     'postmark' => [
